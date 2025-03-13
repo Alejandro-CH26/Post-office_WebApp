@@ -1,29 +1,33 @@
-/* Navbar container */
+
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #2d2c72; /* USPS-style navy blue */
+    background-color: #2d2c72;
     padding: 15px 30px;
   }
   
-  /* Logo styling */
-  .logo {
-    color: white;
-    font-size: 24px;
+ 
+  .nav-logo {
+    font-size: 16px; 
     font-weight: bold;
+    color: #2d2c72; 
+    text-decoration: none;
+    margin-right: 20px; 
+    list-style: none; 
   }
   
-  /* Navigation Links */
+  
+  
   .nav-links {
     list-style: none;
     display: flex;
-    gap: 20px; /* Space between links */
+    gap: 20px; 
     padding: 0;
     margin: 0;
   }
   
-  /* Individual Link Styles */
+  
   .nav-links li {
     display: inline;
   }

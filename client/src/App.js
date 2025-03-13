@@ -1,41 +1,37 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar"; // Keep Navbar as a separate component
-import HomePage from "./pages/HomePage";
+import Navbar from "./components/Navbar"; // Navbar component
+import HeroSection from "./components/HeroSection"; // Import Hero Section
+import SearchPackage from "./components/SearchPackage"; 
+import HomePage from "./pages/HomePage"; //could be deleted empty page rn
 import Faq from "./pages/Faq";
 import TrackPackage from "./pages/TrackPackage";
 import LogIn from "./pages/LogIn";
 import Register from "./pages/Register";
 import BuyInventory from "./pages/BuyInventory";
-import "./App.css"; // Ensure styling is applied
+import "./App.css"; // Global styles
 
 function App() {
   return (
     <Router>
       {/* Header */}
-      <header className="header">Post Office</header>
+     
 
       {/* Navigation Bar */}
       <Navbar /> 
 
-      {/* Hero Section - Only on Home Page */}
+      {/* Hero Section and Search Package - Only on Home Page */}
       <Routes>
-        <Route
-          path="/"
-          element={
-            <div className="hero-section">
-              <h1>Online Shipping Made Easy</h1>
-              <p>Use our service to pay for postage, print your own labels, and schedule a pickup.</p>
-              <button>Print a Label</button>
-              <button>Schedule a Pickup</button>
-            </div>
-          }
-        />
+        <Route path="/" element={
+          <>
+            <HeroSection /> 
+            <SearchPackage />  
+          </>
+        } />
       </Routes>
 
       {/* Routing to Different Pages */}
       <Routes>
-        <Route path="/" element={<HomePage />} />
         <Route path="/Faq" element={<Faq />} />
         <Route path="/TrackPackage" element={<TrackPackage />} />
         <Route path="/LogIn" element={<LogIn />} />
