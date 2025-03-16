@@ -7,7 +7,12 @@ import TrackPackage from "./pages/TrackPackage";
 import LogIn from "./pages/LogIn";
 import Register from "./pages/Register";
 import BuyInventory from "./pages/BuyInventory";
+import WarehouseEmployeeDashboard from "./pages/WarehouseEmployeeDashboard";
+import WarehouseAssignPackages from "./pages/WarehouseAssignPackages";
+import ClockInOut from "./pages/ClockInOut";
 import "./App.css"; // Ensure styling is applied
+
+var userRole = "guest";
 
 function App() {
   return (
@@ -16,7 +21,7 @@ function App() {
       <header className="header">Post Office</header>
 
       {/* Navigation Bar */}
-      <Navbar /> 
+      <Navbar userRole={userRole}/> 
 
       {/* Hero Section - Only on Home Page */}
       <Routes>
@@ -41,6 +46,9 @@ function App() {
         <Route path="/LogIn" element={<LogIn />} />
         <Route path="/Register" element={<Register />} />
         <Route path="/BuyInventory" element={<BuyInventory />} />
+        <Route path="/WarehouseDashboard" element={<WarehouseEmployeeDashboard />} />
+        <Route path="/WarehouseAssignPackages" element={<WarehouseAssignPackages />} />
+        <Route path="/ClockInOut" element={<ClockInOut />} />
       </Routes>
 
       {/* Footer */}

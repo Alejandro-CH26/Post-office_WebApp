@@ -2,11 +2,12 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "./Navbar.css"; // Ensure this file exists
 
-function Navbar() {
+function Navbar(props) {
   return (
     <nav className="navbar">
       <div className="logo">Post Office</div>
-      <ul className="nav-links">
+      {props.userRole === "guest" && (
+        <ul className="nav-links">
         <li><Link to="/">Home</Link></li>
         <li><Link to="/faq">FAQ</Link></li>
         <li><Link to="/trackpackage">Track a Package</Link></li>
@@ -14,6 +15,7 @@ function Navbar() {
         <li><Link to="/register">Register</Link></li>
         <li><Link to="/buyinventory">Buy Stamps/Inventory</Link></li>
       </ul>
+      )}
     </nav>
   );
 }
