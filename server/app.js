@@ -161,7 +161,7 @@ pool.query(
 */
 
 /*
-Employee Dashboard
+Employee Dashboard Routing
 else if (parsedUrl.pathname === '/employee' && req.method === 'GET') {
     // Fetch employee data
     const cookies = req.headers.cookie;
