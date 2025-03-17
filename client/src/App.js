@@ -12,6 +12,7 @@ import BuyInventory from "./pages/BuyInventory";
 import WarehouseEmployeeDashboard from "./pages/WarehouseEmployeeDashboard";
 import WarehouseAssignPackages from "./pages/WarehouseAssignPackages";
 import ClockInOut from "./pages/ClockInOut";
+import EmployeeLogInPage from "./pages/EmployeeLogIn";
 import "./App.css"; // Ensure styling is applied
 
 var userRole = "guest";
@@ -45,6 +46,7 @@ function App() {
         <Route path="/WarehouseDashboard" element={<WarehouseEmployeeDashboard />} />
         <Route path="/WarehouseAssignPackages" element={<WarehouseAssignPackages />} />
         <Route path="/ClockInOut" element={<ClockInOut />} />
+        <Route path="/EmployeeLogIn" element={<EmployeeLogInPage/>} />
       </Routes>
 
       {/* Footer */}
