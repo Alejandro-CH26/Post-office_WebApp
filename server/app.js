@@ -57,7 +57,7 @@ http.createServer(function (req, res) {
                         // Set cookie with the employeeID so that we know which employee is sending requests
                         res.writeHead(200, {
                             'Content-Type': 'application/json',
-                            'Set-Cookie': `employeeID=${employeeID}; HttpOnly;`, 
+                            'Set-Cookie': `employeeID=${employeeID}; Path=/; HttpOnly; SameSite=None; Secure;`, 
                             "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
                             "Access-Control-Allow-Credentials": "true", // Include if you're using cookies
                         });
@@ -77,133 +77,71 @@ http.createServer(function (req, res) {
                 }
             )
         });
-    }
+    } else if (q.pathname === '/warehousedashboard' && req.method === 'GET') {
+        // Fetch employee data
+        var cookies = req.headers?.cookie;
+        console.log("Cookies", cookies);
+        if (cookies) {
+            var employeeID = cookies.split('; ').find(row => row.startsWith('employeeID='))?.split('=')[1];
+            if (employeeID) {
+                connection.query(
+                    'SELECT First_Name FROM employees WHERE employee_ID = ?',
+                    [employeeID],
+                    (err, results) => {
+                        if (err) {
+                            console.error('Error accessing database', err);
+                            res.writeHead(500, { 
+                                'Content-Type': 'application/json',
+                                "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
+                                "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
+                            });
+                            res.end(JSON.stringify({ error: 'Database Query Error' }));
+                            return;
+                        }
 
-//     if (q.pathname != "/") {
-//       var filename = "." + q.pathname + ".html";
-//       console.log(filename);
-//       fs.readFile(filename, function(err, data) {
-//         if (err) {
-//           console.log("Here");
-//           fs.readFile("404.html", function(err404, data){
-//             console.log("Herererer");
-//             if (err404) {
-//               res.writeHead(404, {'Content-Type': 'text/html'});
-//               return res.end("Somehow, we cannot find the 404.html file. This is probably all your fault.");
-//             }
-//             res.writeHead(200, {'Content-Type': 'text/html'});
-//             res.write(data);
-//             return res.end();
-//           });
-//         } else {
-//           res.writeHead(200, {'Content-Type': 'text/html'});
-//           res.write(data);
-//           return res.end();
-//         }
-//       });
-//    } else {
-//       fs.readFile("index.html", function(err, data) {
-//         if (err) {
-//           fs.readFile("404.html", function(err, data){
-//             if (err) {
-//               res.writeHead(404, {'Content-Type': 'text/html'});
-//               return res.end("Error 404");
-//             }
-//             res.writeHead(200, {'Content-Type': 'text/html'});
-//             res.write(data);
-//             return res.end();
-//           });
-//         }
-//         res.writeHead(200, {"Content-Type": "text/html"});
-//         res.write(data);
-//         return res.end();
-//       });
-//     }
+                        if (results.length > 0) {
+                            res.writeHead(200, { 
+                                'Content-Type': 'application/json',
+                                "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
+                                "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
+                            });
+                            res.end(JSON.stringify({ name: results[0].First_Name }));
+                        } else {
+                            res.writeHead(404, { 
+                                'Content-Type': 'application/json',
+                                "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
+                                "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
+                            });
+                            res.end(JSON.stringify({ error: 'Employee not found' }));
+                        }
+                    
+                    }
+                );
+            } else {
+                res.writeHead(401, { 
+                    'Content-Type': 'application/json',
+                    "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
+                    "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
+                 });
+                res.end(JSON.stringify({ error: 'Unauthorized, incorrect employee ID' }));
+            }
+        } else {
+            res.writeHead(401, { 
+                'Content-Type': 'application/json',
+                "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
+                "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
+             });
+            res.end(JSON.stringify({ error: 'Unauthorized, no cookies' }));
+        }
+
+    } else {
+        res.writeHead(404, { 
+            'Content-Type': 'application/json',
+            "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
+            "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
+         });
+        res.end(JSON.stringify({ error: 'Not Found' }));
+    }
   }).listen(process.env.PORT, () => {
     console.log('Server running on port', process.env.PORT);
   });
-
-// Run a test query
-// connection.query('SELECT * FROM users', (err, results) => {
-//     if (err) {
-//         console.error('❌ Query Error:', err);
-//         return;
-//     }
-//     console.log('✅ Current Time from DB:', results[0]);
-// });
-
-
-/*
-DB
-const mysql = require('mysql2');
-
-const pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: 3306, // Default MySQL port
-    connectionLimit: 10, // Number of connections in the pool
-});
-
-module.exports = pool.promise(); // Export a promise-based pool for async/await
-*/
-
-/*
-App
-const pool = require("./db");
-
-pool.query(
-    "SELECT Employee_ID FROM employees WHERE employee_Username = ? AND employee_Password = ?",
-    [username, password],
-    (err, results) => {
-        ...
-*/
-
-/*
-Employee Dashboard Routing
-else if (parsedUrl.pathname === '/employee' && req.method === 'GET') {
-    // Fetch employee data
-    const cookies = req.headers.cookie;
-    if (cookies) {
-      const sessionId = cookies
-        .split('; ')
-        .find(row => row.startsWith('sessionId='))
-        ?.split('=')[1];
-
-      const employeeId = sessionStore[sessionId];
-      if (employeeId) {
-        connection.query(
-          'SELECT name FROM employees WHERE id = ?',
-          [employeeId],
-          (err, results) => {
-            if (err) {
-              console.error('❌ Database Query Error:', err);
-              res.writeHead(500, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ error: 'Database Query Error' }));
-              return;
-            }
-
-            if (results.length > 0) {
-              res.writeHead(200, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ name: results[0].name }));
-            } else {
-              res.writeHead(404, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ error: 'Employee not found' }));
-            }
-          }
-        );
-      } else {
-        res.writeHead(401, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Unauthorized' }));
-      }
-    } else {
-      res.writeHead(401, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Unauthorized' }));
-    }
-  } else {
-    res.writeHead(404, { 'Content-Type': 'text/plain' });
-    res.end('Not Found');
-  }
-});
-*/

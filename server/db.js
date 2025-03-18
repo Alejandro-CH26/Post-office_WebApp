@@ -9,7 +9,7 @@ console.log("🔍 DB_HOST:", process.env.SSL_CA);
 const mysql = require('mysql2');
 const fs = require('fs');
 
-const connection = mysql.createConnection({
+const connection = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
@@ -17,15 +17,8 @@ const connection = mysql.createConnection({
     port:'3306',
     ssl: {
         ca: fs.readFileSync(process.env.SSL_CA)
-    }
-});
-
-connection.connect((err) => {
-    if (err) {
-        console.error('❌ Database Connection Error:', err);
-        return;
-    }
-    console.log('✅ Connected to MySQL with SSL');
+    },
+    connectionLimit: 10
 });
 
 module.exports = connection;

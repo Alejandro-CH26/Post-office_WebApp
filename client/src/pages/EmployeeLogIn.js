@@ -13,7 +13,8 @@ function EmployeeLogInPage() {
         var response = await fetch("http://localhost:5001/employeelogin", {
           method: "POST",
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
+          body: JSON.stringify({ username, password }),
+          credentials: "include"
         });
 
         console.log({username, password});

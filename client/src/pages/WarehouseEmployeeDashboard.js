@@ -1,17 +1,53 @@
-import React from "react";
+import React, { useEffect, useState } from 'react';
+
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 
 function WarehouseEmployeeDashboard() {
-  var employeeName = "Nathaniel Bartholemew";
+  const [employeeName, setEmployeeName] = useState("");
+  
+  const allCookies = document.cookie;
+  console.log(allCookies);
+  useEffect(() => {
+    async function fetchEmployeeData() {
+      try {
+        const response = await fetch('http://localhost:5001/warehousedashboard', {
+          method: "GET",
+          credentials: 'include', // Send the employeeID cookie (and all other cookies) with the request
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setEmployeeName(data.name)
+        } else {
+          setEmployeeName("Unauthorized User")
+        }
+      } catch (err) {
+        console.error('Error fetching employee data:', err);
+        setEmployeeName('Error loading name');
+      }
+    }
+
+    fetchEmployeeData();
+
+  }, []);
+
+  const buttonStyle = {
+    display: 'block',
+    width: '100%',
+    margin: '10px 0',
+    padding: '10px',
+  };
+
   return (
-    <div style={{ textAlign: "center", padding: "20px" }}>
+    <div style={{ textAlign: 'center', padding: '20px' }}>
       <h1>Hello, {employeeName}</h1>
-      <Link to="/view-packages">
-      <button style={{ margin: "10px", padding: "10px", width: "100%", display:"block" }}>View Packages</button>
+      <Link to="/WarehouseAssignPackages">
+      <button style={buttonStyle}>View Packages</button>
       </Link>
-      <Link to="/clock-in-out">
-      <button style={{ margin: "10px", padding: "10px", width: "100%", display:"block" }}>Clock In/Out</button>
+      <Link to ="/ClockInOut">
+      <button style={buttonStyle}>Clock In/Out</button>
       </Link>
+      
     </div>
   );
 }
