@@ -7,6 +7,8 @@ import TrackPackage from "./pages/TrackPackage";
 import LogIn from "./pages/LogIn";
 import Register from "./pages/Register";
 import BuyInventory from "./pages/BuyInventory";
+import Notifications from "./pages/Notifications"; 
+import Reports from "./pages/Reports";
 import "./App.css"; // Ensure styling is applied
 
 function App() {
@@ -41,6 +43,8 @@ function App() {
         <Route path="/LogIn" element={<LogIn />} />
         <Route path="/Register" element={<Register />} />
         <Route path="/BuyInventory" element={<BuyInventory />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/reports" element={<Reports />} />
       </Routes>
 
       {/* Footer */}
