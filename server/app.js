@@ -1,4 +1,4 @@
-const connection = require('../server/db');
+const connection = require('./db');
 
 // Run a test query
 connection.query('SELECT * FROM users', (err, results) => {

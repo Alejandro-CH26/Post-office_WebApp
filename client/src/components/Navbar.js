@@ -13,6 +13,7 @@ function Navbar() {
         <li><Link to="/login">Log in</Link></li>
         <li><Link to="/register">Register</Link></li>
         <li><Link to="/buyinventory">Buy Stamps/Inventory</Link></li>
+        <li><Link to="/Onboard">Employee sign-up</Link></li>
       </ul>
     </nav>
   );

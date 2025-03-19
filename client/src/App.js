@@ -8,6 +8,7 @@ import LogIn from "./pages/LogIn";
 import Register from "./pages/Register";
 import BuyInventory from "./pages/BuyInventory";
 import "./App.css"; // Ensure styling is applied
+import Onboard from "./pages/Onboard";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
         <Route path="/LogIn" element={<LogIn />} />
         <Route path="/Register" element={<Register />} />
         <Route path="/BuyInventory" element={<BuyInventory />} />
+        <Route path="/Onboard" element={<Onboard />} />
       </Routes>
 
       {/* Footer */}
