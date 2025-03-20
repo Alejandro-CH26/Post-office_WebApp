@@ -10,7 +10,7 @@ function WarehouseEmployeeDashboard() {
   useEffect(() => {
     async function fetchEmployeeData() {
       try {
-        const response = await fetch('http://localhost:5001/warehousedashboard', {
+        const response = await fetch('http://localhost:5001/employee/warehousedashboard', {
           method: "GET",
           credentials: 'include', // Send the employeeID cookie (and all other cookies) with the request
         });
@@ -41,10 +41,10 @@ function WarehouseEmployeeDashboard() {
   return (
     <div style={{ textAlign: 'center', padding: '20px' }}>
       <h1>Hello, {employeeName}</h1>
-      <Link to="/WarehouseAssignPackages">
+      <Link to="/Employee/WarehouseAssignPackages">
       <button style={buttonStyle}>View Packages</button>
       </Link>
-      <Link to ="/ClockInOut">
+      <Link to ="/Employee/ClockInOut">
       <button style={buttonStyle}>Clock In/Out</button>
       </Link>
       

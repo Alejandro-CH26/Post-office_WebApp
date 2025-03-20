@@ -10,7 +10,7 @@ function EmployeeLogInPage() {
     async function handleLogIn() {
       try {
         // Send a post request with the username and password and store the response
-        var response = await fetch("http://localhost:5001/employeelogin", {
+        var response = await fetch("http://localhost:5001/employee/login", {
           method: "POST",
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password }),
@@ -25,7 +25,7 @@ function EmployeeLogInPage() {
         // If the username and password are correct (the server returns no errors)
         if (response.ok) {
           console.log("Log In Successful!", data);
-          window.location.href = "/warehousedashboard";
+          window.location.href = "/employee/warehousedashboard";
         } else {
           console.log("Incorrect username or password");
           setError(data.error);

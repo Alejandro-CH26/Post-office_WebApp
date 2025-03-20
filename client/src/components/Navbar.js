@@ -14,7 +14,7 @@ function Navbar(props) {
         <li><Link to="/login">Log in</Link></li>
         <li><Link to="/register">Register</Link></li>
         <li><Link to="/buyinventory">Buy Stamps/Inventory</Link></li>
-        <li><Link to="/employeelogin">Employee Portal</Link></li>
+        <li><Link to="/employee/login">Employee Portal</Link></li>
       </ul>
       )}
     </nav>

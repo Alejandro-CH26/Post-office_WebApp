@@ -27,6 +27,7 @@ and that he or she should refresh the page.
 Note: In order for unprocessed packages to be registered correctly, the driver dropping
 packages off at a location will need to mark all the packages in his or her vehicle as
 unprocessed.
+Trigger: A package needs to be processed by a different employee at each post office location.
 
 */
 

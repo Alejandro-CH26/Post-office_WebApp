@@ -43,10 +43,10 @@ function App() {
         <Route path="/LogIn" element={<LogIn />} />
         <Route path="/Register" element={<Register />} />
         <Route path="/BuyInventory" element={<BuyInventory />} />
-        <Route path="/WarehouseDashboard" element={<WarehouseEmployeeDashboard />} />
-        <Route path="/WarehouseAssignPackages" element={<WarehouseAssignPackages />} />
-        <Route path="/ClockInOut" element={<ClockInOut />} />
-        <Route path="/EmployeeLogIn" element={<EmployeeLogInPage/>} />
+        <Route path="/Employee/WarehouseDashboard" element={<WarehouseEmployeeDashboard />} />
+        <Route path="/Employee/WarehouseAssignPackages" element={<WarehouseAssignPackages />} />
+        <Route path="/Employee/ClockInOut" element={<ClockInOut />} />
+        <Route path="/Employee/LogIn" element={<EmployeeLogInPage/>} />
       </Routes>
 
       {/* Footer */}
