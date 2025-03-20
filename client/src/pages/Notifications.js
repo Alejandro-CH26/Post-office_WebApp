@@ -20,7 +20,7 @@ const Notifications = () => {
 
     return (
 <div className="notifications-container">
-    <h2>Tracking Notifications</h2>
+    <h2>Tracking History</h2>
     {notifications.length === 0 ? (
         <p>No tracking updates available.</p>
     ) : (
