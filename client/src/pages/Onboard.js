@@ -9,12 +9,14 @@ function Onboard() {
     email: "",
     phone: "",
     emergencyContact: "",
+    addressID: "",
     street: "",
     city: "",
     state: "",
     zip: "",
     apartmentNumber: "",
     role: "",
+    salary: "",
     hourlyWage: "",
     supervisorID: "",
     location: "",
@@ -83,12 +85,14 @@ function Onboard() {
           email: "",
           phone: "",
           emergencyContact: "",
+          addressID: "",
           street: "",
           city: "",
           state: "",
           zip: "",
           apartmentNumber: "",
           role: "",
+          salary: "",
           hourlyWage: "",
           supervisorID: "",
           location: "",
@@ -339,6 +343,16 @@ function Onboard() {
         <div style={{ marginBottom: "40px" }}>
           <h2 style={{ fontSize: "24px", fontWeight: "600", marginBottom: "24px" }}>Address Information</h2>
 
+          <label style={formStyles.label}>Address ID</label>
+          <input
+            type="text"
+            name="addressID"
+            value={employee.addressID}
+            onChange={handleChange}
+            placeholder="Address ID"
+            style={formStyles.input}
+          />
+
           <label style={formStyles.label}>Street</label>
           <input
             type="text"
@@ -457,6 +471,16 @@ function Onboard() {
           />
           {errors.role && <p style={formStyles.errorMessage}>{errors.role}</p>}
 
+          <label style={formStyles.label}>Salary</label>
+          <input
+            type="text"
+            name="salary"
+            value={employee.salary}
+            onChange={handleChange}
+            placeholder="Annual Salary"
+            style={formStyles.input}
+          />
+
           <label style={formStyles.label}>Hourly Wage</label>
           <input
             type="text"
@@ -527,3 +551,4 @@ function Onboard() {
 }
 
 export default Onboard;
+
