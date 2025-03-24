@@ -34,8 +34,12 @@ function Login() {
 
       if (response.ok) {
         localStorage.setItem("token", data.token);
+        localStorage.setItem("role", "customer");
+        localStorage.setItem("customer_ID", data.customerID);
+        localStorage.setItem("customer_name", data.firstName);
         navigate("/dashboard");
-      } else {
+      }
+      else {
         setError(data.error || "Invalid username or password");
       }
     } catch (error) {

@@ -78,47 +78,69 @@ const server = http.createServer((req, res) => {
     // 🔹 **Login Route (JWT Authentication)**
     else if (req.method === "POST" && req.url === "/login") {
         let body = "";
+
         req.on("data", (chunk) => (body += chunk.toString()));
 
         req.on("end", async () => {
             try {
                 const { customer_Username, customer_Password } = JSON.parse(body);
 
-                db.query("SELECT * FROM customers WHERE customer_Username = ?", [customer_Username], async (err, results) => {
-                    if (err) {
-                        console.error("❌ Database Query Error:", err);
-                        res.writeHead(500, { "Content-Type": "application/json" });
-                        res.end(JSON.stringify({ error: "Database error" }));
-                        return;
+                db.query(
+                    "SELECT * FROM customers WHERE customer_Username = ?",
+                    [customer_Username],
+                    async (err, results) => {
+                        if (err) {
+                            console.error("❌ Database Query Error:", err);
+                            res.writeHead(500, { "Content-Type": "application/json" });
+                            res.end(JSON.stringify({ error: "Database error" }));
+                            return;
+                        }
+
+                        if (results.length === 0) {
+                            res.writeHead(401, { "Content-Type": "application/json" });
+                            res.end(JSON.stringify({ error: "Invalid username or password" }));
+                            return;
+                        }
+
+                        const user = results[0];
+                        const passwordMatch = await bcrypt.compare(
+                            customer_Password,
+                            user.customer_Password
+                        );
+
+                        if (!passwordMatch) {
+                            res.writeHead(401, { "Content-Type": "application/json" });
+                            res.end(JSON.stringify({ error: "Invalid username or password" }));
+                            return;
+                        }
+
+                        // 🔐 Generate JWT token with basic customer info
+                        const token = jwt.sign(
+                            {
+                                id: user.customer_ID,
+                                username: user.customer_Username,
+                                role: "customer", // include role
+                                firstName: user.first_Name
+                            },
+                            process.env.JWT_SECRET,
+                            { expiresIn: "1h" }
+                        );
+
+                        console.log("✅ Customer logged in:", user.customer_Username);
+
+                        // 🔁 Send back token + useful info
+                        res.writeHead(200, { "Content-Type": "application/json" });
+                        res.end(
+                            JSON.stringify({
+                                token,
+                                customerID: user.customer_ID,
+                                firstName: user.first_Name,
+                                role: "customer",
+                                message: "Login successful"
+                            })
+                        );
                     }
-
-                    if (results.length === 0) {
-                        res.writeHead(401, { "Content-Type": "application/json" });
-                        res.end(JSON.stringify({ error: "Invalid username or password" }));
-                        return;
-                    }
-
-                    const user = results[0];
-
-                    // **Check if password is valid**
-                    const passwordMatch = await bcrypt.compare(customer_Password, user.customer_Password);
-                    if (!passwordMatch) {
-                        res.writeHead(401, { "Content-Type": "application/json" });
-                        res.end(JSON.stringify({ error: "Invalid username or password" }));
-                        return;
-                    }
-
-                    // **Generate JWT Token**
-                    const token = jwt.sign(
-                        { id: user.customer_ID, username: user.customer_Username },
-                        process.env.JWT_SECRET,
-                        { expiresIn: "1h" }
-                    );
-
-                    console.log("✅ User logged in:", user.customer_Username);
-                    res.writeHead(200, { "Content-Type": "application/json" });
-                    res.end(JSON.stringify({ token, message: "Login successful" }));
-                });
+                );
             } catch (error) {
                 console.error("❌ Login Error:", error);
                 res.writeHead(500, { "Content-Type": "application/json" });
@@ -126,6 +148,7 @@ const server = http.createServer((req, res) => {
             }
         });
     }
+
 
     // 🔹 **Protected Dashboard Route (JWT Required)**
     else if (req.method === "GET" && req.url === "/dashboard") {
@@ -299,6 +322,68 @@ const server = http.createServer((req, res) => {
             }
         });
     }
+
+    else if (req.method === "POST" && req.url === "/employee-login") {
+        let body = "";
+
+        req.on("data", chunk => {
+            body += chunk.toString();
+        });
+
+        req.on("end", async () => {
+            try {
+                const { employee_Username, employee_Password } = JSON.parse(body);
+
+                const sql = "SELECT * FROM employees WHERE employee_Username = ?";
+                db.query(sql, [employee_Username], async (err, results) => {
+                    if (err) {
+                        console.error("❌ DB Error:", err);
+                        res.writeHead(500, { "Content-Type": "application/json" });
+                        return res.end(JSON.stringify({ error: "Server error" }));
+                    }
+
+                    if (results.length === 0) {
+                        res.writeHead(401, { "Content-Type": "application/json" });
+                        return res.end(JSON.stringify({ error: "Invalid username or password" }));
+                    }
+
+                    const employee = results[0];
+                    const isMatch = await bcrypt.compare(employee_Password, employee.employee_Password);
+
+                    if (!isMatch) {
+                        res.writeHead(401, { "Content-Type": "application/json" });
+                        return res.end(JSON.stringify({ error: "Invalid username or password" }));
+                    }
+
+                    // ✅ Generate JWT token
+                    const token = jwt.sign(
+                        {
+                            id: employee.employee_ID,
+                            username: employee.employee_Username,
+                            role: employee.Role.toLowerCase(), // warehouse / driver
+                            firstName: employee.First_Name,
+                        },
+                        process.env.JWT_SECRET,
+                        { expiresIn: "1h" }
+                    );
+
+                    // ✅ Send token + role info to frontend
+                    res.writeHead(200, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify({
+                        token,
+                        role: employee.Role.toLowerCase(),
+                        employeeID: employee.employee_ID,
+                        firstName: employee.First_Name,
+                    }));
+                });
+            } catch (err) {
+                console.error("❌ Error parsing employee login:", err);
+                res.writeHead(500, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ error: "Internal server error" }));
+            }
+        });
+    }
+
 
 
 
