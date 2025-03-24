@@ -13,7 +13,7 @@ import PackageMaker from "./pages/PackageMaker";
 import LogIn from "./pages/LogIn";
 import Register from "./pages/Register";
 import BuyInventory from "./pages/BuyInventory";
-// import Dashboard from "./pages/Dashboard";
+
 
 
 import Onboard from "./pages/Onboard";
@@ -21,10 +21,11 @@ import EmployeeLogin from "./pages/EmployeeLogin";
 import WarehouseDashboard from "./pages/WarehouseDashboard";
 import DriverDashboard from "./pages/DriverDashboard";
 import CustomerDashboard from "./pages/CustomerDashboard";
-
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 import "./App.css";
 
-// 🔒 Restrict access based on token & role
+// Restrict access based on token & role
 const PrivateRoute = ({ element, requiredRole }) => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
@@ -35,7 +36,7 @@ const PrivateRoute = ({ element, requiredRole }) => {
   return element;
 };
 
-// 🔓 Logout Handler
+// Logout Handler
 const handleLogout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("role");
@@ -59,14 +60,16 @@ function App() {
         <Route path="/packagemaker" element={<PackageMaker />} />
         <Route path="/login" element={<LogIn />} />
         <Route path="/employee-login" element={<EmployeeLogin />} />
+        <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/register" element={<Register />} />
         <Route path="/buyinventory" element={<BuyInventory />} />
-        <Route path="/onboard" element={<PrivateRoute element={<Onboard />} requiredRole="employee" />} />
+        <Route path="/onboard" element={<PrivateRoute element={<Onboard />} requiredRole="admin" />} />
 
         {/* Dashboards */}
         <Route path="/customer-dashboard" element={<PrivateRoute element={<CustomerDashboard />} requiredRole="customer" />} />
         <Route path="/warehouse-dashboard" element={<PrivateRoute element={<WarehouseDashboard />} requiredRole="warehouse" />} />
         <Route path="/driver-dashboard" element={<PrivateRoute element={<DriverDashboard />} requiredRole="driver" />} />
+        <Route path="/admin-dashboard" element={<PrivateRoute element={<AdminDashboard />} requiredRole="admin" />} />
 
         {/* Catch-all redirect */}
         <Route path="*" element={<Navigate to="/" />} />

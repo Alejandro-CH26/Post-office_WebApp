@@ -36,14 +36,14 @@ function EmployeeLogin() {
 
             if (response.ok) {
                 localStorage.setItem("employee_token", data.token);
-                localStorage.setItem("token", data.token); // if needed
+                localStorage.setItem("token", data.token);
                 localStorage.setItem("role", data.role);
-                localStorage.setItem("employee_ID", data.employeeID); // 👈 Store the ID
+                localStorage.setItem("employee_ID", data.employeeID);
 
-                // Optional: store name too
+                // store name
                 localStorage.setItem("employee_name", data.firstName);
 
-                // Navigate based on role
+                // Navigation based on role
                 if (data.role === "warehouse") {
                     navigate("/warehouse-dashboard");
                 } else if (data.role === "driver") {
@@ -89,85 +89,5 @@ function EmployeeLogin() {
 }
 
 export default EmployeeLogin;
-
-
-
-
-
-// import React, { useState, useEffect } from "react";
-// import "./Login.css";
-// import { useNavigate } from "react-router-dom";
-
-// function EmployeeLogin() {
-//     const navigate = useNavigate();
-//     const [username, setUsername] = useState("");
-//     const [password, setPassword] = useState("");
-//     const [error, setError] = useState("");
-
-//     useEffect(() => {
-//         if (localStorage.getItem("employee_token")) {
-//             navigate("/employee-dashboard");
-//         }
-//     }, [navigate]);
-
-//     const handleSubmit = async (e) => {
-//         e.preventDefault();
-
-//         const credentials = {
-//             employee_Username: username.trim(),
-//             employee_Password: password.trim(),
-//         };
-
-//         try {
-//             const response = await fetch("http://localhost:5001/employee-login", {
-//                 method: "POST",
-//                 headers: { "Content-Type": "application/json" },
-//                 body: JSON.stringify(credentials),
-//             });
-
-//             const data = await response.json();
-
-//             if (response.ok) {
-//                 localStorage.setItem("employee_token", data.token);
-//                 localStorage.setItem("token", data.token);
-//                 localStorage.setItem("role", data.role);
-//                 navigate("/employee-dashboard");
-//             } else {
-//                 setError(data.error || "Invalid username or password");
-//             }
-//         } catch (error) {
-//             console.error("❌ Error logging in:", error);
-//             setError("❌ Server error, please try again later.");
-//         }
-//     };
-
-//     return (
-//         <div className="login-container">
-//             <div className="login-box">
-//                 <h1 className="login-title">Employee Login</h1>
-//                 {error && <p className="error-message">{error}</p>}
-//                 <form className="login-form" onSubmit={handleSubmit}>
-//                     <input
-//                         type="text"
-//                         placeholder="Username"
-//                         value={username}
-//                         onChange={(e) => setUsername(e.target.value)}
-//                         required
-//                     />
-//                     <input
-//                         type="password"
-//                         placeholder="Password"
-//                         value={password}
-//                         onChange={(e) => setPassword(e.target.value)}
-//                         required
-//                     />
-//                     <button type="submit">Login</button>
-//                 </form>
-//             </div>
-//         </div>
-//     );
-// }
-
-// export default EmployeeLogin;
 
 

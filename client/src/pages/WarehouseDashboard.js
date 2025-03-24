@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { jwtDecode } from "jwt-decode"; // ✅ Correct import
+import { jwtDecode } from "jwt-decode";
 
 function WarehouseDashboard() {
     const [name, setName] = useState("");
@@ -31,31 +31,5 @@ function WarehouseDashboard() {
 export default WarehouseDashboard;
 
 
-
-// import React, { useEffect, useState } from "react";
-// import { jwtDecode } from "jwt-decode";
-
-
-// function WarehouseDashboard() {
-//     const [name, setName] = useState("");
-
-//     useEffect(() => {
-//         const token = localStorage.getItem("employee_token");
-//         if (token) {
-//             const decoded = jwtDecode(token);
-
-//             setName(decoded.firstName || "");
-//         }
-//     }, []);
-
-//     return (
-//         <div style={{ padding: "2rem" }}>
-//             <h1>Warehouse Dashboard</h1>
-//             <p>Welcome, {name}! You can manage inventory, packages, and more from here.</p>
-//         </div>
-//     );
-// }
-
-// export default WarehouseDashboard;
 
 
