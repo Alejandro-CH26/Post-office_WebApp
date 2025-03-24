@@ -1,84 +1,113 @@
-// report.js
+const express = require('express');
 const connection = require('./db.js');
+const open = require('open');
 
-// Configuration for the report
-const reportConfig = {
-  title: 'Azure MySQL Database Report',
-  timestamp: new Date().toISOString(),
-  // Add your custom queries here
-  customQueries: [
-    // Example: Uncomment and modify as needed
-    // {
-    //   name: 'Active Users',
-    //   sql: 'SELECT id, username, last_login FROM users WHERE last_login > DATE_SUB(NOW(), INTERVAL 7 DAY);',
-    //   description: 'Users active in the last 7 days'
-    // }
-    {
-        name: 'Employee-Hours with Location',
-        sql: `SELECT 
-            e.first_name, e.middle_name, e.last_name, l.location, SUM(TIMESTAMPDIFF(HOUR, h.clock_in_time, h.clock_out_time)) AS total_hours
-         FROM 
-            employees AS e, hours_logged AS h, locations AS l
-         WHERE
-            e.employee_ID=h.employee_ID AND e.location_ID=l.location_ID;`,
-        description: 'Employee hours with location'
-    }
-  ]
-};
+const app = express();
+const port = 3000;
 
-// Generate the report
-async function generateReport() {
-    console.log(`\n===== ${reportConfig.title} =====`);
-    console.log(`Generated: ${reportConfig.timestamp}`);
-    console.log(`Database: ${process.env.DB_NAME} on ${process.env.DB_HOST}\n`);
-    
-    // Run only custom queries
+// Format timestamp neatly for Central Time
+function formatTimestamp(timestamp) {
+    const date = new Date(timestamp);
+    return date.toLocaleString('en-US', {
+        timeZone: 'America/Chicago', // Central Time Zone
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    });
+}
+
+// Serve the report on a web page
+app.get('/report', async (req, res) => {
+    const reportConfig = {
+        title: 'Employee Hours Report',
+        timestamp: new Date().toISOString(),
+        customQueries: [
+            {
+                name: 'Employee-Hours',
+                sql: `SELECT 
+                          e.employee_ID, e.first_name, e.middle_name, e.last_name, l.name, 
+                          ROUND(SUM(TIMESTAMPDIFF(MINUTE, h.clock_in_time, h.clock_out_time) / 60), 2) AS total_hours
+                      FROM 
+                          employees AS e, hours_logged AS h, post_office_location AS l
+                      WHERE
+                          e.employee_ID=h.employee_ID AND e.location_ID=l.location_ID
+                      GROUP BY 
+                          e.employee_ID, e.first_name, e.middle_name, e.last_name, l.name;`,
+                description: 'Employee hours with location, names, and total hours'
+            }
+        ]
+    };
+
+    let reportHtml = `
+        <html>
+        <head>
+            <title>${reportConfig.title}</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f4; color: #333; }
+                h1, h2 { color: #2c3e50; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
+                th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+                th { background: #3498db; color: #fff; }
+                tr:nth-child(even) { background: #f9f9f9; }
+                .container { max-width: 900px; margin: auto; padding: 20px; background: #fff; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>${reportConfig.title}</h1>
+                <p><strong>Generated:</strong> ${formatTimestamp(reportConfig.timestamp)}</p>
+    `;
+
     for (const query of reportConfig.customQueries) {
-      await runReportQuery(query);
+        reportHtml += `<h2>${query.name}</h2>`;
+        reportHtml += `<p>${query.description}</p>`;
+
+        try {
+            const results = await new Promise((resolve, reject) => {
+                connection.query(query.sql, (err, results) => {
+                    if (err) reject(err);
+                    else resolve(results);
+                });
+            });
+
+            if (results.length === 0) {
+                reportHtml += '<p>No results found.</p>';
+            } else {
+                reportHtml += '<table><tr>';
+                Object.keys(results[0]).forEach(key => {
+                    reportHtml += `<th>${key}</th>`;
+                });
+                reportHtml += '</tr>';
+                results.forEach(row => {
+                    reportHtml += '<tr>';
+                    Object.values(row).forEach(value => {
+                        reportHtml += `<td>${value}</td>`;
+                    });
+                    reportHtml += '</tr>';
+                });
+                reportHtml += '</table>';
+            }
+        } catch (err) {
+            reportHtml += `<p style="color: red;">Error executing query: ${err.message}</p>`;
+        }
     }
-    
-    // Close the connection when done
-    connection.end((err) => {
-      if (err) {
-        console.error('Error closing connection:', err);
-        return;
-      }
-      console.log('\nReport complete. Database connection closed.');
-    });
-  }
 
-// Execute a single report query
-function runReportQuery(query) {
-  return new Promise((resolve, reject) => {
-    console.log(`\n## ${query.name}`);
-    console.log(query.description);
-    console.log('-'.repeat(50));
-    
-    connection.query(query.sql, query.params || [], (err, results) => {
-      if (err) {
-        console.error(`Error executing query "${query.name}":`, err);
-        console.log('-'.repeat(50));
-        resolve(); // Continue with other queries
-        return;
-      }
-      
-      if (results.length === 0) {
-        console.log('No results found.');
-      } else {
-        // Format and display results as a table
-        console.table(results);
-      }
-      
-      console.log('-'.repeat(50));
-      resolve();
-    });
-  });
-}
+    reportHtml += `
+            </div>
+        </body>
+        </html>
+    `;
 
-// Export for use in other files
-module.exports = { generateReport, reportConfig };
+    res.send(reportHtml);
+});
 
-// Run the report if this file is executed directly
-if (require.main === module) {
-  generateReport();
-}
+app.listen(port, () => {
+    const url = `http://localhost:${port}/report`;
+    console.log(`Report server running at ${url}`);
+    open(url); // Automatically open in browser
+});
