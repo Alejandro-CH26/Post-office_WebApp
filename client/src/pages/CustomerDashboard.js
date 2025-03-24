@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-
+// ✅ Correct import
 
 function CustomerDashboard() {
     const [firstName, setFirstName] = useState("");
@@ -10,6 +10,8 @@ function CustomerDashboard() {
         if (token) {
             try {
                 const decoded = jwtDecode(token);
+
+                // ✅ Use imported function
                 setFirstName(decoded.firstName || decoded.username || "Customer");
             } catch (err) {
                 console.error("❌ Invalid token", err);
