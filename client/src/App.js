@@ -3,17 +3,24 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Navbar from "./components/Navbar";
 
 import HomePage from "./pages/HomePage";
+
+// import HeroSection from "./components/HeroSection"; // Import Hero Section
+// import SearchPackage from "./components/SearchPackage";
+
 import Faq from "./pages/Faq";
 import TrackPackage from "./pages/TrackPackage";
 import PackageMaker from "./pages/PackageMaker";
 import LogIn from "./pages/LogIn";
 import Register from "./pages/Register";
 import BuyInventory from "./pages/BuyInventory";
-import Dashboard from "./pages/Dashboard";
+// import Dashboard from "./pages/Dashboard";
+
+
 import Onboard from "./pages/Onboard";
 import EmployeeLogin from "./pages/EmployeeLogin";
 import WarehouseDashboard from "./pages/WarehouseDashboard";
 import DriverDashboard from "./pages/DriverDashboard";
+import CustomerDashboard from "./pages/CustomerDashboard";
 
 import "./App.css";
 
@@ -46,7 +53,7 @@ function App() {
       <Navbar onLogout={handleLogout} />
 
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/homepage" element={<HomePage />} />
         <Route path="/faq" element={<Faq />} />
         <Route path="/trackpackage" element={<TrackPackage />} />
         <Route path="/packagemaker" element={<PackageMaker />} />
@@ -57,7 +64,7 @@ function App() {
         <Route path="/onboard" element={<PrivateRoute element={<Onboard />} requiredRole="employee" />} />
 
         {/* Dashboards */}
-        <Route path="/dashboard" element={<PrivateRoute element={<Dashboard />} requiredRole="customer" />} />
+        <Route path="/customer-dashboard" element={<PrivateRoute element={<CustomerDashboard />} requiredRole="customer" />} />
         <Route path="/warehouse-dashboard" element={<PrivateRoute element={<WarehouseDashboard />} requiredRole="warehouse" />} />
         <Route path="/driver-dashboard" element={<PrivateRoute element={<DriverDashboard />} requiredRole="driver" />} />
 

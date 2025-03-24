@@ -23,8 +23,8 @@ function Navbar() {
 
   return (
     <nav className="navbar">
-      <div className="logo">Post Office</div>
       <ul className="nav-links">
+        <li className="nav-logo">Post Office</li> {/* Moved inside nav-links */}
         <li><Link to="/">Home</Link></li>
         <li><Link to="/faq">FAQ</Link></li>
 
