@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Register.css"; // Ensure styling is applied
+import "./Register.css";
 
 function Register() {
   const navigate = useNavigate();
@@ -35,11 +35,11 @@ function Register() {
       });
 
       const data = await response.json();
-      console.log("✅ Server Response:", data); // Debugging log
+      console.log("✅ Server Response:", data);
 
       if (response.ok) {
         alert("✅ Registration Successful! Please log in.");
-        navigate("/login"); // Redirect to login page instead of dashboard
+        navigate("/login");
       } else {
         alert(`❌ Error: ${data.message}`);
       }
