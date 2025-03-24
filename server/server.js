@@ -31,6 +31,8 @@ http.createServer(function (req, res) {
     } else if (q.pathname === '/employee/warehousedashboard' && req.method === 'GET') {
         EmployeeAPI.warehouseDashboard(req, res);
 
+    } else if (q.pathname === "/employee/warehouseassignpackages") {
+        EmployeeAPI.warehouseAssignPackages(req, res);
     } else {
         res.writeHead(404, { 
             'Content-Type': 'application/json',

@@ -32,21 +32,18 @@ Trigger: A package needs to be processed by a different employee at each post of
 */
 
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 function WarehouseAssignPackages() {
-  const [packages, setPackages] = useState([
-    { id: 1, destination: "Chicago, IL" },
-    { id: 2, destination: "Albany, NY" },
-    { id: 3, destination: "Montgomery, AL" },
-  ]);
-
+  const [packages, setPackages] = useState([]); // Packages fetched from the backend
   const [assigningPackage, setAssigningPackage] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState("");
   const [selectedAddress, setSelectedAddress] = useState("");
   const [selectedVehicle, setSelectedVehicle] = useState("");
   const [submittedPackage, setSubmittedPackage] = useState(null);
+  const [error, setError] = useState(""); // To handle errors during fetch
 
+  // Dummy dropdown data (to be replaced with backend logic later)
   const postOfficeAndWarehouses = ["Warehouse 1", "Post Office 2", "Warehouse 3"];
   const residentialAndBusinessAddresses = ["123 Elm St", "456 Oak Ave", "789 Pine Blvd"];
   const deliveryVehicles = ["Truck 1", "Truck 2", "Truck 3"];
@@ -54,6 +51,32 @@ function WarehouseAssignPackages() {
   const [filteredLocations, setFilteredLocations] = useState(postOfficeAndWarehouses);
   const [filteredAddresses, setFilteredAddresses] = useState(residentialAndBusinessAddresses);
   const [filteredVehicles, setFilteredVehicles] = useState(deliveryVehicles);
+
+  // Fetch packages from the backend when the component mounts
+  useEffect(() => {
+    async function fetchPackages() {
+      try {
+        const response = await fetch("http://localhost:5001/employee/warehouseassignpackages", {
+          method: "GET",
+          credentials: "include", // Include EmployeeID and other cookies in request
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log(data);
+          setPackages([data]); // Convert single object to an array
+          console.log("Packages:", packages);
+        } else {
+          setError("Failed to fetch packages. Please try again.");
+        }
+      } catch (err) {
+        console.error("Error fetching packages:", err);
+        setError("An error occurred while fetching packages.");
+      }
+    }
+
+    fetchPackages();
+  }, []);
 
   const startAssigning = (packageId) => {
     setAssigningPackage(packageId);
@@ -78,10 +101,19 @@ function WarehouseAssignPackages() {
   };
 
   const handleSubmit = () => {
-    setPackages(packages.filter(pkg => pkg.id !== assigningPackage));
+    setPackages(packages.filter(pkg => pkg.packageID !== assigningPackage));
     setSubmittedPackage(assigningPackage);
     setAssigningPackage(null); // Hide dropdowns
   };
+
+  if (error) {
+    return (
+      <div style={{ textAlign: "center", padding: "20px" }}>
+        <h1>Error</h1>
+        <p style={{ color: "red" }}>{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div style={{ textAlign: "center", margin: "0 auto", maxWidth: "800px", padding: "20px" }}>
@@ -89,7 +121,7 @@ function WarehouseAssignPackages() {
       <div style={{ display: "grid", gap: "20px" }}>
         {packages.map(pkg => (
           <div
-            key={pkg.id}
+            key={pkg.packageID}
             style={{
               backgroundColor: "#f5f5f5",
               border: "1px solid #ddd",
@@ -99,15 +131,15 @@ function WarehouseAssignPackages() {
               textAlign: "left",
             }}
           >
-            <h3>ID: {pkg.id}</h3>
-            <p>Destination City: {pkg.destination}</p>
+            <h3>ID: {pkg.packageID}</h3>
+            <p>Destination City: {pkg.addressCity}, {pkg.addressState}</p>
             <button
-              onClick={() => startAssigning(pkg.id)}
+              onClick={() => startAssigning(pkg.packageID)}
               style={{ padding: "10px 15px", marginBottom: "10px" }}
             >
               Assign Next Location
             </button>
-            {assigningPackage === pkg.id && (
+            {assigningPackage === pkg.packageID && (
               <div style={{ marginTop: "10px" }}>
                 <label>Post Office and Warehouse Locations:</label>
                 <input
@@ -185,4 +217,3 @@ function WarehouseAssignPackages() {
 }
 
 export default WarehouseAssignPackages;
-
