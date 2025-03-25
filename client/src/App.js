@@ -19,6 +19,7 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import Reports from "./pages/Reports";
 import "./App.css";
+import EmployeeHours from "./pages/EmployeeHours";
 
 // Restrict access based on token & role
 const PrivateRoute = ({ element, requiredRole }) => {
@@ -69,6 +70,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/buyinventory" element={<BuyInventory />} />
         <Route path="/onboard" element={<PrivateRoute element={<Onboard />} requiredRole="admin" />} />
+        <Route path="/employeehours" element={<PrivateRoute element={<EmployeeHours />} requiredRole="admin" />} />
         <Route path="/admin/reports" element={<PrivateRoute element={<Reports />} requiredRole="admin" />} />
 
 

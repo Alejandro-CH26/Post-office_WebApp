@@ -3,6 +3,7 @@ const http = require("http");
 const db = require("./db");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const { handleReportRequest } = require("./report");
 const url = require("url");
 
 // Handle route files
@@ -461,6 +462,13 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
                 res.end(JSON.stringify({ error: "Server error" }));
             }
         });
+    }
+    else if(req.method === "GET" && req.url === "/report") {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+        handleReportRequest(req, res);
     }
 
 
