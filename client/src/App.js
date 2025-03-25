@@ -20,6 +20,8 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import Reports from "./pages/Reports";
 import "./App.css";
+import WarehouseAssignPackages from "./pages/WarehouseAssignPackages";
+import ClockInOut from "./pages/ClockInOut";
 import EmployeeHours from "./pages/EmployeeHours";
 
 // Restrict access based on token & role
@@ -82,7 +84,11 @@ function App() {
         <Route path="/driver-dashboard" element={<PrivateRoute element={<DriverDashboard />} requiredRole="driver" />} />
         <Route path="/admin-dashboard" element={<PrivateRoute element={<AdminDashboard />} requiredRole="admin" />} />
 
-        {/* Catch-all */}
+        {/* Warehouse Employee Routes */}
+        <Route path="/warehouseassignpackages" element={<PrivateRoute element={<WarehouseAssignPackages />} requiredRole="warehouse" />} />
+        <Route path="/warehouseclockinout" element={<PrivateRoute element={<ClockInOut />} requiredRole="warehouse" />} />
+
+        {/* Catch-all redirect */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
 
