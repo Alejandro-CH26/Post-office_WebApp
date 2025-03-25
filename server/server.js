@@ -40,6 +40,8 @@ const server = http.createServer((req, res) => {
     if (reportRoutes(req, res, reqUrl)) return;
     if (employeeRoutes(req, res, reqUrl)) return;
 
+    var path = req.url.split('?')[0];
+
     //  Registration Route 
     if (req.method === "POST" && req.url === "/register") {
         let body = "";
@@ -351,7 +353,7 @@ const server = http.createServer((req, res) => {
     } else if (req.method === "POST" && req.url === "/employee-login") {
         EmployeeAPI.employeeLogIn(req, res);
 
-    } else if (req.url === "/warehouseassignpackages") {
+    } else if (path === "/warehouseassignpackages") {
         EmployeeAPI.warehouseAssignPackages(req, res);
         
     } else if (req.method === "POST" && req.url === "/admin-login") {

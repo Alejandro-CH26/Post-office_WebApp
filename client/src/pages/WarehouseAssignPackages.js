@@ -57,9 +57,9 @@ function WarehouseAssignPackages() {
   useEffect(() => {
     async function fetchPackages() {
       try {
-        const response = await fetch("http://localhost:5001/warehouseassignpackages", {
+        const employeeID = localStorage.getItem("employee_ID");
+        const response = await fetch(`http://localhost:5001/warehouseassignpackages?employeeID=${employeeID}`, {
           method: "GET",
-          credentials: "include", // Include EmployeeID and other cookies in request
         });
 
         if (response.ok) {
