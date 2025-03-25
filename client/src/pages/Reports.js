@@ -10,17 +10,15 @@ const Reports = () => {
 
     useEffect(() => {
         fetch('http://localhost:5000/reports/deliveries-by-driver')
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data)) {
                     setPackagesDelivered(data);
                     console.log("📦 Raw Package Data:", data);
 
-                    // Get unique drivers
                     const uniqueDrivers = [...new Set(data.map(d => d.DriverName))].sort();
                     setDrivers(uniqueDrivers);
 
-                    // Store vehicles with associated driver
                     const uniqueVehicles = [];
                     const seen = new Set();
                     data.forEach(d => {
@@ -35,52 +33,28 @@ const Reports = () => {
                         }
                     });
                     setVehicles(uniqueVehicles);
-                } else {
-                    console.error("❌ API did not return an array!");
-                    setPackagesDelivered([]);
-                    setDrivers([]);
-                    setVehicles([]);
                 }
-            })
-            .catch(error => {
-                console.error('❌ Error fetching delivery reports:', error);
+            }).catch(err => {
+                console.error("❌ Error fetching data:", err);
                 setPackagesDelivered([]);
                 setDrivers([]);
                 setVehicles([]);
             });
     }, []);
 
-    // Group data by driver + vehicle
-    const groupedReports = (() => {
-        const grouped = {};
+    const filteredPackages = packagesDelivered.filter(pkg =>
+        (selectedDriver === '' || pkg.DriverName === selectedDriver) &&
+        (selectedVehicle === '' || pkg.License_plate === selectedVehicle)
+    );
 
-        packagesDelivered
-            .filter(pkg =>
-                (selectedDriver === '' || pkg.DriverName === selectedDriver) &&
-                (selectedVehicle === '' || pkg.License_plate === selectedVehicle)
-            )
-            .forEach(pkg => {
-                const key = `${pkg.DriverName}-${pkg.License_plate}`;
-                if (!grouped[key]) {
-                    grouped[key] = {
-                        driver: pkg.DriverName,
-                        fuel: pkg.Fuel_type,
-                        plate: pkg.License_plate,
-                        packages: []
-                    };
-                }
-                grouped[key].packages.push(pkg);
-            });
-
-        return Object.values(grouped);
-    })();
+    const totalCost = filteredPackages.reduce((sum, p) => sum + parseFloat(p.Shipping_Cost || 0), 0);
+    const totalMinutes = filteredPackages.reduce((sum, p) => sum + parseFloat(p.AvgDeliveryDurationMinutes || 0), 0);
+    const totalHours = Math.floor(totalMinutes / 60);
+    const remainingMinutes = Math.round(totalMinutes % 60);
 
     return (
         <div className="reports-container">
             <h2>📊 Post Office Reports</h2>
-            <br />
-            
-            {/* Filters */}
             <div className="filter-container">
                 <label>Select Driver:</label>
                 <select onChange={(e) => {
@@ -88,50 +62,61 @@ const Reports = () => {
                     setSelectedVehicle('');
                 }} value={selectedDriver}>
                     <option value="">All Drivers</option>
-                    {drivers.map((driver, index) => (
-                        <option key={index} value={driver}>{driver}</option>
+                    {drivers.map((d, i) => (
+                        <option key={i} value={d}>{d}</option>
                     ))}
                 </select>
 
                 {selectedDriver && (
                     <>
-                        <label>Currently Showing:</label>
-                        <select onChange={(e) => setSelectedVehicle(e.target.value)} value={selectedVehicle}>
+                        <label>Vehicle:</label>
+                        <select value={selectedVehicle} onChange={(e) => setSelectedVehicle(e.target.value)}>
                             <option value="">All Vehicles</option>
-                            {vehicles
-                                .filter(v => v.driver === selectedDriver)
-                                .map((v, index) => (
-                                    <option key={index} value={v.license_plate}>
-                                        {v.fuel} ({v.license_plate})
-                                    </option>
-                                ))}
+                            {vehicles.filter(v => v.driver === selectedDriver).map((v, i) => (
+                                <option key={i} value={v.license_plate}>
+                                    {v.fuel} ({v.license_plate})
+                                </option>
+                            ))}
                         </select>
                     </>
                 )}
             </div>
 
-            <div className="reports-grid">
-                {groupedReports.length === 0 ? (
-                    <p>No package delivery data available.</p>
-                ) : (
-                    groupedReports.map((group, index) => (
-                        <div key={index} className="report-box">
-                            <h3>🚚 {group.driver} using {group.fuel} ({group.plate})</h3>
-                            {group.packages.map((pkg, i) => (
-                                <div key={i} className="package-entry">
-                                <strong>📦 {pkg.DeliveryDetails?.match(/Package\s(\d+)/)?.[0] || 'Package'} - Delivered on {new Date(pkg.DeliveryDetails?.match(/\d{4}-\d{2}-\d{2}/)?.[0]).toDateString() || 'N/A'}</strong>
-                                    <br />
-                                    <strong>📍 Delivered to:</strong> {pkg.PostOffice || "Unknown"}
-                                    <br />
-                                    <strong>💰 Shipping Cost:</strong> ${pkg.Shipping_Cost ? Number(pkg.Shipping_Cost).toFixed(2) : "N/A"}
-                                    <br />
-                                    <strong>⏳ Delivery Duration:</strong> {pkg.AvgDeliveryDurationMinutes ? `${Math.floor(pkg.AvgDeliveryDurationMinutes / 60)} hours ${pkg.AvgDeliveryDurationMinutes % 60} minutes` : "N/A"}
-                                </div>
-                            ))}
-                        </div>
-                    ))
-                )}
-            </div>
+            {filteredPackages.length === 0 ? (
+                <p>No package delivery data available.</p>
+            ) : (
+                <table className="excel-style-table">
+                    <thead>
+                        <tr>
+                            <th>👤 Driver</th>
+                            <th>🚗 Vehicle</th>
+                            <th>📦 Package</th>
+                            <th>📅 Delivered On</th>
+                            <th>📍 Destination</th>
+                            <th>💰 Shipping Cost</th>
+                            <th>⏳ Delivery Duration</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredPackages.map((pkg, i) => (
+                            <tr key={i}>
+                                <td>{pkg.DriverName}</td>
+                                <td>{pkg.Fuel_type} ({pkg.License_plate})</td>
+                                <td>{pkg.DeliveryDetails?.match(/Package\s(\d+)/)?.[0] || 'Package'}</td>
+                                <td>{new Date(pkg.DeliveryDetails?.match(/\d{4}-\d{2}-\d{2}/)?.[0]).toDateString()}</td>
+                                <td>{pkg.PostOffice || "Unknown"}</td>
+                                <td>${Number(pkg.Shipping_Cost).toFixed(2)}</td>
+                                <td>{pkg.AvgDeliveryDurationMinutes ? `${Math.floor(pkg.AvgDeliveryDurationMinutes / 60)}h ${pkg.AvgDeliveryDurationMinutes % 60}m` : "N/A"}</td>
+                            </tr>
+                        ))}
+                        <tr className="summary-row">
+                            <td colSpan="5"><strong>Total</strong></td>
+                            <td><strong>${totalCost.toFixed(2)}</strong></td>
+                            <td><strong>{totalHours}h {remainingMinutes}m</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            )}
         </div>
     );
 };
