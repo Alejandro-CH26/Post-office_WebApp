@@ -30,7 +30,6 @@ function Onboard() {
     dobYear: "",
   });
 
-
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
@@ -57,7 +56,6 @@ function Onboard() {
     if (!employee.password) formErrors.password = "Password is required.";
     if (!employee.street) formErrors.street = "Street address is required.";
     if (!employee.city) formErrors.city = "City is required.";
-
     setErrors(formErrors);
     return Object.keys(formErrors).length === 0;
   };
@@ -74,7 +72,6 @@ function Onboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(employee),
       });
-
       const data = await response.json();
       if (response.ok) {
         alert("Employee onboarded successfully!");
@@ -470,7 +467,6 @@ function Onboard() {
             }}
           />
           {errors.role && <p style={formStyles.errorMessage}>{errors.role}</p>}
-
 
 
           <label style={formStyles.label}>Hourly Wage</label>
