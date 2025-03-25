@@ -2,14 +2,11 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 
-import HomePage from "./pages/HomePage";
-
-// import HeroSection from "./components/HeroSection"; // Import Hero Section
-// import SearchPackage from "./components/SearchPackage";
+import HeroSection from "./components/HeroSection";
+import SearchPackage from "./components/SearchPackage";
 
 import Faq from "./pages/Faq";
 import TrackPackage from "./pages/TrackPackage";
-import PackageMaker from "./pages/PackageMaker";
 import LogIn from "./pages/LogIn";
 import Register from "./pages/Register";
 import BuyInventory from "./pages/BuyInventory";
@@ -20,10 +17,11 @@ import DriverDashboard from "./pages/DriverDashboard";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import Reports from "./pages/Reports";
 import "./App.css";
-import WarehouseEmployeeDashboard from "./pages/WarehouseEmployeeDashboard";
 import WarehouseAssignPackages from "./pages/WarehouseAssignPackages";
 import ClockInOut from "./pages/ClockInOut";
+import EmployeeHours from "./pages/EmployeeHours";
 
 // Restrict access based on token & role
 const PrivateRoute = ({ element, requiredRole }) => {
@@ -49,21 +47,34 @@ const handleLogout = () => {
 function App() {
   return (
     <Router>
-      <header className="header">Post Office</header>
-
+      {/* Removed the <header className="header">Post Office</header> */}
+      
+      {/* Navbar remains */}
       <Navbar onLogout={handleLogout} />
 
+      {/* Routes */}
       <Routes>
-        <Route path="/homepage" element={<HomePage />} />
+        {/* Example homepage route */}
+        <Route
+          path="/"
+          element={
+            <main className="homepage">
+              <HeroSection />
+              <SearchPackage />
+            </main>
+          }
+        />
         <Route path="/faq" element={<Faq />} />
-        <Route path="/trackpackage" element={<TrackPackage />} />
-        <Route path="/packagemaker" element={<PackageMaker />} />
+        <Route path="/trackpackage" element={<PrivateRoute element={<TrackPackage />} requiredRole="customer" />} />
         <Route path="/login" element={<LogIn />} />
         <Route path="/employee-login" element={<EmployeeLogin />} />
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/register" element={<Register />} />
         <Route path="/buyinventory" element={<BuyInventory />} />
         <Route path="/onboard" element={<PrivateRoute element={<Onboard />} requiredRole="admin" />} />
+        <Route path="/employeehours" element={<PrivateRoute element={<EmployeeHours />} requiredRole="admin" />} />
+        <Route path="/admin/reports" element={<PrivateRoute element={<Reports />} requiredRole="admin" />} />
+
 
         {/* Dashboards */}
         <Route path="/customer-dashboard" element={<PrivateRoute element={<CustomerDashboard />} requiredRole="customer" />} />
@@ -78,6 +89,11 @@ function App() {
         {/* Catch-all redirect */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
+
+      {/* Footer at the bottom */}
+      <footer className="footer">
+        © 2025 Post Office. All rights reserved.
+      </footer>
     </Router>
   );
 }

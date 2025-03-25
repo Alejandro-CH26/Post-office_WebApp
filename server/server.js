@@ -4,6 +4,13 @@ const http = require("http");
 const db = require("./db");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const { handleReportRequest } = require("./report");
+const url = require("url");
+
+// Handle route files
+const notificationRoutes = require("./notificationRoutes");
+const reportRoutes = require("./reportRoutes");
+
 
 // API functions
 const EmployeeAPI = require("./API Endpoints/EmployeeAPI.js");
@@ -27,6 +34,10 @@ const server = http.createServer((req, res) => {
         res.end();
         return;
     }
+    
+    const reqUrl = url.parse(req.url, true);
+    if (notificationRoutes(req, res, reqUrl)) return;
+    if (reportRoutes(req, res, reqUrl)) return;
 
     //  Registration Route 
     if (req.method === "POST" && req.url === "/register") {
@@ -401,12 +412,13 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
             }
         });
     }
+    else if(req.method === "GET" && req.url === "/report") {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-
-
-
-
-
+        handleReportRequest(req, res);
+    }
 
 
 

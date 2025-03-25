@@ -1,27 +1,24 @@
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import React from "react";
+import { Link } from "react-router-dom";
 import "./Navbar.css";
 
 function Navbar() {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const [token, setToken] = useState(localStorage.getItem("token"));
-  const [role, setRole] = useState(localStorage.getItem("role"));
-
-  // Refresh role/token on location change (login/logout/etc)
-  useEffect(() => {
-    const newToken = localStorage.getItem("token");
-    const newRole = localStorage.getItem("role");
-    setToken(newToken);
-    setRole(newRole);
-  }, [location]);
+  //const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+  
 
   const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("employee_token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("employee_ID");
+    localStorage.removeItem("employee_name");
+    localStorage.removeItem("customer_ID");
+    localStorage.removeItem("customer_name");
+    localStorage.removeItem("admin_name");
     localStorage.clear();
-    setToken(null);
-    setRole(null);
-    navigate("/"); 
+    window.location.href = "/login";
   };
 
   return (
@@ -31,7 +28,7 @@ function Navbar() {
         <li><Link to="/">Home</Link></li>
         <li><Link to="/faq">FAQ</Link></li>
 
-        {/* Customer-only */}
+        {/* Customer-only routes */}
         {token && role === "customer" && (
           <>
             <li><Link to="/PackageMaker">PM</Link></li>
@@ -40,24 +37,22 @@ function Navbar() {
           </>
         )}
 
-        {/* Employee-only */}
+        {/* Employee-only route */}
         {token && role === "employee" && (
           <>
             <li><Link to="/onboard">Onboard Employee</Link></li>
           </>
         )}
 
-        {/* Admin-only */}
+        {/* Admin-only route */}
         {token && role === "admin" && (
           <>
             <li><Link to="/onboard">Onboard Employee</Link></li>
-            <li><Link to="/admin-dashboard">Admin Dashboard</Link></li>
-            <li><Link to="/employeehours">Employee Hours</Link></li>
             <li><Link to="/admin/reports">Reports</Link></li>
           </>
         )}
 
-        {/* Not logged in */}
+        {/* Only show these if NOT logged in */}
         {!token && (
           <>
             <li><Link to="/login">Log in</Link></li>
@@ -67,7 +62,7 @@ function Navbar() {
           </>
         )}
 
-        {/* Log out */}
+        {/* Show logout if logged in */}
         {token && (
           <li>
             <button onClick={handleLogout} className="logout-button">Log Out</button>
