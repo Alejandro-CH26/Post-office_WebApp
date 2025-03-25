@@ -67,7 +67,7 @@ function Onboard() {
     setLoading(true);
 
     try {
-      const response = await fetch("https://post-office-webapp.onrender.com", {
+      const response = await fetch("https://post-office-webapp.onrender.com/onboard", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(employee),
