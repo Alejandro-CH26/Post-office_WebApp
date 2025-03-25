@@ -17,7 +17,7 @@ const TrackPackage = () => {
       const customerId = localStorage.getItem("customer_ID");
       if (!customerId) return;
 
-      fetch(`https://post-office-webapp.onrender.com`)
+      fetch(`https://post-office-webapp.onrender.com/trackpackage`)
         .then(response => response.json())
         .then(data => {
           if (data && data.length > 0) {

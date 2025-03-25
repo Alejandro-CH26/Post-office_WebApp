@@ -9,7 +9,7 @@ const Reports = () => {
     const [vehicles, setVehicles] = useState([]);
 
     useEffect(() => {
-        fetch('https://post-office-webapp.onrender.com')
+        fetch('https://post-office-webapp.onrender.com/admin/reports')
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data)) {
