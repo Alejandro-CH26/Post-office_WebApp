@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef} from "react";
 import { Link } from "react-router-dom";
 import "./BuyInventory.css";
 import mailHero from "../images/mail_hero.jpg"; // ✅ Make sure this path is correct
