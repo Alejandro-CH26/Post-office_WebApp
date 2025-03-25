@@ -353,7 +353,7 @@ const server = http.createServer((req, res) => {
 
     } else if (req.url === "/warehouseassignpackages") {
         EmployeeAPI.warehouseAssignPackages(req, res);
-        
+
     } else if (req.method === "POST" && req.url === "/admin-login") {
         let body = "";
 
@@ -417,7 +417,7 @@ const server = http.createServer((req, res) => {
             }
         });
     }
-    else if(req.method === "GET" && req.url === "/report") {
+    else if (req.method === "GET" && req.url === "/report") {
         res.setHeader("Access-Control-Allow-Origin", "*");
         res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", "Content-Type");
