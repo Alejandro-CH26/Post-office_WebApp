@@ -6,7 +6,7 @@ function EmployeeHourReportButton() {
   const handleGenerateReport = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5001/report", {
+      const response = await fetch("https://post-office-webapp.onrender.com/employeehours", {
         method: 'GET'
       });
 

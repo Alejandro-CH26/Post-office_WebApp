@@ -26,7 +26,7 @@ function EmployeeLogin() {
         };
 
         try {
-            const response = await fetch("http://localhost:5001/employee-login", {
+            const response = await fetch("https://post-office-webapp.onrender.com/employee-login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(credentials)
