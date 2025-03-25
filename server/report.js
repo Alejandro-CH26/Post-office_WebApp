@@ -214,7 +214,7 @@ router.get('/', async (req, res) => {
 
         for (const query of reportConfig.customQueries) {
             reportHtml += `<h2>${query.name}</h2>`;
-            reportHtml += `<p>${query.description}</p>`;
+            //reportHtml += `<p>${query.description}</p>`;
 
             try {
                 const results = await new Promise((resolve, reject) => {
