@@ -48,10 +48,132 @@ body {
 
 
 /* Footer */
+
 .footer {
   text-align: center;
   padding: 20px;
   background-color: #2d2c72;
   color: white;
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+}
+
+/* Notifications */
+.notifications-container {
+  padding: 20px;
+  max-width: 600px;
+  margin: auto;
+}
+
+.notification-item {
+  background: #f8f9fa;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+  border-left: 5px solid #2d2c72;
+  transition: all 0.3s ease-in-out;
+}
+
+.notification-item:hover {
+  background: #e0e0e0; 
+  transform: translateY(-3px); 
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.2); 
+}
+
+/* Reports Container */
+.reports-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 80vh;
+  text-align: center;
   margin-top: 20px;
 }
+
+/* Reports Grid Layout */
+.reports-grid {
+  display: flex;
+  justify-content: center;
+  gap: 40px; 
+  width: 80%;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+/* Report Box Styling */
+.report-box {
+  flex: 1;
+  border: none;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  max-width: 400px;
+  text-align: center;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Hover Effect */
+.report-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Report Titles */
+h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* List Styling */
+.report-box ul {
+  list-style-type: none;
+  padding: 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+
+.report-box p strong {
+  display: block;  
+  margin-bottom: 5px; 
+}
+
+.report-box p span {
+  display: block;  
+  margin-left: 15px; 
+}
+
+
+/* No Data Message */
+.report-box p {
+  text-align: left;
+  font-size: 16px;
+  color: black;
+  font-style: italic;
+  margin-bottom: 10px;
+  font-style: normal;
+  margin-bottom: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .reports-grid {
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .report-box {
+    max-width: 90%;
+  }
+}
+

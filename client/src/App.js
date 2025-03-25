@@ -17,6 +17,7 @@ import DriverDashboard from "./pages/DriverDashboard";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import Reports from "./pages/Reports";
 import "./App.css";
 import EmployeeHours from "./pages/EmployeeHours";
 
@@ -62,7 +63,7 @@ function App() {
           }
         />
         <Route path="/faq" element={<Faq />} />
-        <Route path="/trackpackage" element={<TrackPackage />} />
+        <Route path="/trackpackage" element={<PrivateRoute element={<TrackPackage />} requiredRole="customer" />} />
         <Route path="/login" element={<LogIn />} />
         <Route path="/employee-login" element={<EmployeeLogin />} />
         <Route path="/admin-login" element={<AdminLogin />} />
@@ -70,6 +71,8 @@ function App() {
         <Route path="/buyinventory" element={<BuyInventory />} />
         <Route path="/onboard" element={<PrivateRoute element={<Onboard />} requiredRole="admin" />} />
         <Route path="/employeehours" element={<PrivateRoute element={<EmployeeHours />} requiredRole="admin" />} />
+        <Route path="/admin/reports" element={<PrivateRoute element={<Reports />} requiredRole="admin" />} />
+
 
         {/* Dashboards */}
         <Route path="/customer-dashboard" element={<PrivateRoute element={<CustomerDashboard />} requiredRole="customer" />} />
