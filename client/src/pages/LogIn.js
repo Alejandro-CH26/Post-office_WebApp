@@ -37,7 +37,8 @@ function Login() {
         localStorage.setItem("role", "customer");
         localStorage.setItem("customer_ID", data.customerID);
         localStorage.setItem("customer_name", data.firstName);
-        navigate("/dashboard");
+        // navigate("/dashboard");
+        window.location.href = "/dashboard";
       }
       else {
         setError(data.error || "Invalid username or password");

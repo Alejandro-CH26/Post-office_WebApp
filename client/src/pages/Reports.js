@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import '../styling/Reports.css';
+import './Reports.css';
 
 const Reports = () => {
     const [packagesDelivered, setPackagesDelivered] = useState([]);
@@ -9,7 +9,7 @@ const Reports = () => {
     const [vehicles, setVehicles] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:5000/reports/deliveries-by-driver')
+        fetch('http://localhost:5001/reports/deliveries-by-driver')
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data)) {

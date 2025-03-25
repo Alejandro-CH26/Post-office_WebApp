@@ -3,6 +3,12 @@ const http = require("http");
 const db = require("./db");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const url = require("url");
+
+// Handle route files
+const notificationRoutes = require("./notificationRoutes");
+const reportRoutes = require("./reportRoutes");
+
 
 if (!process.env.JWT_SECRET) {
     console.error("JWT_SECRET is missing in .env file!");
@@ -20,6 +26,10 @@ const server = http.createServer((req, res) => {
         res.end();
         return;
     }
+    
+    const reqUrl = url.parse(req.url, true);
+    if (notificationRoutes(req, res, reqUrl)) return;
+    if (reportRoutes(req, res, reqUrl)) return;
 
     //  Registration Route 
     if (req.method === "POST" && req.url === "/register") {
@@ -452,12 +462,6 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
             }
         });
     }
-
-
-
-
-
-
 
 
 

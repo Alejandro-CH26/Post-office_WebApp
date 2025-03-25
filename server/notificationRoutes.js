@@ -4,6 +4,7 @@ const connection = require("./db");
 function notificationRoutes(req, res) {
   const reqUrl = new URL(req.url, `http://${req.headers.host}`);
 
+  /*
   if (req.method === "POST" && reqUrl.pathname === "/mock-notification") {
     const fakeEntry = {
       package_ID: 4, 
@@ -30,18 +31,19 @@ function notificationRoutes(req, res) {
   
     return true;
   }
-  
+  */
 
   if (req.method === "GET" && reqUrl.pathname === "/tracking-updates") {
     const sinceId = parseInt(reqUrl.searchParams.get("sinceId")) || 0;
+    const customerId = reqUrl.searchParams.get("customerId");
   
     connection.query(
       `SELECT t.tracking_history_ID, p.Package_ID, p.Recipient_Customer_ID, t.status, t.timestamp 
        FROM tracking_history t 
        JOIN package p ON t.package_ID = p.Package_ID
-       WHERE t.tracking_history_ID > ?
+       WHERE t.tracking_history_ID > ? AND p.Recipient_Customer_ID = ?
        ORDER BY t.tracking_history_ID ASC`,
-      [sinceId],
+      [sinceId, customerId],
       (err, results) => {
         if (err) {
           console.error("❌ Error fetching tracking updates:", err);
@@ -55,6 +57,8 @@ function notificationRoutes(req, res) {
     );
     return true;
   }
+  
+  
   
 }
 module.exports = notificationRoutes;

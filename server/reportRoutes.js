@@ -1,6 +1,5 @@
-// reportRoutes.js
-
 const connection = require("./db");
+
 
 function reportRoutes(req, res, reqUrl) {
   // 1) PACKAGES DELIVERED
@@ -23,7 +22,6 @@ function reportRoutes(req, res, reqUrl) {
         dl.delivery_minutes,
         dl.delivered_at,
 
-        -- Combine row-specific info into a single string:
         GROUP_CONCAT(
           CONCAT(
             'Package ', dl.package_ID, 
@@ -35,19 +33,15 @@ function reportRoutes(req, res, reqUrl) {
         ) AS DeliveryDetails
 
       FROM delivered_log dl
-      -- If you still have a post_office_location table:
       JOIN post_office_location loc
         ON dl.location_ID = loc.location_ID
-      -- If you still have an employees table for driver names:
       JOIN employees e
         ON dl.driver_ID = e.employee_ID
-      -- If you still have a delivery_vehicle table for vehicle details:
       JOIN delivery_vehicle dv
         ON dl.vehicle_ID = dv.Vehicle_ID
 
       WHERE dl.delivered_at IS NOT NULL
 
-      -- Adjust grouping as necessary:
       GROUP BY
         loc.location_ID,
         dl.package_ID,
@@ -85,7 +79,6 @@ function reportRoutes(req, res, reqUrl) {
         dv.Mileage,
         loc.name AS PostOffice,
 
-        -- Example: shipping cost aggregator
         MAX(dl.shipping_cost)         AS Shipping_Cost,  
         COUNT(DISTINCT dl.package_ID) AS PackagesDelivered,
         AVG(dl.delivery_minutes)      AS AvgDeliveryDurationMinutes,
