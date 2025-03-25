@@ -12,6 +12,7 @@ import Register from "./pages/Register";
 import BuyInventory from "./pages/BuyInventory";
 import Onboard from "./pages/Onboard";
 import EmployeeLogin from "./pages/EmployeeLogin";
+import Employees from "./pages/Employees";
 import WarehouseDashboard from "./pages/WarehouseDashboard";
 import DriverDashboard from "./pages/DriverDashboard";
 import CustomerDashboard from "./pages/CustomerDashboard";
@@ -19,9 +20,12 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import Reports from "./pages/Reports";
 import "./App.css";
+import WarehouseAssignPackages from "./pages/WarehouseAssignPackages";
+import ClockInOut from "./pages/ClockInOut";
 import EmployeeHours from "./pages/EmployeeHours";
 
 // Restrict access based on token & role
+// hi
 const PrivateRoute = ({ element, requiredRole }) => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
@@ -46,7 +50,7 @@ function App() {
   return (
     <Router>
       {/* Removed the <header className="header">Post Office</header> */}
-      
+
       {/* Navbar remains */}
       <Navbar onLogout={handleLogout} />
 
@@ -72,6 +76,7 @@ function App() {
         <Route path="/onboard" element={<PrivateRoute element={<Onboard />} requiredRole="admin" />} />
         <Route path="/employeehours" element={<PrivateRoute element={<EmployeeHours />} requiredRole="admin" />} />
         <Route path="/admin/reports" element={<PrivateRoute element={<Reports />} requiredRole="admin" />} />
+        <Route path="/admin/employees" element={<PrivateRoute element={<Employees />} requiredRole="admin" />} />
 
 
         {/* Dashboards */}
@@ -80,7 +85,11 @@ function App() {
         <Route path="/driver-dashboard" element={<PrivateRoute element={<DriverDashboard />} requiredRole="driver" />} />
         <Route path="/admin-dashboard" element={<PrivateRoute element={<AdminDashboard />} requiredRole="admin" />} />
 
-        {/* Catch-all */}
+        {/* Warehouse Employee Routes */}
+        <Route path="/warehouseassignpackages" element={<PrivateRoute element={<WarehouseAssignPackages />} requiredRole="warehouse" />} />
+        <Route path="/warehouseclockinout" element={<PrivateRoute element={<ClockInOut />} requiredRole="warehouse" />} />
+
+        {/* Catch-all redirect */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
 
