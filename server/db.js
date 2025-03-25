@@ -1,9 +1,19 @@
-require("dotenv").config({ path: "../.env" });
+require("dotenv").config();
 const mysql = require("mysql2");
 const fs = require("fs");
+const path = require("path");
 
 // Debugging SSL Path
 console.log("🔍 Checking SSL Path:", process.env.SSL_CA);
+
+// Resolve the path relative to the current directory
+const sslCaPath = path.resolve(__dirname, process.env.SSL_CA);
+
+// Verify file exists before reading
+if (!fs.existsSync(sslCaPath)) {
+    console.error(`❌ SSL Certificate not found at: ${sslCaPath}`);
+    process.exit(1);
+}
 
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
@@ -12,7 +22,7 @@ const db = mysql.createConnection({
     database: process.env.DB_NAME,
     port: "3306",
     ssl: {
-        ca: fs.readFileSync(process.env.SSL_CA),
+        ca: fs.readFileSync(sslCaPath),
     },
 });
 
@@ -25,4 +35,4 @@ db.connect((err) => {
     console.log("✅ Connected to MySQL with SSL");
 });
 
-module.exports = db; // Export database connection
+module.exports = db;

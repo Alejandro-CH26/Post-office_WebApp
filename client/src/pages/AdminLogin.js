@@ -9,6 +9,7 @@ function AdminLogin() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError("");
 
         try {
             const response = await fetch("http://localhost:5001/admin-login", {
@@ -28,11 +29,12 @@ function AdminLogin() {
                 localStorage.setItem("admin_name", data.firstName);
                 navigate("/admin-dashboard");
             } else {
+                console.error("❌ Login error:", data.error);
                 setError(data.error || "Invalid credentials");
             }
         } catch (err) {
             console.error("❌ Login error:", err);
-            setError("Server error, try again.");
+            setError("Network error, please check connection and try again.");
         }
     };
 

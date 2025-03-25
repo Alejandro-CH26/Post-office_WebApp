@@ -18,6 +18,7 @@ import CustomerDashboard from "./pages/CustomerDashboard";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import "./App.css";
+import EmployeeHours from "./pages/EmployeeHours";
 
 // Restrict access based on token & role
 const PrivateRoute = ({ element, requiredRole }) => {
@@ -68,6 +69,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/buyinventory" element={<BuyInventory />} />
         <Route path="/onboard" element={<PrivateRoute element={<Onboard />} requiredRole="admin" />} />
+        <Route path="/employeehours" element={<PrivateRoute element={<EmployeeHours />} requiredRole="admin" />} />
 
         {/* Dashboards */}
         <Route path="/customer-dashboard" element={<PrivateRoute element={<CustomerDashboard />} requiredRole="customer" />} />
