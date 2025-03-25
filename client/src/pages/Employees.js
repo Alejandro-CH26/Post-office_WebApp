@@ -3,7 +3,9 @@ import './Employees.css';
 
 const Employees = () => {
     const [employees, setEmployees] = useState([]);
-    const [statusFilter, setStatusFilter] = useState('all'); // NEW
+    const [statusFilter, setStatusFilter] = useState('all');
+    const [roleFilter, setRoleFilter] = useState('all');
+    const [locationFilter, setLocationFilter] = useState('all');
 
     useEffect(() => {
         fetch('http://localhost:5001/employee-reports')
@@ -26,50 +28,75 @@ const Employees = () => {
 
     const toggleFireStatus = async (id, currentStatus) => {
         const confirmMsg = currentStatus
-          ? "Unfire this employee and restore access?"
-          : "Are you sure you want to fire this employee?";
+            ? "Unfire this employee and restore access?"
+            : "Are you sure you want to fire this employee?";
         const confirmed = window.confirm(confirmMsg);
         if (!confirmed) return;
-      
+
         try {
-          const res = await fetch('http://localhost:5001/fire-employee', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ employee_ID: id, isFired: !currentStatus })
-          });
-      
-          if (res.ok) {
-            setEmployees(prev =>
-              prev.map(emp =>
-                emp.id === id ? { ...emp, isFired: !currentStatus } : emp
-              )
-            );
-          } else {
-            console.error("Failed to update employee status.");
-          }
+            const res = await fetch('http://localhost:5001/fire-employee', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ employee_ID: id, isFired: !currentStatus })
+            });
+
+            if (res.ok) {
+                setEmployees(prev =>
+                    prev.map(emp =>
+                        emp.id === id ? { ...emp, isFired: !currentStatus } : emp
+                    )
+                );
+            } else {
+                console.error("Failed to update employee status.");
+            }
         } catch (error) {
-          console.error("Error toggling fire status:", error);
+            console.error("Error toggling fire status:", error);
         }
     };
 
-    // 🔍 Filter employees based on selected status
+    // 🔍 Combined filtering
     const filteredEmployees = employees.filter(emp => {
-        if (statusFilter === 'active') return !emp.isFired;
-        if (statusFilter === 'fired') return emp.isFired;
-        return true; // 'all'
+        const statusMatch =
+            statusFilter === 'all' ||
+            (statusFilter === 'active' && !emp.isFired) ||
+            (statusFilter === 'fired' && emp.isFired);
+
+        const roleMatch = roleFilter === 'all' || emp.position === roleFilter;
+        const locationMatch = locationFilter === 'all' || emp.location === locationFilter;
+
+        return statusMatch && roleMatch && locationMatch;
     });
+
+    // 🔁 Get unique roles and locations for filter dropdowns
+    const uniqueRoles = [...new Set(employees.map(emp => emp.position))];
+    const uniqueLocations = [...new Set(employees.map(emp => emp.location))];
 
     return (
         <div className="reports-container">
             <h2>👥 Current Employees</h2>
 
-            {/* 🔽 Filter dropdown */}
             <div className="filter-container">
-                <label>Show:</label>
+                <label>Status:</label>
                 <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                     <option value="all">All</option>
                     <option value="active">Active</option>
                     <option value="fired">Fired</option>
+                </select>
+
+                <label>Role:</label>
+                <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
+                    <option value="all">All</option>
+                    {uniqueRoles.map((role, i) => (
+                        <option key={i} value={role}>{role}</option>
+                    ))}
+                </select>
+
+                <label>Location:</label>
+                <select value={locationFilter} onChange={(e) => setLocationFilter(e.target.value)}>
+                    <option value="all">All</option>
+                    {uniqueLocations.map((loc, i) => (
+                        <option key={i} value={loc}>{loc}</option>
+                    ))}
                 </select>
             </div>
 
@@ -79,13 +106,13 @@ const Employees = () => {
                 <table className="excel-style-table">
                     <thead>
                         <tr>
-                            <th> ID</th>
-                            <th> Name</th>
-                            <th> Location</th>
-                            <th> Position</th>
-                            <th> Supervisor?</th>
-                            <th> Fired?</th>
-                            <th> Actions</th>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Location</th>
+                            <th>Position</th>
+                            <th>Supervisor?</th>
+                            <th>Fired?</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -96,7 +123,7 @@ const Employees = () => {
                                 <td>{emp.location}</td>
                                 <td>{emp.position}</td>
                                 <td>{emp.isSupervisor ? "✅" : "❌"}</td>
-                                <td>{emp.isFired ? " Yes" : " No"}</td>
+                                <td>{emp.isFired ? "Yes" : "No"}</td>
                                 <td>
                                     <button
                                         className={`fire-btn ${emp.isFired ? 'unfire' : ''}`}
