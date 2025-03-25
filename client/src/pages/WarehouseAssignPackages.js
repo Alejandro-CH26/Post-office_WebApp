@@ -52,11 +52,12 @@ function WarehouseAssignPackages() {
   const [filteredAddresses, setFilteredAddresses] = useState(residentialAndBusinessAddresses);
   const [filteredVehicles, setFilteredVehicles] = useState(deliveryVehicles);
 
+
   // Fetch packages from the backend when the component mounts
   useEffect(() => {
     async function fetchPackages() {
       try {
-        const response = await fetch("http://localhost:5001/employee/warehouseassignpackages", {
+        const response = await fetch("http://localhost:5001/warehouseassignpackages", {
           method: "GET",
           credentials: "include", // Include EmployeeID and other cookies in request
         });
@@ -64,8 +65,7 @@ function WarehouseAssignPackages() {
         if (response.ok) {
           const data = await response.json();
           console.log(data);
-          setPackages([data]); // Convert single object to an array
-          console.log("Packages:", packages);
+          setPackages(data); // Convert single object to an array
         } else {
           setError("Failed to fetch packages. Please try again.");
         }
@@ -77,6 +77,10 @@ function WarehouseAssignPackages() {
 
     fetchPackages();
   }, []);
+
+  useEffect(() => {
+    console.log("Updated packages:", packages);
+}, [packages]);
 
   const startAssigning = (packageId) => {
     setAssigningPackage(packageId);

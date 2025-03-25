@@ -1,57 +1,12 @@
-// require('dotenv').config();
-// const http = require('http');
-// const url = require('url');
-// const connection = require("./db");
-// const crypto = require("crypto");
-
-// // API functions
-// const EmployeeAPI = require("./API Endpoints/EmployeeAPI.js");
-
-// http.createServer(function (req, res) {
-//     var q = url.parse(req.url, true);
-//     console.log(q.pathname);
-//     console.log(req.method);
-
-//     // Handle CORS preflight requests
-//     if (req.method === "OPTIONS") {
-//         res.writeHead(204, {
-//             "Access-Control-Allow-Origin": "http://localhost:3000", // Allow requests from your React app's origin
-//             "Access-Control-Allow-Methods": "POST, GET, OPTIONS", // Allowed methods
-//             "Access-Control-Allow-Headers": "Content-Type", // Allowed headers
-//             "Access-Control-Allow-Credentials": "true", // Allow cookies
-//         });
-//         res.end(); // End the OPTIONS request here
-//         return;
-//     }
-
-//     // Handling employee log in
-//     if (q.pathname === "/employee/login" && req.method === "POST") {
-//         EmployeeAPI.employeeLogIn(req, res);
-
-//     } else if (q.pathname === '/employee/warehousedashboard' && req.method === 'GET') {
-//         EmployeeAPI.warehouseDashboard(req, res);
-
-//     } else if (q.pathname === "/employee/warehouseassignpackages") {
-//         EmployeeAPI.warehouseAssignPackages(req, res);
-//     } else {
-//         res.writeHead(404, { 
-//             'Content-Type': 'application/json',
-//             "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
-//             "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
-//          });
-//         res.end(JSON.stringify({ error: 'Not Found' }));
-//     }
-//   }).listen(process.env.PORT, () => {
-//     console.log('Server running on port', process.env.PORT);
-//   });
-
-
 
 require("dotenv").config({ path: "./.env" });
 const http = require("http");
 const db = require("./db");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+
+// API functions
+const EmployeeAPI = require("./API Endpoints/EmployeeAPI.js");
 
 if (!process.env.JWT_SECRET) {
     console.error("JWT_SECRET is missing in .env file!");
@@ -63,6 +18,9 @@ const server = http.createServer((req, res) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+    console.log(req.method);
+    console.log(req.url);
 
     if (req.method === "OPTIONS") {
         res.writeHead(204);
@@ -374,71 +332,13 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
                 res.end(JSON.stringify({ status: "error", message: "Internal Server Error" }));
             }
         });
-    }
+    } else if (req.method === "POST" && req.url === "/employee-login") {
+        EmployeeAPI.employeeLogIn(req, res);
 
-
-    else if (req.method === "POST" && req.url === "/employee-login") {
-        let body = "";
-
-        req.on("data", chunk => {
-            body += chunk.toString();
-        });
-
-        req.on("end", async () => {
-            try {
-                const { employee_Username, employee_Password } = JSON.parse(body);
-
-                const sql = "SELECT * FROM employees WHERE employee_Username = ?";
-                db.query(sql, [employee_Username], async (err, results) => {
-                    if (err) {
-                        console.error(" DB Error:", err);
-                        res.writeHead(500, { "Content-Type": "application/json" });
-                        return res.end(JSON.stringify({ error: "Server error" }));
-                    }
-
-                    if (results.length === 0) {
-                        res.writeHead(401, { "Content-Type": "application/json" });
-                        return res.end(JSON.stringify({ error: "Invalid username or password" }));
-                    }
-
-                    const employee = results[0];
-                    const isMatch = await bcrypt.compare(employee_Password, employee.employee_Password);
-
-                    if (!isMatch) {
-                        res.writeHead(401, { "Content-Type": "application/json" });
-                        return res.end(JSON.stringify({ error: "Invalid username or password" }));
-                    }
-
-                    //  Generate JWT token
-                    const token = jwt.sign(
-                        {
-                            id: employee.employee_ID,
-                            username: employee.employee_Username,
-                            role: employee.Role.toLowerCase(), // warehouse / driver
-                            firstName: employee.First_Name,
-                        },
-                        process.env.JWT_SECRET,
-                        { expiresIn: "1h" }
-                    );
-
-                    //  Send token + role info to frontend
-                    res.writeHead(200, { "Content-Type": "application/json" });
-                    res.end(JSON.stringify({
-                        token,
-                        role: employee.Role.toLowerCase(),
-                        employeeID: employee.employee_ID,
-                        firstName: employee.First_Name,
-                    }));
-                });
-            } catch (err) {
-                console.error(" Error parsing employee login:", err);
-                res.writeHead(500, { "Content-Type": "application/json" });
-                res.end(JSON.stringify({ error: "Internal server error" }));
-            }
-        });
-    }
-
-    else if (req.method === "POST" && req.url === "/admin-login") {
+    } else if (req.url === "/warehouseassignpackages") {
+        EmployeeAPI.warehouseAssignPackages(req, res);
+        
+    } else if (req.method === "POST" && req.url === "/admin-login") {
         let body = "";
 
         req.on("data", chunk => body += chunk.toString());

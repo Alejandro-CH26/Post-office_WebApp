@@ -1,62 +1,126 @@
-const connection = require("../db")
+const connection = require("../db");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+
+// async function employeeLogIn(req, res) {
+//     var body = "";
+//     req.on('data', chunk => {
+//         body += chunk.toString();
+//     });
+//     req.on('end', () => {
+//         var {username, password} = JSON.parse(body);
+//         console.log(username);
+//         console.log(password);
+
+//         // Checking to see if the username and password are valid
+//         connection.query(
+//             "SELECT Employee_ID FROM employees WHERE employee_Username = ? AND employee_Password = ?",
+//             [username, password],
+//             (err, results) => {
+//                 // If username and password are invalid and/or the database can't be reached
+//                 if (err) {
+//                     console.error('❌ Database Query Error:', err);
+//                     res.writeHead(500, { 
+//                         'Content-Type': 'application/json',
+//                         "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
+//                         "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
+//                         });
+//                     res.end(JSON.stringify({ error: 'Database Query Error' }));
+//                     return;
+//                 }
+
+//                 // If the user name and password are valid and everything's okay
+//                 if (results.length > 0) {
+//                     var employeeID = results[0].Employee_ID;
+                    
+//                     // Set cookie with the employeeID so that we know which employee is sending requests
+//                     res.writeHead(200, {
+//                         'Content-Type': 'application/json',
+//                         'Set-Cookie': `employeeID=${employeeID}; Path=/; HttpOnly; SameSite=None; Secure;`, 
+//                         "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
+//                         "Access-Control-Allow-Credentials": "true", // Include if you're using cookies
+//                     });
+                    
+//                     // Ending the response
+//                     res.end(JSON.stringify({success: true}));
+//                 } else {
+//                     // Respond if no matching user is found
+//                     res.writeHead(401, { 
+//                         'Content-Type': 'application/json',
+//                         "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
+//                         "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
+//                     });
+//                     res.end(JSON.stringify({ error: 'Invalid credentials' }));
+//                 }
+            
+//             }
+//         )
+//     });
+// }
 
 async function employeeLogIn(req, res) {
-    var body = "";
-    req.on('data', chunk => {
+    let body = "";
+
+    req.on("data", chunk => {
         body += chunk.toString();
     });
-    req.on('end', () => {
-        var {username, password} = JSON.parse(body);
-        console.log(username);
-        console.log(password);
 
-        // Checking to see if the username and password are valid
-        connection.query(
-            "SELECT Employee_ID FROM employees WHERE employee_Username = ? AND employee_Password = ?",
-            [username, password],
-            (err, results) => {
-                // If username and password are invalid and/or the database can't be reached
+    req.on("end", async () => {
+        try {
+            const { employee_Username, employee_Password } = JSON.parse(body);
+
+            const sql = "SELECT * FROM employees WHERE employee_Username = ?";
+            connection.query(sql, [employee_Username], async (err, results) => {
                 if (err) {
-                    console.error('❌ Database Query Error:', err);
-                    res.writeHead(500, { 
-                        'Content-Type': 'application/json',
-                        "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
-                        "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
-                        });
-                    res.end(JSON.stringify({ error: 'Database Query Error' }));
-                    return;
+                    console.error(" DB Error:", err);
+                    res.writeHead(500, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "http://localhost:3000"});
+                    return res.end(JSON.stringify({ error: "Server error" }));
                 }
 
-                // If the user name and password are valid and everything's okay
-                if (results.length > 0) {
-                    var employeeID = results[0].Employee_ID;
-                    
-                    // Set cookie with the employeeID so that we know which employee is sending requests
-                    res.writeHead(200, {
-                        'Content-Type': 'application/json',
-                        'Set-Cookie': `employeeID=${employeeID}; Path=/; HttpOnly; SameSite=None; Secure;`, 
-                        "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
-                        "Access-Control-Allow-Credentials": "true", // Include if you're using cookies
-                    });
-                    
-                    // Ending the response
-                    res.end(JSON.stringify({success: true}));
-                } else {
-                    // Respond if no matching user is found
-                    res.writeHead(401, { 
-                        'Content-Type': 'application/json',
-                        "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
-                        "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
-                    });
-                    res.end(JSON.stringify({ error: 'Invalid credentials' }));
+                if (results.length === 0) {
+                    res.writeHead(401, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "http://localhost:3000", });
+                    return res.end(JSON.stringify({ error: "Invalid username or password" }));
                 }
-            
-            }
-        )
+
+                const employee = results[0];
+                const isMatch = await bcrypt.compare(employee_Password, employee.employee_Password);
+
+                if (!isMatch) {
+                    res.writeHead(401, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "http://localhost:3000", });
+                    return res.end(JSON.stringify({ error: "Invalid username or password" }));
+                }
+
+                //  Generate JWT token
+                const token = jwt.sign(
+                    {
+                        id: employee.employee_ID,
+                        username: employee.employee_Username,
+                        role: employee.Role.toLowerCase(), // warehouse / driver
+                        firstName: employee.First_Name,
+                    },
+                    process.env.JWT_SECRET,
+                    { expiresIn: "1h" }
+                );
+
+                //  Send token + role info to frontend
+                res.writeHead(200, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "http://localhost:3000", 'Set-Cookie': `employeeID=${employee.employee_ID}; Path=/; HttpOnly; SameSite=None; Secure;`,});
+                res.end(JSON.stringify({
+                    token,
+                    role: employee.Role.toLowerCase(),
+                    employeeID: employee.employee_ID,
+                    firstName: employee.First_Name,
+                }));
+            });
+        } catch (err) {
+            console.error(" Error parsing employee login:", err);
+            res.writeHead(500, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "http://localhost:3000" });
+            res.end(JSON.stringify({ error: "Internal server error" }));
+        }
     });
 }
 
 async function warehouseDashboard(req, res) {
+    console.log(req.body);
     // Fetch employee data
     var cookies = req.headers?.cookie;
     console.log("Cookies", cookies);
@@ -142,28 +206,60 @@ async function warehouseAssignPackages(req, res) {
                             res.end(JSON.stringify({ error: 'Database Query Error' }));
                             return;
                         }
-                        console.log("Results", results);
+                        console.log("Packages", results);
                         if (results.length > 0) {
                             res.writeHead(200, { 
                                 'Content-Type': 'application/json',
                                 "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
                                 "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
                             });
-                            res.write(JSON.stringify({
-                                packageID: results[0].Package_ID,
-                                addressCity: results[0].address_City,
-                                addressState: results[0].address_State
+                        
+                            var packages = results.map(row => ({
+                                packageID: row.Package_ID,
+                                addressCity: row.address_City,
+                                addressState: row.address_State
                             }));
+                            res.write(JSON.stringify(packages));
+                            res.end(); //Used for testing with just the package query
                         }
                     }
-                )
+                );
                 // GET the Post Office and Warehouse locations
-                var postOfficeQuery = `
-                select addresses.address_Street, addresses.address_City, addresses.address_State, addresses.address_Zipcode
-                from db1.addresses
-                where Office_Location = true;
-                `;
-                
+                // var postOfficeQuery = `
+                // select addresses.address_Street, addresses.address_City, addresses.address_State, addresses.address_Zipcode
+                // from db1.addresses
+                // where Office_Location = true;
+                // `;
+                // connection.query(postOfficeQuery, [employeeID],
+                //     (err, results) => {
+                //         if (err) {
+                //             console.error('Error accessing database', err);
+                //             res.writeHead(500, { 
+                //                 'Content-Type': 'application/json',
+                //                 "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
+                //                 "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
+                //             });
+                //             res.end(JSON.stringify({ error: 'Database Query Error' }));
+                //             return;
+                //         }
+                //         console.log("Post Offices", results);
+                //         if (results.length > 0) {
+                //             var postOffices = results.map(
+                //                 row => ({
+                //                     addressStreet: row.address_Street,
+                //                     addressCity: row.address_City,
+                //                     addressState: row.address_State,
+                //                     address_Zipcode: row.address_Zipcode
+                //                 })
+                //             );
+                //             res.write(JSON.stringify(postOffices));
+                //             res.end();
+                //         }
+                //     }
+                // );
+
+
+
 
             } else if (req.method === "POST") { // If the request is POST (employee is attempting to assign a package)
 

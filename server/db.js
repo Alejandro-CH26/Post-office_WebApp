@@ -2,14 +2,7 @@ require("dotenv").config({ path: "../.env" });
 const mysql = require("mysql2");
 const fs = require("fs");
 
-// Debugging SSL Path
-console.log("🔍 Checking SSL Path:", process.env.SSL_CA);
-
-
-const mysql = require('mysql2');
-const fs = require('fs');
-
-const connection = mysql.createPool({
+const db = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,

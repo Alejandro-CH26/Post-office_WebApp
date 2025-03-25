@@ -21,6 +21,9 @@ import CustomerDashboard from "./pages/CustomerDashboard";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import "./App.css";
+import WarehouseEmployeeDashboard from "./pages/WarehouseEmployeeDashboard";
+import WarehouseAssignPackages from "./pages/WarehouseAssignPackages";
+import ClockInOut from "./pages/ClockInOut";
 
 // Restrict access based on token & role
 const PrivateRoute = ({ element, requiredRole }) => {
@@ -67,6 +70,10 @@ function App() {
         <Route path="/warehouse-dashboard" element={<PrivateRoute element={<WarehouseDashboard />} requiredRole="warehouse" />} />
         <Route path="/driver-dashboard" element={<PrivateRoute element={<DriverDashboard />} requiredRole="driver" />} />
         <Route path="/admin-dashboard" element={<PrivateRoute element={<AdminDashboard />} requiredRole="admin" />} />
+
+        {/* Warehouse Employee Routes */}
+        <Route path="/warehouseassignpackages" element={<PrivateRoute element={<WarehouseAssignPackages />} requiredRole="warehouse" />} />
+        <Route path="/warehouseclockinout" element={<PrivateRoute element={<ClockInOut />} requiredRole="warehouse" />} />
 
         {/* Catch-all redirect */}
         <Route path="*" element={<Navigate to="/" />} />
