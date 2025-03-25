@@ -8,6 +8,7 @@ const url = require("url");
 // Handle route files
 const notificationRoutes = require("./notificationRoutes");
 const reportRoutes = require("./reportRoutes");
+const employeeRoutes = require("./employeeRoutes");
 
 
 if (!process.env.JWT_SECRET) {
@@ -30,6 +31,7 @@ const server = http.createServer((req, res) => {
     const reqUrl = url.parse(req.url, true);
     if (notificationRoutes(req, res, reqUrl)) return;
     if (reportRoutes(req, res, reqUrl)) return;
+    if (employeeRoutes(req, res, reqUrl)) return;
 
     //  Registration Route 
     if (req.method === "POST" && req.url === "/register") {

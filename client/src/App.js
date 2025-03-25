@@ -12,6 +12,7 @@ import Register from "./pages/Register";
 import BuyInventory from "./pages/BuyInventory";
 import Onboard from "./pages/Onboard";
 import EmployeeLogin from "./pages/EmployeeLogin";
+import Employees from "./pages/Employees";
 import WarehouseDashboard from "./pages/WarehouseDashboard";
 import DriverDashboard from "./pages/DriverDashboard";
 import CustomerDashboard from "./pages/CustomerDashboard";
@@ -70,6 +71,7 @@ function App() {
         <Route path="/buyinventory" element={<BuyInventory />} />
         <Route path="/onboard" element={<PrivateRoute element={<Onboard />} requiredRole="admin" />} />
         <Route path="/admin/reports" element={<PrivateRoute element={<Reports />} requiredRole="admin" />} />
+        <Route path="/admin/employees" element={<PrivateRoute element={<Employees />} requiredRole="admin" />} />
 
 
         {/* Dashboards */}

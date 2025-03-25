@@ -52,6 +52,7 @@ function Navbar() {
           <>
             <li><Link to="/onboard">Onboard Employee</Link></li>
             <li><Link to="/admin/reports">Reports</Link></li>
+            <li><Link to="/admin/employees">Employee List</Link></li>
           </>
         )}
 
