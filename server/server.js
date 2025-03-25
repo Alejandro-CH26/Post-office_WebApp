@@ -38,7 +38,7 @@ const server = http.createServer((req, res) => {
     const reqUrl = url.parse(req.url, true);
     if (notificationRoutes(req, res, reqUrl)) return;
     if (reportRoutes(req, res, reqUrl)) return;
-    if (employeeRotues(req, res, reqUrl)) return;
+    if (employeeRoutes(req, res, reqUrl)) return;
 
     //  Registration Route 
     if (req.method === "POST" && req.url === "/register") {
