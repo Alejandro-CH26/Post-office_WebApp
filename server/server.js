@@ -37,7 +37,8 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  const reqUrl = url.parse(req.url, true);
+    const reqUrl = url.parse(req.url, true);
+ 
 
   // Route handling:
   if (notificationRoutes(req, res, reqUrl)) return;
