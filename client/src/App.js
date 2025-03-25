@@ -2,20 +2,14 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 
-import HomePage from "./pages/HomePage";
-
-// import HeroSection from "./components/HeroSection"; // Import Hero Section
-// import SearchPackage from "./components/SearchPackage";
+import HeroSection from "./components/HeroSection";
+import SearchPackage from "./components/SearchPackage";
 
 import Faq from "./pages/Faq";
 import TrackPackage from "./pages/TrackPackage";
-import PackageMaker from "./pages/PackageMaker";
 import LogIn from "./pages/LogIn";
 import Register from "./pages/Register";
 import BuyInventory from "./pages/BuyInventory";
-
-
-
 import Onboard from "./pages/Onboard";
 import EmployeeLogin from "./pages/EmployeeLogin";
 import WarehouseDashboard from "./pages/WarehouseDashboard";
@@ -49,15 +43,25 @@ const handleLogout = () => {
 function App() {
   return (
     <Router>
-      <header className="header">Post Office</header>
-
+      {/* Removed the <header className="header">Post Office</header> */}
+      
+      {/* Navbar remains */}
       <Navbar onLogout={handleLogout} />
 
+      {/* Routes */}
       <Routes>
-        <Route path="/homepage" element={<HomePage />} />
+        {/* Example homepage route */}
+        <Route
+          path="/"
+          element={
+            <main className="homepage">
+              <HeroSection />
+              <SearchPackage />
+            </main>
+          }
+        />
         <Route path="/faq" element={<Faq />} />
         <Route path="/trackpackage" element={<TrackPackage />} />
-        <Route path="/packagemaker" element={<PackageMaker />} />
         <Route path="/login" element={<LogIn />} />
         <Route path="/employee-login" element={<EmployeeLogin />} />
         <Route path="/admin-login" element={<AdminLogin />} />
@@ -71,9 +75,14 @@ function App() {
         <Route path="/driver-dashboard" element={<PrivateRoute element={<DriverDashboard />} requiredRole="driver" />} />
         <Route path="/admin-dashboard" element={<PrivateRoute element={<AdminDashboard />} requiredRole="admin" />} />
 
-        {/* Catch-all redirect */}
+        {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
+
+      {/* Footer at the bottom */}
+      <footer className="footer">
+        © 2025 Post Office. All rights reserved.
+      </footer>
     </Router>
   );
 }
