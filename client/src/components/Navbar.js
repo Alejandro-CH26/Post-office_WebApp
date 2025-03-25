@@ -51,12 +51,9 @@ function Navbar() {
         {token && role === "admin" && (
           <>
             <li><Link to="/onboard">Onboard Employee</Link></li>
-<<<<<<< HEAD
             <li><Link to="/admin-dashboard">Admin Dashboard</Link></li>
             <li><Link to="/employeehours">Employee Hours</Link></li>
-=======
             <li><Link to="/admin/reports">Reports</Link></li>
->>>>>>> 30b6ef7054bc7a644f5f6cc9207fcafa9fd9e71e
           </>
         )}
 
