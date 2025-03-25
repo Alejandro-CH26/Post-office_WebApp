@@ -10,6 +10,7 @@ const notificationRoutes = require("./notificationRoutes");
 const reportRoutes = require("./reportRoutes");
 
 
+
 if (!process.env.JWT_SECRET) {
     console.error("JWT_SECRET is missing in .env file!");
     process.exit(1);
@@ -26,10 +27,11 @@ const server = http.createServer((req, res) => {
         res.end();
         return;
     }
-    
+
     const reqUrl = url.parse(req.url, true);
     if (notificationRoutes(req, res, reqUrl)) return;
     if (reportRoutes(req, res, reqUrl)) return;
+    if (locationRoutes(req, res)) return;
 
     //  Registration Route 
     if (req.method === "POST" && req.url === "/register") {
@@ -83,6 +85,8 @@ const server = http.createServer((req, res) => {
             }
         });
     }
+
+
 
 
     //Login Route (JWT Authentication)
@@ -158,6 +162,8 @@ const server = http.createServer((req, res) => {
             }
         });
     }
+
+
 
 
     // Protected Dashboard Route (JWT Required)
@@ -287,14 +293,14 @@ const server = http.createServer((req, res) => {
 
                 // SQL query to insert into employees table
                 const sql = `
-INSERT INTO employees 
-(employee_ID, First_Name, Middle_Name, Last_Name, Email, Phone, Emergency_Number, 
- Address_ID, address_Street, address_City, address_State, address_Zipcode, unit_number,
- Role, Hourly_Wage, Supervisor_ID, Location, Location_ID, 
- employee_Username, employee_Password, Education, Gender, 
- DOB_Day, DOB_Month, DOB_Year)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-`;
+            INSERT INTO employees 
+            (employee_ID, First_Name, Middle_Name, Last_Name, Email, Phone, Emergency_Number, 
+            Address_ID, address_Street, address_City, address_State, address_Zipcode, unit_number,
+            Role, Hourly_Wage, Supervisor_ID, Location, Location_ID, 
+            employee_Username, employee_Password, Education, Gender, 
+            DOB_Day, DOB_Month, DOB_Year)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `;
 
 
                 const values = [
@@ -462,6 +468,13 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
             }
         });
     }
+
+
+
+
+
+
+
 
 
 
