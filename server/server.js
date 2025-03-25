@@ -10,7 +10,7 @@ const url = require("url");
 // Handle route files
 const notificationRoutes = require("./notificationRoutes");
 const reportRoutes = require("./reportRoutes");
-
+const employeeRoutes = require("./employeeRoutes");
 
 // API functions
 const EmployeeAPI = require("./API Endpoints/EmployeeAPI.js");
