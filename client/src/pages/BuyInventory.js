@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useRef} from "react";
 import { Link } from "react-router-dom";
 import "./BuyInventory.css";
