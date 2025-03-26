@@ -36,7 +36,7 @@ function PackageMaker() {
         };
 
         try {
-            const response = await fetch("https://post-office-webapp.onrender.com", {
+            const response = await fetch("https://post-office-webapp.onrender.com/addPackage", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(newPackage),
