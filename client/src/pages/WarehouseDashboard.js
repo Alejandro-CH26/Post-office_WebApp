@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 function WarehouseDashboard() {
@@ -20,12 +21,25 @@ function WarehouseDashboard() {
         }
     }, []);
 
-    return (
-        <div style={{ padding: "2rem" }}>
-            <h1>Warehouse Dashboard</h1>
-            <p>Welcome, {employeeID}! You can manage inventory, packages, and more from here.</p>
+    const buttonStyle = {
+        display: 'block',
+        width: '100%',
+        margin: '10px 0',
+        padding: '10px',
+      };
+    
+      return (
+        <div style={{ textAlign: 'center', padding: '20px' }}>
+          <h1>Hello, {name}</h1>
+          <Link to="/WarehouseAssignPackages">
+          <button style={buttonStyle}>View Packages</button>
+          </Link>
+          <Link to ="/WarehouseClockInOut">
+          <button style={buttonStyle}>Clock In/Out</button>
+          </Link>
+          
         </div>
-    );
+      );
 }
 
 export default WarehouseDashboard;
