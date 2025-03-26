@@ -14,7 +14,7 @@ function EmployeeDashboard() {
             return;
         }
 
-        fetch("https://post-office-webapp.onrender.com", {
+        fetch("https://post-office-webapp.onrender.com/employee-dashboard", {
             method: "GET",
             headers: { Authorization: `Bearer ${token}` },
         })
