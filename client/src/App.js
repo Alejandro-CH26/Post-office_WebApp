@@ -26,6 +26,7 @@ import EmployeeHours from "./pages/EmployeeHours";
 import InventoryReport from "./pages/inventoryreport";
 
 // Restrict access based on token & role
+// hi
 const PrivateRoute = ({ element, requiredRole }) => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
@@ -50,7 +51,7 @@ function App() {
   return (
     <Router>
       {/* Removed the <header className="header">Post Office</header> */}
-      
+
       {/* Navbar remains */}
       <Navbar onLogout={handleLogout} />
 

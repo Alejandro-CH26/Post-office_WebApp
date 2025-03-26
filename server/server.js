@@ -24,7 +24,7 @@ if (!process.env.JWT_SECRET) {
 
 // Create HTTP Server
 const server = http.createServer((req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", "https://post-office-web-app.vercel.app");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
@@ -37,8 +37,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-    const reqUrl = url.parse(req.url, true);
- 
+  const reqUrl = url.parse(req.url, true);
 
   // Route handling:
   if (notificationRoutes(req, res, reqUrl)) return;
@@ -46,7 +45,7 @@ const server = http.createServer((req, res) => {
   if (employeeRoutes(req, res, reqUrl)) return;
   if (inventoryAPI(req, res, reqUrl)) return; // New Inventory route
 
-  //  Registration Route 
+  // Registration Route 
   if (req.method === "POST" && req.url === "/register") {
     let body = "";
     req.on("data", (chunk) => (body += chunk.toString()));
@@ -104,7 +103,6 @@ const server = http.createServer((req, res) => {
   // Login Route (JWT Authentication)
   else if (req.method === "POST" && req.url === "/login") {
     let body = "";
-
     req.on("data", (chunk) => (body += chunk.toString()));
 
     req.on("end", async () => {
@@ -129,10 +127,7 @@ const server = http.createServer((req, res) => {
             }
 
             const user = results[0];
-            const passwordMatch = await bcrypt.compare(
-              customer_Password,
-              user.customer_Password
-            );
+            const passwordMatch = await bcrypt.compare(customer_Password, user.customer_Password);
 
             if (!passwordMatch) {
               res.writeHead(401, { "Content-Type": "application/json" });
@@ -156,15 +151,13 @@ const server = http.createServer((req, res) => {
 
             // Send back token + useful info
             res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(
-              JSON.stringify({
-                token,
-                customerID: user.customer_ID,
-                firstName: user.first_Name,
-                role: "customer",
-                message: "Login successful"
-              })
-            );
+            res.end(JSON.stringify({
+              token,
+              customerID: user.customer_ID,
+              firstName: user.first_Name,
+              role: "customer",
+              message: "Login successful"
+            }));
           }
         );
       } catch (error) {
@@ -224,7 +217,7 @@ const server = http.createServer((req, res) => {
 
         // Validate required fields
         if (!weight || !sender_Customer_ID || !recipient_Customer_ID || !origin_ID || !destination_ID ||
-          !shipping_Cost || !priority || fragile === undefined || !transaction_ID || !length || !width || !height) {
+            !shipping_Cost || !priority || fragile === undefined || !transaction_ID || !length || !width || !height) {
           console.error("Missing required fields.");
           res.writeHead(400, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ status: "error", message: "Missing required fields." }));
@@ -270,9 +263,9 @@ const server = http.createServer((req, res) => {
       }
     });
   }
+  // Onboard Employee Route
   else if (req.method === "POST" && req.url === "/onboard") {
     let body = "";
-
     req.on("data", (chunk) => (body += chunk.toString()));
 
     req.on("end", async () => {
@@ -349,9 +342,9 @@ const server = http.createServer((req, res) => {
   else if (req.url === "/warehouseassignpackages") {
     EmployeeAPI.warehouseAssignPackages(req, res);
   }
+  // Admin Login Route
   else if (req.method === "POST" && req.url === "/admin-login") {
     let body = "";
-
     req.on("data", (chunk) => (body += chunk.toString()));
     req.on("end", async () => {
       try {
@@ -376,6 +369,7 @@ const server = http.createServer((req, res) => {
           console.log("Hashed from DB:", admin.Password);
           console.log("Admin object from DB:", admin);
 
+          // Debug line; remove in production
           bcrypt.hash("lebron", 10).then(console.log);
 
           const isMatch = await bcrypt.compare(admin_Password, admin.Password);
@@ -406,9 +400,10 @@ const server = http.createServer((req, res) => {
     });
   }
   else if (req.method === "GET" && req.url === "/report") {
-    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Origin", "https://post-office-web-app.vercel.app");
     res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
     handleReportRequest(req, res);
   }
   // 404 Not Found Handler
