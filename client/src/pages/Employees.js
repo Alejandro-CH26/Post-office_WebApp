@@ -8,7 +8,7 @@ const Employees = () => {
     const [locationFilter, setLocationFilter] = useState('all');
 
     useEffect(() => {
-        fetch('http://localhost:5001/employee-reports')
+        fetch('https://post-office-webapp.onrender.com/employee-reports')
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data)) {
@@ -140,5 +140,4 @@ const Employees = () => {
         </div>
     );
 };
-
 export default Employees;
