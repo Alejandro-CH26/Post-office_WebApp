@@ -18,12 +18,12 @@ async function employeeLogIn(req, res) {
             connection.query(sql, [employee_Username], async (err, results) => {
                 if (err) {
                     console.error(" DB Error:", err);
-                    res.writeHead(500, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "http://localhost:3000"});
+                    res.writeHead(500, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app"});
                     return res.end(JSON.stringify({ error: "Server error" }));
                 }
 
                 if (results.length === 0) {
-                    res.writeHead(401, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "http://localhost:3000", });
+                    res.writeHead(401, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", });
                     return res.end(JSON.stringify({ error: "Invalid username or password" }));
                 }
 
@@ -31,7 +31,7 @@ async function employeeLogIn(req, res) {
                 const isMatch = await bcrypt.compare(employee_Password, employee.employee_Password);
 
                 if (!isMatch) {
-                    res.writeHead(401, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "http://localhost:3000", });
+                    res.writeHead(401, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", });
                     return res.end(JSON.stringify({ error: "Invalid username or password" }));
                 }
 
@@ -48,7 +48,7 @@ async function employeeLogIn(req, res) {
                 );
 
                 //  Send token + role info to frontend
-                res.writeHead(200, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "http://localhost:3000", 'Set-Cookie': `employeeID=${employee.employee_ID}; Path=/; HttpOnly; SameSite=None; Secure;`,});
+                res.writeHead(200, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app",});
                 res.end(JSON.stringify({
                     token,
                     role: employee.Role.toLowerCase(),
@@ -58,7 +58,7 @@ async function employeeLogIn(req, res) {
             });
         } catch (err) {
             console.error(" Error parsing employee login:", err);
-            res.writeHead(500, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "http://localhost:3000" });
+            res.writeHead(500, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app" });
             res.end(JSON.stringify({ error: "Internal server error" }));
         }
     });
@@ -80,7 +80,7 @@ async function warehouseDashboard(req, res) {
                         console.error('Error accessing database', err);
                         res.writeHead(500, { 
                             'Content-Type': 'application/json',
-                            "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
+                            "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", // Allow the React app origin
                             "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
                         });
                         res.end(JSON.stringify({ error: 'Database Query Error' }));
@@ -90,14 +90,14 @@ async function warehouseDashboard(req, res) {
                     if (results.length > 0) {
                         res.writeHead(200, { 
                             'Content-Type': 'application/json',
-                            "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
+                            "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", // Allow the React app origin
                             "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
                         });
                         res.end(JSON.stringify({ name: results[0].First_Name }));
                     } else {
                         res.writeHead(404, { 
                             'Content-Type': 'application/json',
-                            "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
+                            "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", // Allow the React app origin
                             "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
                         });
                         res.end(JSON.stringify({ error: 'Employee not found' }));
@@ -108,7 +108,7 @@ async function warehouseDashboard(req, res) {
         } else {
             res.writeHead(401, { 
                 'Content-Type': 'application/json',
-                "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
+                "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", // Allow the React app origin
                 "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
              });
             res.end(JSON.stringify({ error: 'Unauthorized, incorrect employee ID' }));
@@ -116,7 +116,7 @@ async function warehouseDashboard(req, res) {
     } else {
         res.writeHead(401, { 
             'Content-Type': 'application/json',
-            "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
+            "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", // Allow the React app origin
             "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
          });
         res.end(JSON.stringify({ error: 'Unauthorized, no cookies' }));
@@ -145,7 +145,7 @@ async function warehouseAssignPackages(req, res) {
                             console.error('Error accessing database', err);
                             res.writeHead(500, { 
                                 'Content-Type': 'application/json',
-                                "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
+                                "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", // Allow the React app origin
                                 "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
                             });
                             res.end(JSON.stringify({ error: 'Database Query Error' }));
@@ -155,7 +155,7 @@ async function warehouseAssignPackages(req, res) {
                         if (results.length > 0) {
                             res.writeHead(200, { 
                                 'Content-Type': 'application/json',
-                                "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
+                                "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", // Allow the React app origin
                                 "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
                             });
                         
@@ -212,7 +212,7 @@ async function warehouseAssignPackages(req, res) {
         } else {
             res.writeHead(401, { 
                 'Content-Type': 'application/json',
-                "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
+                "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", // Allow the React app origin
                 "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
              });
             res.end(JSON.stringify({ error: 'Unauthorized, incorrect employee ID' }));
@@ -220,7 +220,7 @@ async function warehouseAssignPackages(req, res) {
     } else {
         res.writeHead(401, { 
             'Content-Type': 'application/json',
-            "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
+            "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", // Allow the React app origin
             "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
          });
         res.end(JSON.stringify({ error: 'Unauthorized, no cookies' }));
