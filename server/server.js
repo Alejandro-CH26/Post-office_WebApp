@@ -1,3 +1,4 @@
+
 require("dotenv").config({ path: "./.env" });
 const http = require("http");
 const db = require("./db");
@@ -11,6 +12,8 @@ const notificationRoutes = require("./notificationRoutes");
 const reportRoutes = require("./reportRoutes");
 const employeeRoutes = require("./employeeRoutes");
 
+// API functions
+const EmployeeAPI = require("./API Endpoints/EmployeeAPI.js");
 
 if (!process.env.JWT_SECRET) {
     console.error("JWT_SECRET is missing in .env file!");
@@ -23,16 +26,19 @@ const server = http.createServer((req, res) => {
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
+    console.log(req.method);
+    console.log(req.url);
+
     if (req.method === "OPTIONS") {
         res.writeHead(204);
         res.end();
         return;
     }
-    
+
     const reqUrl = url.parse(req.url, true);
     if (notificationRoutes(req, res, reqUrl)) return;
     if (reportRoutes(req, res, reqUrl)) return;
-    if(employeeRoutes(req, res, reqUrl)) return;
+    if (employeeRoutes(req, res, reqUrl)) return;
 
     //  Registration Route 
     if (req.method === "POST" && req.url === "/register") {
@@ -86,6 +92,8 @@ const server = http.createServer((req, res) => {
             }
         });
     }
+
+
 
 
     //Login Route (JWT Authentication)
@@ -161,6 +169,8 @@ const server = http.createServer((req, res) => {
             }
         });
     }
+
+
 
 
     // Protected Dashboard Route (JWT Required)
@@ -290,14 +300,14 @@ const server = http.createServer((req, res) => {
 
                 // SQL query to insert into employees table
                 const sql = `
-INSERT INTO employees 
-(employee_ID, First_Name, Middle_Name, Last_Name, Email, Phone, Emergency_Number, 
- Address_ID, address_Street, address_City, address_State, address_Zipcode, unit_number,
- Role, Hourly_Wage, Supervisor_ID, Location, Location_ID, 
- employee_Username, employee_Password, Education, Gender, 
- DOB_Day, DOB_Month, DOB_Year)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-`;
+            INSERT INTO employees 
+            (employee_ID, First_Name, Middle_Name, Last_Name, Email, Phone, Emergency_Number, 
+            Address_ID, address_Street, address_City, address_State, address_Zipcode, unit_number,
+            Role, Hourly_Wage, Supervisor_ID, Location, Location_ID, 
+            employee_Username, employee_Password, Education, Gender, 
+            DOB_Day, DOB_Month, DOB_Year)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `;
 
 
                 const values = [
@@ -338,71 +348,13 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
                 res.end(JSON.stringify({ status: "error", message: "Internal Server Error" }));
             }
         });
-    }
+    } else if (req.method === "POST" && req.url === "/employee-login") {
+        EmployeeAPI.employeeLogIn(req, res);
 
+    } else if (req.url === "/warehouseassignpackages") {
+        EmployeeAPI.warehouseAssignPackages(req, res);
 
-    else if (req.method === "POST" && req.url === "/employee-login") {
-        let body = "";
-
-        req.on("data", chunk => {
-            body += chunk.toString();
-        });
-
-        req.on("end", async () => {
-            try {
-                const { employee_Username, employee_Password } = JSON.parse(body);
-
-                const sql = "SELECT * FROM employees WHERE employee_Username = ?";
-                db.query(sql, [employee_Username], async (err, results) => {
-                    if (err) {
-                        console.error(" DB Error:", err);
-                        res.writeHead(500, { "Content-Type": "application/json" });
-                        return res.end(JSON.stringify({ error: "Server error" }));
-                    }
-
-                    if (results.length === 0) {
-                        res.writeHead(401, { "Content-Type": "application/json" });
-                        return res.end(JSON.stringify({ error: "Invalid username or password" }));
-                    }
-
-                    const employee = results[0];
-                    const isMatch = await bcrypt.compare(employee_Password, employee.employee_Password);
-
-                    if (!isMatch) {
-                        res.writeHead(401, { "Content-Type": "application/json" });
-                        return res.end(JSON.stringify({ error: "Invalid username or password" }));
-                    }
-
-                    //  Generate JWT token
-                    const token = jwt.sign(
-                        {
-                            id: employee.employee_ID,
-                            username: employee.employee_Username,
-                            role: employee.Role.toLowerCase(), // warehouse / driver
-                            firstName: employee.First_Name,
-                        },
-                        process.env.JWT_SECRET,
-                        { expiresIn: "1h" }
-                    );
-
-                    //  Send token + role info to frontend
-                    res.writeHead(200, { "Content-Type": "application/json" });
-                    res.end(JSON.stringify({
-                        token,
-                        role: employee.Role.toLowerCase(),
-                        employeeID: employee.employee_ID,
-                        firstName: employee.First_Name,
-                    }));
-                });
-            } catch (err) {
-                console.error(" Error parsing employee login:", err);
-                res.writeHead(500, { "Content-Type": "application/json" });
-                res.end(JSON.stringify({ error: "Internal server error" }));
-            }
-        });
-    }
-
-    else if (req.method === "POST" && req.url === "/admin-login") {
+    } else if (req.method === "POST" && req.url === "/admin-login") {
         let body = "";
 
         req.on("data", chunk => body += chunk.toString());
@@ -465,13 +417,20 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
             }
         });
     }
-    else if(req.method === "GET" && req.url === "/report") {
+    else if (req.method === "GET" && req.url === "/report") {
         res.setHeader("Access-Control-Allow-Origin", "*");
         res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
         handleReportRequest(req, res);
     }
+
+
+
+
+
+
+
 
 
 
