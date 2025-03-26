@@ -22,7 +22,7 @@ if (!process.env.JWT_SECRET) {
 
 // Create HTTP Server
 const server = http.createServer((req, res) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Origin", "https://post-office-web-app.vercel.app");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
@@ -417,8 +417,8 @@ const server = http.createServer((req, res) => {
             }
         });
     }
-    else if (req.method === "GET" && req.url === "/report") {
-        res.setHeader("Access-Control-Allow-Origin", "*");
+    else if(req.method === "GET" && req.url === "/report") {
+        res.setHeader("Access-Control-Allow-Origin", "https://post-office-web-app.vercel.app");
         res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
