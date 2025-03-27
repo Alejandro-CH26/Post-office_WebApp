@@ -66,6 +66,7 @@ function App() {
               <SearchPackage />
             </main>
           }
+        
         />
         <Route path="/faq" element={<Faq />} />
         <Route path="/trackpackage" element={<PrivateRoute element={<TrackPackage />} requiredRole="customer" />} />
