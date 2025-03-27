@@ -48,16 +48,17 @@ body {
 
 
 /* Footer */
-
 .footer {
   text-align: center;
   padding: 20px;
   background-color: #2d2c72;
   color: white;
   width: 100%;
-  position: fixed;
-  bottom: 0;
-  left: 0;
+  /* Remove these lines: 
+     position: fixed;
+     bottom: 0;
+     left: 0;
+  */
 }
 
 /* Notifications */
@@ -176,4 +177,3 @@ h3 {
     max-width: 90%;
   }
 }
-

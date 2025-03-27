@@ -29,7 +29,7 @@ function EmployeeLogin() {
             const response = await fetch("http://localhost:5001/employee-login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(credentials),
+                body: JSON.stringify(credentials)
             });
 
             const data = await response.json();

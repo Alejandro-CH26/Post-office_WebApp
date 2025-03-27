@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import  { jwtDecode } from "jwt-decode";
 
 function WarehouseDashboard() {
     const [name, setName] = useState("");
@@ -14,6 +14,7 @@ function WarehouseDashboard() {
                 const decoded = jwtDecode(token);
                 setName(decoded.firstName || "Employee");
                 setEmployeeID(decoded.id || "N/A");
+                localStorage.setItem("employee_ID", decoded.id);
 
             } catch (err) {
                 console.error("Invalid token:", err);
@@ -43,7 +44,3 @@ function WarehouseDashboard() {
 }
 
 export default WarehouseDashboard;
-
-
-
-
