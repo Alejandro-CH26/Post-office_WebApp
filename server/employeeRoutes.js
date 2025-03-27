@@ -78,5 +78,4 @@ function employeeRoutes(req, res, reqUrl) {
   // Default fallback
   return false;
 }
-
 module.exports = employeeRoutes;

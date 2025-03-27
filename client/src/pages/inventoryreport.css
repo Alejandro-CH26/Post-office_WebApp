@@ -1,0 +1,124 @@
+/* Remove or reduce horizontal padding if you prefer a full-width layout */
+body {
+    margin: 0;
+    padding: 0; 
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+    text-align: center;
+  }
+  
+  /* Make the main heading larger and add some spacing */
+  .inventory-report h1 {
+    margin-top: 30px;   /* Space from the top */
+    margin-bottom: 10px;
+    font-size: 2.4rem;  /* Increase heading size */
+    font-weight: bold;
+    color: #2d2c72;     /* Example color if you want it more pronounced */
+  }
+  
+  /* Button styling remains mostly the same */
+  button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 20px 0; /* A bit more space around the button */
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Status Messages */
+  .error {
+    color: #dc3545;
+    font-weight: bold;
+    margin: 10px 0;
+  }
+  
+  .success {
+    color: #28a745;
+    font-weight: bold;
+    margin: 10px 0;
+  }
+  
+  /* Filters Section */
+  .filters {
+    margin: 20px auto;
+    max-width: 700px;         /* Increase width so there's room on one line */
+    display: flex;
+    flex-wrap: nowrap;        /* Prevent wrapping to keep them on the same line */
+    align-items: center;      /* Vertically center them */
+    justify-content: center;  /* Center horizontally */
+    gap: 20px;
+  }
+  
+  .filters label {
+    font-size: 1rem;
+    margin-right: 5px;
+    font-weight: 600;
+  }
+  
+  .filters select {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  /* Table Styling */
+  table {
+    width: 90%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  th, td {
+    padding: 15px;
+    border: 1px solid #dee2e6;
+    text-align: left;
+  }
+  
+  th {
+    background-color: #e9ecef;
+    cursor: pointer;
+    user-select: none;
+  }
+  
+  tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  tbody tr:hover {
+    background-color: #d4e3fc;
+  }
+  
+  /* Responsive Table (optional) */
+  @media (max-width: 768px) {
+    table, thead, tbody, th, td, tr {
+      display: block;
+    }
+    th {
+      position: sticky;
+      top: 0;
+    }
+    td {
+      text-align: right;
+      padding-left: 50%;
+      position: relative;
+    }
+    td::before {
+      content: attr(data-label);
+      position: absolute;
+      left: 10px;
+      font-weight: bold;
+      text-align: left;
+    }
+  }
+  

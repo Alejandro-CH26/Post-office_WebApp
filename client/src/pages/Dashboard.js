@@ -14,7 +14,7 @@ function Dashboard() {
             return;
         }
 
-        fetch("https://post-office-webapp.onrender.com", {
+        fetch("https://post-office-webapp.onrender.com/dashboard", {
             method: "GET",
             headers: { Authorization: `Bearer ${token}` },
         })
