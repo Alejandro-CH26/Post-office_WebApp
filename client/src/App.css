@@ -5,7 +5,12 @@
   box-sizing: border-box;
   font-family: Arial, sans-serif;
 }
-
+.homepage {
+  width: 100%;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
 /* Global Container */
 body {
   background-color: #f5f5f5;
@@ -47,21 +52,18 @@ body {
 }
 
 
-/* Footer */
 .footer {
   text-align: center;
   padding: 20px;
   background-color: #2d2c72;
   color: white;
   width: 100%;
-  /* Remove these lines: 
-     position: fixed;
-     bottom: 0;
-     left: 0;
-  */
+  position: fixed;
+  bottom: 0;
+  left: 0;
 }
 
-/* Notifications */
+
 .notifications-container {
   padding: 20px;
   max-width: 600px;

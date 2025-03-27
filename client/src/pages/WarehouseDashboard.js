@@ -32,10 +32,15 @@ function WarehouseDashboard() {
       return (
         <div style={{ textAlign: 'center', padding: '20px' }}>
           <h1>Hello, {name}</h1>
-          <Link to="/WarehouseAssignPackages">
-          <button style={buttonStyle}>View Packages</button>
-          </Link>
-          <Link to ="/WarehouseClockInOut">
+          <Link to="/WarehouseAssignPackages" style={{ textDecoration: 'none' }}>
+         <button style={buttonStyle}>View Packages</button>
+    </Link>
+              {/* New button: Check Inventory */}
+      <Link to="/inventoryreport"style={{ textDecoration: 'none' }}>
+        <button style={buttonStyle}>Check Inventory</button>
+      </Link>
+
+          <Link to ="/WarehouseClockInOut"style={{ textDecoration: 'none' }}>
           <button style={buttonStyle}>Clock In/Out</button>
           </Link>
           

@@ -90,6 +90,8 @@ function App() {
         {/* Warehouse Employee Routes */}
         <Route path="/WarehouseAssignPackages" element={<PrivateRoute element={<WarehouseAssignPackages />} requiredRole="warehouse" />} />
         <Route path="/warehouseclockinout" element={<PrivateRoute element={<ClockInOut />} requiredRole="warehouse" />} />
+        <Route path="/inventoryreport"  element={<PrivateRoute element={<InventoryReport />} requiredRole="warehouse" />} 
+/>
 
         {/* Catch-all redirect */}
         <Route path="*" element={<Navigate to="/" />} />
