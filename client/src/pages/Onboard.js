@@ -17,6 +17,10 @@ function Onboard() {
     zip: "",
     apartmentNumber: "",
     role: "",
+<<<<<<< HEAD
+    salary: "",
+=======
+>>>>>>> 4a1b85a79f66ea68bd3f8757831870e226b1bc80
     hourlyWage: "",
     supervisorID: "",
     location: "",
@@ -30,6 +34,10 @@ function Onboard() {
     dobYear: "",
   });
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4a1b85a79f66ea68bd3f8757831870e226b1bc80
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
@@ -56,6 +64,11 @@ function Onboard() {
     if (!employee.password) formErrors.password = "Password is required.";
     if (!employee.street) formErrors.street = "Street address is required.";
     if (!employee.city) formErrors.city = "City is required.";
+<<<<<<< HEAD
+    
+=======
+
+>>>>>>> 4a1b85a79f66ea68bd3f8757831870e226b1bc80
     setErrors(formErrors);
     return Object.keys(formErrors).length === 0;
   };
@@ -63,15 +76,28 @@ function Onboard() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
+<<<<<<< HEAD
+  
+    setLoading(true); // Disable submit button while processing
+  
+    try {
+      const response = await fetch("http://localhost:3000/api/employees/add", {
+=======
 
     setLoading(true);
 
     try {
-      const response = await fetch("https://post-office-webapp.onrender.com/onboard", {
+      const response = await fetch("http://localhost:5001/onboard", {
+>>>>>>> 4a1b85a79f66ea68bd3f8757831870e226b1bc80
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(employee),
       });
+<<<<<<< HEAD
+  
+=======
+
+>>>>>>> 4a1b85a79f66ea68bd3f8757831870e226b1bc80
       const data = await response.json();
       if (response.ok) {
         alert("Employee onboarded successfully!");
@@ -90,6 +116,10 @@ function Onboard() {
           zip: "",
           apartmentNumber: "",
           role: "",
+<<<<<<< HEAD
+          salary: "",
+=======
+>>>>>>> 4a1b85a79f66ea68bd3f8757831870e226b1bc80
           hourlyWage: "",
           supervisorID: "",
           location: "",
@@ -108,10 +138,17 @@ function Onboard() {
     } catch (error) {
       alert("Failed to submit data. Check your server connection.");
     } finally {
+<<<<<<< HEAD
+      setLoading(false); // Re-enable submit button
+    }
+  };
+  
+=======
       setLoading(false);
     }
   };
 
+>>>>>>> 4a1b85a79f66ea68bd3f8757831870e226b1bc80
 
   const formStyles = {
     container: {
@@ -468,6 +505,19 @@ function Onboard() {
           />
           {errors.role && <p style={formStyles.errorMessage}>{errors.role}</p>}
 
+<<<<<<< HEAD
+          <label style={formStyles.label}>Salary</label>
+          <input
+            type="text"
+            name="salary"
+            value={employee.salary}
+            onChange={handleChange}
+            placeholder="Annual Salary"
+            style={formStyles.input}
+          />
+=======
+
+>>>>>>> 4a1b85a79f66ea68bd3f8757831870e226b1bc80
 
           <label style={formStyles.label}>Hourly Wage</label>
           <input
@@ -523,11 +573,19 @@ function Onboard() {
         <div style={{ marginTop: "40px", textAlign: "center" }}>
           <button
             type="submit"
+<<<<<<< HEAD
+            disabled={loading}  // Disable button when submitting
+            style={{ 
+              ...formStyles.button, 
+              opacity: loading ? 0.6 : 1,  // Dim the button when loading
+              cursor: loading ? "not-allowed" : "pointer"  // Change cursor to not-allowed during loading
+=======
             disabled={loading}
             style={{
               ...formStyles.button,
               opacity: loading ? 0.6 : 1,
               cursor: loading ? "not-allowed" : "pointer"
+>>>>>>> 4a1b85a79f66ea68bd3f8757831870e226b1bc80
             }}
           >
             {loading ? "Submitting..." : "Submit"}
@@ -539,3 +597,7 @@ function Onboard() {
 }
 
 export default Onboard;
+<<<<<<< HEAD
+
+=======
+>>>>>>> 4a1b85a79f66ea68bd3f8757831870e226b1bc80
