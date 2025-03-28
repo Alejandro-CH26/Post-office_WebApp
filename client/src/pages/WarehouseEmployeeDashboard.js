@@ -10,7 +10,7 @@ function WarehouseEmployeeDashboard() {
   useEffect(() => {
     async function fetchEmployeeData() {
       try {
-        const response = await fetch('http://localhost:5001/employee/warehousedashboard', {
+        const response = await fetch('https://post-office-webapp.onrender.com/employee/warehousedashboard', {
           method: "GET",
           credentials: 'include', // Send the employeeID cookie (and all other cookies) with the request
         });

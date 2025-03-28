@@ -1,5 +1,4 @@
-import { useState } from "react";
-
+import  { useState } from "react";
 
 function Onboard() {
   const [employee, setEmployee] = useState({
@@ -32,7 +31,6 @@ function Onboard() {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-
 
   const handleChange = (e) => {
     setEmployee({
@@ -111,7 +109,6 @@ function Onboard() {
       setLoading(false);
     }
   };
-
 
   const formStyles = {
     container: {
@@ -468,7 +465,6 @@ function Onboard() {
           />
           {errors.role && <p style={formStyles.errorMessage}>{errors.role}</p>}
 
-
           <label style={formStyles.label}>Hourly Wage</label>
           <input
             type="text"
@@ -527,10 +523,10 @@ function Onboard() {
             style={{
               ...formStyles.button,
               opacity: loading ? 0.6 : 1,
-              cursor: loading ? "not-allowed" : "pointer"
+              cursor: loading ? "not-allowed" : "pointer",
             }}
           >
-            {loading ? "Submitting..." : "Submit"}
+            {loading ? "Submitting..." : "Submit Onboarding Form"}
           </button>
         </div>
       </form>

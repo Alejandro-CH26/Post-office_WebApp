@@ -58,7 +58,7 @@ function WarehouseAssignPackages() {
     async function fetchPackages() {
       try {
         const employeeID = localStorage.getItem("employee_ID");
-        const response = await fetch(`http://localhost:5001/warehouseassignpackages?employeeID=${employeeID}`, {
+        const response = await fetch(`https://post-office-webapp.onrender.com/warehouseassignpackages?employeeID=${employeeID}`, {
           method: "GET",
          
         });
