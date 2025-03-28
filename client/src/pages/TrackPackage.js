@@ -24,7 +24,7 @@ const TrackPackage = () => {
             data.forEach(update => {
               if (!shownIdsRef.current.has(update.tracking_history_ID)) {
                 if (!isInitialLoad.current) {
-                  toast.info(`📦 Package #${update.Package_ID}: ${update.status}`);
+                  toast.info(` Package #${update.Package_ID}: ${update.status}`);
                 }
                 shownIdsRef.current.add(update.tracking_history_ID);
               }
@@ -106,9 +106,9 @@ const TrackPackage = () => {
         <ul className="notification-list">
           {filteredNotifications.map((update, index) => (
             <li key={index} className="notification-item">
-              📦 <strong>Package #{update.Package_ID}</strong>: {update.status}
+               <strong>Package #{update.Package_ID}</strong>: {update.status}
               <br />
-              🕒 <small>{new Date(update.timestamp).toLocaleString()}</small>
+               <small>{new Date(update.timestamp).toLocaleString()}</small>
             </li>
           ))}
         </ul>
