@@ -57,7 +57,7 @@ function WarehouseAssignPackages() {
   useEffect(() => {
     async function fetchPackages() {
       try {
-        const response = await fetch("http://localhost:5001/warehouseassignpackages", {
+        const response = await fetch("https://post-office-webapp.onrender.com/warehouseassignpackages", {
           method: "GET",
           credentials: "include", // Include EmployeeID and other cookies in request
         });
