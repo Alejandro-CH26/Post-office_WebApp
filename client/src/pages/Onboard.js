@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 
 function Onboard() {
   const [employee, setEmployee] = useState({
@@ -163,6 +163,9 @@ function Onboard() {
       cursor: "pointer",
       fontSize: "18px",
       fontWeight: "bold",
+    },
+    buttonHover: {
+      backgroundColor: "#357ABD",
     },
   };
 
