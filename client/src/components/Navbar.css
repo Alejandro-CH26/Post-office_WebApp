@@ -2,10 +2,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: nowrap; /* ensures items won't wrap */
   background-color: #2d2c72;
   padding: 15px 30px;
+  height: 60px;
 }
-
 
 .nav-logo {
   font-size: 16px; 

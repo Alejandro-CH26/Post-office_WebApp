@@ -13,6 +13,7 @@ const employeeRoutes = require("./employeeRoutes");
 
 // Import the inventory API from the same folder
 const inventoryAPI = require("./inventory");
+const productsAPI = require("./products");
 
 // API functions
 const EmployeeAPI = require("./API Endpoints/EmployeeAPI.js");
@@ -44,6 +45,8 @@ const server = http.createServer((req, res) => {
   if (reportRoutes(req, res, reqUrl)) return;
   if (employeeRoutes(req, res, reqUrl)) return;
   if (inventoryAPI(req, res, reqUrl)) return; // New Inventory route
+  if (productsAPI(req, res, reqUrl)) return;
+
 
   //  Registration Route 
   if (req.method === "POST" && req.url === "/register") {
