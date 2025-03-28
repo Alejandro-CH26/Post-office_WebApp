@@ -14,7 +14,7 @@ const Reports = () => {
             .then(data => {
                 if (Array.isArray(data)) {
                     setPackagesDelivered(data);
-                    console.log("📦 Raw Package Data:", data);
+                    
 
                     const uniqueDrivers = [...new Set(data.map(d => d.DriverName))].sort();
                     setDrivers(uniqueDrivers);
@@ -54,7 +54,7 @@ const Reports = () => {
 
     return (
         <div className="reports-container">
-            <h2>📊 Post Office Reports</h2>
+            <h2> Post Office Reports</h2>
             <div className="filter-container">
                 <label>Select Driver:</label>
                 <select onChange={(e) => {
@@ -88,13 +88,13 @@ const Reports = () => {
                 <table className="excel-style-table">
                     <thead>
                         <tr>
-                            <th>👤 Driver</th>
-                            <th>🚗 Vehicle</th>
-                            <th>📦 Package</th>
-                            <th>📅 Delivered On</th>
-                            <th>📍 Destination</th>
-                            <th>💰 Shipping Cost</th>
-                            <th>⏳ Delivery Duration</th>
+                            <th> Driver</th>
+                            <th> Vehicle</th>
+                            <th> Package</th>
+                            <th> Delivered On</th>
+                            <th> Destination</th>
+                            <th> Shipping Cost</th>
+                            <th> Delivery Duration</th>
                         </tr>
                     </thead>
                     <tbody>
