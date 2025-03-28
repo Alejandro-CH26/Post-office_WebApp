@@ -66,6 +66,7 @@ function App() {
               <SearchPackage />
             </main>
           }
+        
         />
         <Route path="/faq" element={<Faq />} />
         <Route path="/trackpackage" element={<PrivateRoute element={<TrackPackage />} requiredRole="customer" />} />
@@ -88,8 +89,10 @@ function App() {
         <Route path="/admin-dashboard" element={<PrivateRoute element={<AdminDashboard />} requiredRole="admin" />} />
 
         {/* Warehouse Employee Routes */}
-        <Route path="/warehouseassignpackages" element={<PrivateRoute element={<WarehouseAssignPackages />} requiredRole="warehouse" />} />
+        <Route path="/WarehouseAssignPackages" element={<PrivateRoute element={<WarehouseAssignPackages />} requiredRole="warehouse" />} />
         <Route path="/warehouseclockinout" element={<PrivateRoute element={<ClockInOut />} requiredRole="warehouse" />} />
+        <Route path="/inventoryreport"  element={<PrivateRoute element={<InventoryReport />} requiredRole="warehouse" />} 
+/>
 
         {/* Catch-all redirect */}
         <Route path="*" element={<Navigate to="/" />} />

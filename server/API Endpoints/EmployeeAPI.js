@@ -124,12 +124,18 @@ async function warehouseDashboard(req, res) {
 }
 
 async function warehouseAssignPackages(req, res) {
-    var cookies = req.headers?.cookie;
-    console.log("Cookies", cookies);
+       // var cookies = req.headers?.cookie;
+    // console.log("Cookies", cookies);
+    const queryString = req.url.split('?')[1];
+    const urlParams = new URLSearchParams(queryString);
+
     // Authenticating
-    if (cookies) {
-        var employeeID = cookies.split('; ').find(row => row.startsWith('employeeID='))?.split('=')[1];
-        if (employeeID) {
+    if (urlParams) {
+        //var employeeID = cookies.split('; ').find(row => row.startsWith('employeeID='))?.split('=')[1];
+        var employeeID = urlParams.get('employeeID');
+        console.log(employeeID);
+
+           if (employeeID) {
             if (req.method === "GET") { // If the request is GET (employee is attempting to view packages)
                 // GET the Package_ID, address_City, and address_State of every package needing to be processed at
                 // the employee's location.
