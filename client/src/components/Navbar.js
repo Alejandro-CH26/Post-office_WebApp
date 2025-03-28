@@ -57,6 +57,13 @@ function Navbar() {
             <li><Link to="/admin/employees">Employee List</Link></li>
           </>
         )}
+          {/* Warehouse-only */}
+          {token && role === "warehouse" && (
+          <>
+            <li><Link to="/warehouse-dashboard">Warehouse Dashboard</Link></li>
+          </>
+        )}
+
 
         {/* Not logged in */}
         {!token && (
