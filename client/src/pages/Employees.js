@@ -34,7 +34,7 @@ const Employees = () => {
         if (!confirmed) return;
 
         try {
-            const res = await fetch('http://localhost:5001/fire-employee', {
+            const res = await fetch('https://post-office-webapp.onrender.com/fire-employee', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ employee_ID: id, isFired: !currentStatus })
