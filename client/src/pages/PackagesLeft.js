@@ -46,7 +46,13 @@ function PackagesLeft({ employeeID }) {
                     {packages.map((pkg) => (
                         <div 
                             key={pkg.Package_ID || pkg.packageID} 
-                            className="package-card bg-white rounded shadow p-3 border border-gray-200 hover:shadow-md transition-shadow text-sm"
+                            style={{
+                                border: "2px solid #999", 
+                                borderRadius: "0.25rem",
+                                padding: "0.75rem",
+                                backgroundColor: "white"
+                            }}
+                            className="package-card text-sm hover:border-blue-500"
                         >
                             <div className="flex justify-between items-start mb-2">
                                 <div className="flex items-center">
@@ -56,7 +62,7 @@ function PackagesLeft({ employeeID }) {
                                     </div>
                                 </div>
                                 <div className="bg-blue-100 text-blue-800 text-xs px-1.5 py-0.5 rounded">
-                                    Pending
+                                    Pending delivery
                                 </div>
                             </div>
                             
