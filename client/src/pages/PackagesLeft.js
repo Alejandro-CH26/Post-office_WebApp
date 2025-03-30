@@ -46,18 +46,21 @@ function PackagesLeft({ employeeID }) {
                     {packages.map((pkg) => (
                         <div 
                             key={pkg.Package_ID || pkg.packageID} 
-                            className="package-card bg-white rounded shadow p-3 border-l-2 border-blue-500 hover:shadow-md transition-shadow text-sm"
+                            className="package-card bg-white rounded shadow p-3 border border-gray-200 hover:shadow-md transition-shadow text-sm"
                         >
                             <div className="flex justify-between items-start mb-2">
-                                <div className="font-medium text-blue-600">
-                                    #{pkg.Package_ID || pkg.packageID}
+                                <div className="flex items-center">
+                                    <span className="mr-1" role="img" aria-label="Package">📦</span>
+                                    <div className="font-medium text-blue-600">
+                                        #{pkg.Package_ID || pkg.packageID}
+                                    </div>
                                 </div>
                                 <div className="bg-blue-100 text-blue-800 text-xs px-1.5 py-0.5 rounded">
                                     Pending
                                 </div>
                             </div>
                             
-                            <div className="text-xs text-gray-700 mb-2">
+                            <div className="text-xs text-gray-700 mb-2 border-l-2 border-blue-500 pl-2">
                                 <p className="truncate">{pkg.address_Street || pkg.addressStreet || "N/A"}</p>
                                 <p className="truncate">
                                     {pkg.address_City || pkg.addressCity}{pkg.address_City || pkg.addressCity ? "," : ""} {pkg.address_State || pkg.addressState}
