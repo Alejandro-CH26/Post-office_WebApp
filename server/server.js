@@ -14,6 +14,8 @@ const employeeRoutes = require("./employeeRoutes");
 // Import the inventory API from the same folder
 const inventoryAPI = require("./inventory");
 const productsAPI = require("./products");
+const locationAPI = require("./locationAPI");
+const cartAPI = require("./cartAPi"); 
 
 // API functions
 const EmployeeAPI = require("./API Endpoints/EmployeeAPI.js");
@@ -26,7 +28,7 @@ if (!process.env.JWT_SECRET) {
 // Create HTTP Server
 const server = http.createServer((req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
   console.log(req.method);
@@ -46,8 +48,8 @@ const server = http.createServer((req, res) => {
   if (employeeRoutes(req, res, reqUrl)) return;
   if (inventoryAPI(req, res, reqUrl)) return; // New Inventory route
   if (productsAPI(req, res, reqUrl)) return;
-
-
+  if (locationAPI(req, res, reqUrl)) return;
+  if (cartAPI(req, res, reqUrl)) return;
   //  Registration Route 
   if (req.method === "POST" && req.url === "/register") {
     let body = "";
