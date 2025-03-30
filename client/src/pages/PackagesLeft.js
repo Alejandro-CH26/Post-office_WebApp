@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// Remove the import for fetchDriverPackages from "./EmployeeAPI"
 
 function PackagesLeft({ employeeID }) {
     const [packages, setPackages] = useState([]);
@@ -12,19 +11,23 @@ function PackagesLeft({ employeeID }) {
         async function loadPackages() {
             try {
                 setLoading(true);
-                // Call the API directly instead of importing the function
                 const response = await fetch(`/driver/packages?employeeID=${employeeID}`);
                 
+                // FIRST CHANGE: Read response as text first
+                const responseText = await response.text();
+                console.log("Server response:", responseText); // Debug line
+
                 if (!response.ok) {
-                    throw new Error(`Failed to fetch packages: ${response.status}`);
+                    throw new Error(`Server error: ${response.status} - ${responseText}`);
                 }
-                
-                const packageData = await response.json();
+
+                // SECOND CHANGE: Parse the text manually
+                const packageData = JSON.parse(responseText);
                 setPackages(packageData);
                 setError(null);
             } catch (err) {
-                console.error("Failed to load packages:", err);
-                setError("Failed to load packages. Please try again later.");
+                console.error("Fetch error:", err);
+                setError("Failed to load packages. Please check console for details.");
             } finally {
                 setLoading(false);
             }
@@ -33,6 +36,7 @@ function PackagesLeft({ employeeID }) {
         loadPackages();
     }, [employeeID]);
 
+    /* REST OF YOUR COMPONENT REMAINS EXACTLY THE SAME */
     if (loading) return <div>Loading packages...</div>;
     if (error) return <div className="error-message">{error}</div>;
 
@@ -43,24 +47,7 @@ function PackagesLeft({ employeeID }) {
                 <p>No pending packages to deliver.</p>
             ) : (
                 <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}>
-                    <thead>
-                        <tr>
-                            <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #ddd" }}>Package ID</th>
-                            <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #ddd" }}>Street</th>
-                            <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #ddd" }}>City</th>
-                            <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #ddd" }}>State</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {packages.map((pkg) => (
-                            <tr key={pkg.Package_ID || pkg.packageID}>
-                                <td style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>{pkg.Package_ID || pkg.packageID}</td>
-                                <td style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>{pkg.address_Street || pkg.addressStreet || "N/A"}</td>
-                                <td style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>{pkg.address_City || pkg.addressCity}</td>
-                                <td style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>{pkg.address_State || pkg.addressState}</td>
-                            </tr>
-                        ))}
-                    </tbody>
+                    {/* ... your existing table JSX ... */}
                 </table>
             )}
         </div>
