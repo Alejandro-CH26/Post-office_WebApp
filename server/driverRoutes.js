@@ -149,7 +149,7 @@ function driverRoutes(req, res) {
                         // Add entry to tracking history
                         const trackingQuery = `
                             INSERT INTO tracking_history (package_ID, location_ID, status, timestamp)
-                            SELECT P.Package_ID, P.Destination_ID, 'Delivered', NOW()
+                            SELECT P.Package_ID, P.Next_Destination, 'Delivered', NOW()
                             FROM Package P
                             WHERE P.Package_ID = ?;
                         `;
