@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-
-
+import PackagesLeft from "./PackagesLeft"; // Import the PackagesLeft component
 
 function DriverDashboard() {
     const [name, setName] = useState("");
@@ -15,7 +14,6 @@ function DriverDashboard() {
                 console.log("🪪 Decoded token:", decoded);
                 setName(decoded.firstName || "Driver");
                 setEmployeeID(decoded.id || "N/A");
-
             } catch (err) {
                 console.error("Invalid token:", err);
             }
@@ -27,9 +25,11 @@ function DriverDashboard() {
             <h1>Driver Dashboard</h1>
             <p>Welcome, {name}! You can view delivery routes, schedules, and tasks here.</p>
             <p><strong>Employee ID:</strong> {employeeID}</p>
+            
+            {/* Include the PackagesLeft component and pass the employeeID as a prop */}
+            {employeeID && <PackagesLeft employeeID={employeeID} />}
         </div>
     );
 }
 
 export default DriverDashboard;
-
