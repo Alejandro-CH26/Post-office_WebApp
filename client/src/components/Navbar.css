@@ -64,3 +64,12 @@
   background: #cc0000;
 }
 
+.cart-link {
+  position: relative;
+}
+
+.cart-count {
+  font-weight: bold;
+  color: #d32f2f;
+  margin-left: 5px;
+}

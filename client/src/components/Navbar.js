@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./Navbar.css";
+import { useCart } from "../pages/CartContext"; // ✅ Import the cart context
 
 function Navbar() {
   const navigate = useNavigate();
@@ -9,7 +10,10 @@ function Navbar() {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [role, setRole] = useState(localStorage.getItem("role"));
 
-  // Refresh role/token on location change (login/logout/etc)
+  const { cart } = useCart(); // ✅ Get cart state
+  const cartCount = cart.reduce((total, item) => total + item.quantity, 0); // total quantity
+
+  // Refresh role/token on location change
   useEffect(() => {
     const newToken = localStorage.getItem("token");
     const newRole = localStorage.getItem("role");
@@ -21,7 +25,7 @@ function Navbar() {
     localStorage.clear();
     setToken(null);
     setRole(null);
-    navigate("/"); 
+    navigate("/");
   };
 
   return (
@@ -31,12 +35,18 @@ function Navbar() {
         <li><Link to="/">Home</Link></li>
         <li><Link to="/faq">FAQ</Link></li>
 
-        {/* Customer-only */}
+        {/* Customer-only links */}
         {token && role === "customer" && (
           <>
             <li><Link to="/PackageMaker">PM</Link></li>
             <li><Link to="/trackpackage">Track a Package</Link></li>
             <li><Link to="/buyinventory">Buy Stamps/Inventory</Link></li>
+
+            <li className="cart-link">
+              <Link to="/cart">
+                Shopping Cart {cartCount > 0 && <span className="cart-count">({cartCount})</span>}
+              </Link>
+            </li>
           </>
         )}
 
@@ -57,13 +67,13 @@ function Navbar() {
             <li><Link to="/admin/employees">Employee List</Link></li>
           </>
         )}
-          {/* Warehouse-only */}
-          {token && role === "warehouse" && (
+
+        {/* Warehouse-only */}
+        {token && role === "warehouse" && (
           <>
             <li><Link to="/warehouse-dashboard">Warehouse Dashboard</Link></li>
           </>
         )}
-
 
         {/* Not logged in */}
         {!token && (

@@ -24,7 +24,8 @@ import WarehouseAssignPackages from "./pages/WarehouseAssignPackages";
 import ClockInOut from "./pages/ClockInOut";
 import EmployeeHours from "./pages/EmployeeHours";
 import InventoryReport from "./pages/inventoryreport";
-
+import ProductDetails from "./pages/productdetails";
+import CartPage from "./pages/CartPage"; 
 // Restrict access based on token & role
 // hi
 const PrivateRoute = ({ element, requiredRole }) => {
@@ -80,6 +81,7 @@ function App() {
         <Route path="/admin/reports" element={<PrivateRoute element={<Reports />} requiredRole="admin" />} />
         <Route path="/admin/employees" element={<PrivateRoute element={<Employees />} requiredRole="admin" />} />
         <Route path="/inventory" element={<InventoryReport />} />
+        <Route path="/cart" element={<CartPage />} />
 
 
         {/* Dashboards */}
@@ -91,8 +93,10 @@ function App() {
         {/* Warehouse Employee Routes */}
         <Route path="/WarehouseAssignPackages" element={<PrivateRoute element={<WarehouseAssignPackages />} requiredRole="warehouse" />} />
         <Route path="/warehouseclockinout" element={<PrivateRoute element={<ClockInOut />} requiredRole="warehouse" />} />
-        <Route path="/inventoryreport"  element={<PrivateRoute element={<InventoryReport />} requiredRole="warehouse" />} 
-/>
+        <Route path="/inventoryreport" element={<PrivateRoute element={<InventoryReport />} requiredRole="warehouse" />} />
+        <Route path="/products/:productId" element={<ProductDetails />} />
+
+
 
         {/* Catch-all redirect */}
         <Route path="*" element={<Navigate to="/" />} />

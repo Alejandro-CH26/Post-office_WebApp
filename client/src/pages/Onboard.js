@@ -1,4 +1,4 @@
-import { useState } from "react";
+import  { useState } from "react";
 
 
 function Onboard() {
@@ -527,11 +527,11 @@ function Onboard() {
             style={{
               ...formStyles.button,
               opacity: loading ? 0.6 : 1,
-              cursor: loading ? "not-allowed" : "pointer"
+              cursor: loading ? "not-allowed" : "pointer",
             }}
           >
-            {loading ? "Submitting..." : "Submit"}
-          </button>
+                {loading ? "Submitting..." : "Submit Onboarding Form"}
+                </button>
         </div>
       </form>
     </div>
