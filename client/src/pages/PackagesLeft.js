@@ -13,7 +13,7 @@ function PackagesLeft({ employeeID }) {
             try {
                 setLoading(true);
                 // Call the API directly instead of importing the function
-                const response = await fetch(`/api/driver/packages?employeeID=${employeeID}`);
+                const response = await fetch(`/driver/packages?employeeID=${employeeID}`);
                 
                 if (!response.ok) {
                     throw new Error(`Failed to fetch packages: ${response.status}`);
