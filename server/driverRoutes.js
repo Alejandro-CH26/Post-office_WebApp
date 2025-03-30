@@ -1,4 +1,4 @@
-const connection = require("../db");
+const connection = require("./db");
 
 function driverRoutes(req, res) {
     // Handle CORS preflight requests
