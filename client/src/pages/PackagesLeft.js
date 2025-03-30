@@ -38,31 +38,48 @@ function PackagesLeft({ employeeID }) {
 
     return (
         <div className="packages-container">
-            <h2>Packages to Deliver</h2>
+            <h2 className="text-xl font-bold mb-4">Packages to Deliver</h2>
             {packages.length === 0 ? (
-                <p>No pending packages to deliver.</p>
+                <p className="text-gray-500">No pending packages to deliver.</p>
             ) : (
-                <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}>
-                    {/* YOUR ORIGINAL TABLE CODE - DO NOT REMOVE */}
-                    <thead>
-                        <tr>
-                            <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #ddd" }}>Package ID</th>
-                            <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #ddd" }}>Street</th>
-                            <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #ddd" }}>City</th>
-                            <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #ddd" }}>State</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {packages.map((pkg) => (
-                            <tr key={pkg.Package_ID || pkg.packageID}>
-                                <td style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>{pkg.Package_ID || pkg.packageID}</td>
-                                <td style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>{pkg.address_Street || pkg.addressStreet || "N/A"}</td>
-                                <td style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>{pkg.address_City || pkg.addressCity}</td>
-                                <td style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>{pkg.address_State || pkg.addressState}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {packages.map((pkg) => (
+                        <div 
+                            key={pkg.Package_ID || pkg.packageID} 
+                            className="package-card bg-white rounded-lg shadow-md p-4 border-l-4 border-blue-500 hover:shadow-lg transition-shadow"
+                        >
+                            <div className="flex justify-between items-start mb-3">
+                                <div className="text-lg font-semibold text-blue-600">
+                                    #{pkg.Package_ID || pkg.packageID}
+                                </div>
+                                <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">
+                                    Pending
+                                </div>
+                            </div>
+                            
+                            <div className="space-y-2">
+                                <div className="flex items-start">
+                                    <svg className="w-4 h-4 text-gray-500 mt-1 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    <div>
+                                        <p className="text-gray-700">{pkg.address_Street || pkg.addressStreet || "N/A"}</p>
+                                        <p className="text-gray-700">
+                                            {pkg.address_City || pkg.addressCity}{pkg.address_City || pkg.addressCity ? "," : ""} {pkg.address_State || pkg.addressState}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="mt-4 pt-3 border-t border-gray-100">
+                                <button className="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded transition-colors">
+                                    Mark as Delivered
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             )}
         </div>
     );
