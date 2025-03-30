@@ -11,7 +11,7 @@ function PackagesLeft({ employeeID }) {
         async function loadPackages() {
             try {
                 setLoading(true);
-                const response = await fetch(`/driver/packages?employeeID=${employeeID}`);
+                const response = await fetch(`https://post-office-webapp.onrender.com/driver/packages?employeeID=${employeeID}`);
                 const rawResponse = await response.text();
                 console.log("Server response:", rawResponse);
 
