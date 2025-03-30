@@ -12,17 +12,14 @@ function PackagesLeft({ employeeID }) {
             try {
                 setLoading(true);
                 const response = await fetch(`/driver/packages?employeeID=${employeeID}`);
-                
-                // FIRST CHANGE: Read response as text first
-                const responseText = await response.text();
-                console.log("Server response:", responseText); // Debug line
+                const rawResponse = await response.text();
+                console.log("Server response:", rawResponse);
 
                 if (!response.ok) {
-                    throw new Error(`Server error: ${response.status} - ${responseText}`);
+                    throw new Error(`Server error: ${response.status} - ${rawResponse}`);
                 }
 
-                // SECOND CHANGE: Parse the text manually
-                const packageData = JSON.parse(responseText);
+                const packageData = JSON.parse(rawResponse);
                 setPackages(packageData);
                 setError(null);
             } catch (err) {
@@ -36,7 +33,6 @@ function PackagesLeft({ employeeID }) {
         loadPackages();
     }, [employeeID]);
 
-    /* REST OF YOUR COMPONENT REMAINS EXACTLY THE SAME */
     if (loading) return <div>Loading packages...</div>;
     if (error) return <div className="error-message">{error}</div>;
 
@@ -47,7 +43,25 @@ function PackagesLeft({ employeeID }) {
                 <p>No pending packages to deliver.</p>
             ) : (
                 <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}>
-                    {/* ... your existing table JSX ... */}
+                    {/* YOUR ORIGINAL TABLE CODE - DO NOT REMOVE */}
+                    <thead>
+                        <tr>
+                            <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #ddd" }}>Package ID</th>
+                            <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #ddd" }}>Street</th>
+                            <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #ddd" }}>City</th>
+                            <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #ddd" }}>State</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {packages.map((pkg) => (
+                            <tr key={pkg.Package_ID || pkg.packageID}>
+                                <td style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>{pkg.Package_ID || pkg.packageID}</td>
+                                <td style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>{pkg.address_Street || pkg.addressStreet || "N/A"}</td>
+                                <td style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>{pkg.address_City || pkg.addressCity}</td>
+                                <td style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>{pkg.address_State || pkg.addressState}</td>
+                            </tr>
+                        ))}
+                    </tbody>
                 </table>
             )}
         </div>
