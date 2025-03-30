@@ -233,8 +233,31 @@ async function warehouseAssignPackages(req, res) {
     }
 }
 
+async function fetchDriverPackages(req, res) {
+    const queryString = req.url.split('?')[1];
+    const urlParams = new URLSearchParams(queryString);
+    const driverID = urlParams.get('employeeID');
+
+    if (!driverID) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ error: "Missing driver ID" }));
+    }
+
+    const sql = "SELECT Package_ID, address_City, address_State FROM packages WHERE driver_ID = ?";
+    connection.query(sql, [driverID], (err, results) => {
+        if (err) {
+            console.error("Database error:", err);
+            res.writeHead(500, { "Content-Type": "application/json" });
+            return res.end(JSON.stringify({ error: "Database query failed" }));
+        }
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(results));
+    });
+}
+
 module.exports = {
     employeeLogIn,
     warehouseDashboard,
-    warehouseAssignPackages
+    warehouseAssignPackages,
+    fetchDriverPackages
   };
