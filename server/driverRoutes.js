@@ -74,6 +74,7 @@ function driverRoutes(req, res) {
 
     // Handle package delivery confirmation endpoint
     // Handle package delivery confirmation endpoint
+// Handle package delivery confirmation endpoint
 if (req.method === "POST" && reqUrl.pathname === "/driver/deliver-package") {
     let body = "";
 
@@ -95,7 +96,7 @@ if (req.method === "POST" && reqUrl.pathname === "/driver/deliver-package") {
                 return;
             }
 
-            // First verify the driver is assigned to this package
+            // Verify driver is assigned to this package (security check)
             const verifyQuery = `
                 SELECT COUNT(*) AS count
                 FROM employees AS E, Package AS P, delivery_vehicle AS D
@@ -127,49 +128,43 @@ if (req.method === "POST" && reqUrl.pathname === "/driver/deliver-package") {
                     return;
                 }
 
-                // Update only the Delivery_Date (removed Processed = 1)
-                const updateQuery = `
-                    UPDATE Package 
-                    SET Delivery_Date = NOW() 
-                    WHERE Package_ID = ?;
+                // ONLY insert into tracking_history (no other table updates)
+                const trackingQuery = `
+                    INSERT INTO tracking_history (package_ID, location_ID, status, timestamp)
+                    SELECT P.Package_ID, P.Next_Destination, 'Delivered', NOW()
+                    FROM Package P
+                    WHERE P.Package_ID = ?;
                 `;
 
-                connection.query(updateQuery, [packageID], (err, updateResult) => {
+                connection.query(trackingQuery, [packageID], (err, trackingResult) => {
                     if (err) {
-                        console.error("❌ Error updating package status:", err);
+                        console.error("❌ Error adding tracking history:", {
+                            sqlMessage: err.sqlMessage,
+                            sql: err.sql,
+                            code: err.code
+                        });
                         res.writeHead(500, {
                             "Content-Type": "application/json",
                             "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app",
                             "Access-Control-Allow-Credentials": "true",
                         });
-                        res.end(JSON.stringify({ error: "Failed to update package status" }));
+                        res.end(JSON.stringify({ 
+                            error: "Failed to record delivery",
+                            details: err.sqlMessage 
+                        }));
                         return;
                     }
 
-                    // Add entry to tracking history
-                    const trackingQuery = `
-                        INSERT INTO tracking_history (package_ID, location_ID, status, timestamp)
-                        SELECT P.Package_ID, P.Next_Destination, 'Delivered', NOW()
-                        FROM Package P
-                        WHERE P.Package_ID = ?;
-                    `;
-
-                    connection.query(trackingQuery, [packageID], (err, trackingResult) => {
-                        if (err) {
-                            console.error("❌ Error adding tracking history:", err);
-                            // Continue despite tracking error since delivery was recorded
-                        }
-
-                        res.writeHead(200, {
-                            "Content-Type": "application/json",
-                            "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app",
-                            "Access-Control-Allow-Credentials": "true",
-                        });
-                        res.end(JSON.stringify({ 
-                            success: true, 
-                            message: "Package successfully delivered" 
-                        }));
+                    // Success!
+                    res.writeHead(200, {
+                        "Content-Type": "application/json",
+                        "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app",
+                        "Access-Control-Allow-Credentials": "true",
                     });
+                    res.end(JSON.stringify({ 
+                        success: true, 
+                        message: "Package successfully delivered" 
+                    }));
                 });
             });
         } catch (error) {
