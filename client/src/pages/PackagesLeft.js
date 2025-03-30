@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// Remove the import for fetchDriverPackages from "./EmployeeAPI"
 
 function PackagesLeft({ employeeID }) {
     const [packages, setPackages] = useState([]);
@@ -12,19 +11,20 @@ function PackagesLeft({ employeeID }) {
         async function loadPackages() {
             try {
                 setLoading(true);
-                // Call the API directly instead of importing the function
                 const response = await fetch(`/driver/packages?employeeID=${employeeID}`);
-                
+                const rawResponse = await response.text();
+                console.log("Server response:", rawResponse);
+
                 if (!response.ok) {
-                    throw new Error(`Failed to fetch packages: ${response.status}`);
+                    throw new Error(`Server error: ${response.status} - ${rawResponse}`);
                 }
-                
-                const packageData = await response.json();
+
+                const packageData = JSON.parse(rawResponse);
                 setPackages(packageData);
                 setError(null);
             } catch (err) {
-                console.error("Failed to load packages:", err);
-                setError("Failed to load packages. Please try again later.");
+                console.error("Fetch error:", err);
+                setError("Failed to load packages. Please check console for details.");
             } finally {
                 setLoading(false);
             }
@@ -43,6 +43,7 @@ function PackagesLeft({ employeeID }) {
                 <p>No pending packages to deliver.</p>
             ) : (
                 <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}>
+                    {/* YOUR ORIGINAL TABLE CODE - DO NOT REMOVE */}
                     <thead>
                         <tr>
                             <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #ddd" }}>Package ID</th>
