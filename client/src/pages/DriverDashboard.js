@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import PackagesLeft from "./PackagesLeft"; // Import the PackagesLeft component
+import PackagesLeft from "./PackagesLeft"; // Make sure this path is correct
 
 function DriverDashboard() {
     const [name, setName] = useState("");
@@ -26,8 +26,10 @@ function DriverDashboard() {
             <p>Welcome, {name}! You can view delivery routes, schedules, and tasks here.</p>
             <p><strong>Employee ID:</strong> {employeeID}</p>
             
-            {/* Include the PackagesLeft component and pass the employeeID as a prop */}
-            {employeeID && <PackagesLeft employeeID={employeeID} />}
+            {/* Only render PackagesLeft when we have a valid employeeID */}
+            {employeeID && employeeID !== "N/A" && (
+                <PackagesLeft employeeID={employeeID} />
+            )}
         </div>
     );
 }

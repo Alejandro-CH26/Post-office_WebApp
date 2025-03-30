@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchDriverPackages } from "./EmployeeAPI";
+// Remove the import for fetchDriverPackages from "./EmployeeAPI"
 
 function PackagesLeft({ employeeID }) {
     const [packages, setPackages] = useState([]);
@@ -12,7 +12,14 @@ function PackagesLeft({ employeeID }) {
         async function loadPackages() {
             try {
                 setLoading(true);
-                const packageData = await fetchDriverPackages(employeeID);
+                // Call the API directly instead of importing the function
+                const response = await fetch(`/api/driver/packages?employeeID=${employeeID}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch packages: ${response.status}`);
+                }
+                
+                const packageData = await response.json();
                 setPackages(packageData);
                 setError(null);
             } catch (err) {
@@ -46,11 +53,11 @@ function PackagesLeft({ employeeID }) {
                     </thead>
                     <tbody>
                         {packages.map((pkg) => (
-                            <tr key={pkg.packageID}>
-                                <td style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>{pkg.packageID}</td>
-                                <td style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>{pkg.addressStreet}</td>
-                                <td style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>{pkg.addressCity}</td>
-                                <td style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>{pkg.addressState}</td>
+                            <tr key={pkg.Package_ID || pkg.packageID}>
+                                <td style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>{pkg.Package_ID || pkg.packageID}</td>
+                                <td style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>{pkg.address_Street || pkg.addressStreet || "N/A"}</td>
+                                <td style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>{pkg.address_City || pkg.addressCity}</td>
+                                <td style={{ padding: "0.5rem", borderBottom: "1px solid #ddd" }}>{pkg.address_State || pkg.addressState}</td>
                             </tr>
                         ))}
                     </tbody>
