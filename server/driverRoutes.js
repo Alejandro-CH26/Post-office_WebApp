@@ -43,7 +43,7 @@ function driverRoutes(req, res) {
                 FROM tracking_history
                 WHERE package_ID = P.Package_ID
             )
-            AND T.status = "In Transit";
+            AND (T.status = "In Transit" OR T.status = "Out for Delivery");
         `;
 
         connection.query(query, [employeeID], (err, results) => {
