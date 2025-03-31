@@ -6,6 +6,7 @@ function PackagesLeft({ employeeID }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [deliveryStatus, setDeliveryStatus] = useState({});
+    const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 
     useEffect(() => {
@@ -15,7 +16,7 @@ function PackagesLeft({ employeeID }) {
         async function loadPackages() {
             try {
                 setLoading(true);
-                const response = await fetch(`https://post-office-webapp.onrender.com/driver/packages?employeeID=${employeeID}`);
+                const response = await fetch(`${BASE_URL}/driver/packages?employeeID=${employeeID}`)
                 const rawResponse = await response.text();
                 console.log("Server response:", rawResponse);
 
@@ -38,7 +39,7 @@ function PackagesLeft({ employeeID }) {
 
 
         loadPackages();
-    }, [employeeID]);
+    }, [employeeID, BASE_URL]);
 
 
     const markAsDelivered = async (packageID) => {
@@ -46,7 +47,7 @@ function PackagesLeft({ employeeID }) {
             // Show loading state for this package
             setDeliveryStatus(prev => ({ ...prev, [packageID]: 'loading' }));
             
-            const response = await fetch(`https://post-office-webapp.onrender.com/driver/deliver-package`, {
+            const response = await fetch(`${BASE_URL}/driver/deliver-package`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

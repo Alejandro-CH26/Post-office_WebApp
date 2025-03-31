@@ -15,7 +15,6 @@ const Reports = () => {
             .then(data => {
                 if (Array.isArray(data)) {
                     setPackagesDelivered(data);
-                    
 
                     const uniqueDrivers = [...new Set(data.map(d => d.DriverName))].sort();
                     setDrivers(uniqueDrivers);
@@ -41,7 +40,7 @@ const Reports = () => {
                 setDrivers([]);
                 setVehicles([]);
             });
-    }, []);
+    }, [BASE_URL]);
 
     const filteredPackages = packagesDelivered.filter(pkg =>
         (selectedDriver === '' || pkg.DriverName === selectedDriver) &&
@@ -49,13 +48,16 @@ const Reports = () => {
     );
 
     const totalCost = filteredPackages.reduce((sum, p) => sum + parseFloat(p.Shipping_Cost || 0), 0);
-    const totalMinutes = filteredPackages.reduce((sum, p) => sum + parseFloat(p.AvgDeliveryDurationMinutes || 0), 0);
-    const totalHours = Math.floor(totalMinutes / 60);
-    const remainingMinutes = Math.round(totalMinutes % 60);
+    let totalMinutes = filteredPackages.reduce((sum, p) => sum + parseFloat(p.AvgDeliveryDurationMinutes || 0), 0);
+    totalMinutes = Math.round(totalMinutes); // Round once
+
+    let totalHours = Math.floor(totalMinutes / 60);
+    let remainingMinutes = totalMinutes % 60;
 
     return (
         <div className="reports-container">
-            <h2> Post Office Reports</h2>
+            <h2>Post Office Reports</h2>
+
             <div className="filter-container">
                 <label>Select Driver:</label>
                 <select onChange={(e) => {
@@ -89,27 +91,33 @@ const Reports = () => {
                 <table className="excel-style-table">
                     <thead>
                         <tr>
-                            <th> Driver</th>
-                            <th> Vehicle</th>
-                            <th> Package</th>
-                            <th> Delivered On</th>
-                            <th> Destination</th>
-                            <th> Shipping Cost</th>
-                            <th> Delivery Duration</th>
+                            <th>Driver</th>
+                            <th>Vehicle</th>
+                            <th>Package</th>
+                            <th>Delivered On</th>
+                            <th>Destination</th>
+                            <th>Shipping Cost</th>
+                            <th>Delivery Duration</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredPackages.map((pkg, i) => (
-                            <tr key={i}>
-                                <td>{pkg.DriverName}</td>
-                                <td>{pkg.Fuel_type} ({pkg.License_plate})</td>
-                                <td>{pkg.DeliveryDetails?.match(/Package\s(\d+)/)?.[0] || 'Package'}</td>
-                                <td>{new Date(pkg.DeliveryDetails?.match(/\d{4}-\d{2}-\d{2}/)?.[0]).toDateString()}</td>
-                                <td>{pkg.PostOffice || "Unknown"}</td>
-                                <td>${Number(pkg.Shipping_Cost).toFixed(2)}</td>
-                                <td>{pkg.AvgDeliveryDurationMinutes ? `${Math.floor(pkg.AvgDeliveryDurationMinutes / 60)}h ${pkg.AvgDeliveryDurationMinutes % 60}m` : "N/A"}</td>
-                            </tr>
-                        ))}
+                        {filteredPackages.map((pkg, i) => {
+                            const minutes = Math.round(pkg.AvgDeliveryDurationMinutes || 0);
+                            const hours = Math.floor(minutes / 60);
+                            const mins = minutes % 60;
+
+                            return (
+                                <tr key={i}>
+                                    <td>{pkg.DriverName}</td>
+                                    <td>{pkg.Fuel_type} ({pkg.License_plate})</td>
+                                    <td>{pkg.DeliveryDetails?.match(/Package\s(\d+)/)?.[0] || 'Package'}</td>
+                                    <td>{new Date(pkg.DeliveryDetails?.match(/\d{4}-\d{2}-\d{2}/)?.[0]).toDateString()}</td>
+                                    <td>{pkg.PostOffice || "Unknown"}</td>
+                                    <td>${Number(pkg.Shipping_Cost).toFixed(2)}</td>
+                                    <td>{minutes > 0 ? `${hours}h ${mins}m` : 'N/A'}</td>
+                                </tr>
+                            );
+                        })}
                         <tr className="summary-row">
                             <td colSpan="5"><strong>Total</strong></td>
                             <td><strong>${totalCost.toFixed(2)}</strong></td>
