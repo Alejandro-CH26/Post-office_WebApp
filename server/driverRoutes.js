@@ -32,13 +32,18 @@ function driverRoutes(req, res) {
         // Updated query to get packages in transit assigned to the driver
         const query = `
             SELECT P.Package_ID, A.address_Street, A.address_City, A.address_State
-            FROM employees AS E, Package AS P, delivery_vehicle AS D, addresses AS A, tracking_history AS T
-            WHERE A.address_ID = P.Next_Destination 
-                AND E.employee_ID = D.Driver_ID 
-                AND D.Vehicle_ID = P.Assigned_vehicle 
-                AND P.Package_ID = T.package_ID
-                AND T.status = "In Transit"
-                AND E.employee_ID = ?;
+            FROM employees AS E
+            JOIN delivery_vehicle AS D ON E.employee_ID = D.Driver_ID
+            JOIN Package AS P ON D.Vehicle_ID = P.Assigned_vehicle
+            JOIN addresses AS A ON A.address_ID = P.Next_Destination
+            JOIN tracking_history AS T ON P.Package_ID = T.package_ID
+            WHERE E.employee_ID = ?
+            AND T.timestamp = (
+                SELECT MAX(timestamp)
+                FROM tracking_history
+                WHERE package_ID = P.Package_ID
+            )
+            AND T.status = "In Transit";
         `;
 
         connection.query(query, [employeeID], (err, results) => {
