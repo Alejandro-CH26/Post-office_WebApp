@@ -56,7 +56,7 @@ const Employees = () => {
         }
     };
 
-    // 🔍 Combined filtering
+    //  Combined filtering
     const filteredEmployees = employees.filter(emp => {
         const statusMatch =
             statusFilter === 'all' ||
@@ -69,13 +69,13 @@ const Employees = () => {
         return statusMatch && roleMatch && locationMatch;
     });
 
-    // 🔁 Get unique roles and locations for filter dropdowns
+    //  Get unique roles and locations for filter dropdowns
     const uniqueRoles = [...new Set(employees.map(emp => emp.position))];
     const uniqueLocations = [...new Set(employees.map(emp => emp.location))];
 
     return (
         <div className="reports-container">
-            <h2>👥 Current Employees</h2>
+            <h2>Current Employees</h2>
 
             <div className="filter-container">
                 <label>Status:</label>
@@ -124,7 +124,7 @@ const Employees = () => {
                                 <td>{emp.name}</td>
                                 <td>{emp.location}</td>
                                 <td>{emp.position}</td>
-                                <td>{emp.isSupervisor ? "✅" : "❌"}</td>
+                                <td>{emp.isSupervisor ? "Yes" : "No"}</td>
                                 <td>{emp.isFired ? "Yes" : "No"}</td>
                                 <td>
                                     <button

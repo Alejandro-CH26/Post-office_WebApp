@@ -10,6 +10,7 @@ const url = require("url");
 const notificationRoutes = require("./notificationRoutes");
 const reportRoutes = require("./reportRoutes");
 const employeeRoutes = require("./employeeRoutes");
+const driverRoutes = require("./driverRoutes");
 
 // Import the inventory API from the same folder
 const inventoryAPI = require("./inventory");
@@ -26,13 +27,15 @@ if (!process.env.JWT_SECRET) {
 const server = http.createServer((req, res) => {
     const allowedOrigins = [
       "http://localhost:3000",
-      "https://post-office-web-app.vercel.app"
+      "https://post-office-web-app.vercel.app",
+      "https://post-office-webapp.onrender.com"
   ];
 
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
       res.setHeader("Access-Control-Allow-Origin", origin);
   }
+
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
@@ -52,6 +55,7 @@ const server = http.createServer((req, res) => {
   if (reportRoutes(req, res, reqUrl)) return;
   if (employeeRoutes(req, res, reqUrl)) return;
   if (inventoryAPI(req, res, reqUrl)) return; // New Inventory route
+  if (driverRoutes(req, res, reqUrl)) return; // New Driver route
 
   // Registration Route 
   if (req.method === "POST" && req.url === "/register") {
@@ -347,7 +351,7 @@ const server = http.createServer((req, res) => {
   else if (req.method === "POST" && req.url === "/employee-login") {
     EmployeeAPI.employeeLogIn(req, res);
   }
-  else if (req.url === "/warehouseassignpackages") {
+  else if (reqUrl.pathname === "/warehouseassignpackages" && req.method === "GET") {
     EmployeeAPI.warehouseAssignPackages(req, res);
   }
   // Admin Login Route

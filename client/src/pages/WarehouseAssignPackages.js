@@ -60,9 +60,10 @@ function WarehouseAssignPackages() {
   useEffect(() => {
     async function fetchPackages() {
       try {
-        const response = await fetch(`${BASE_URL}/warehouseassignpackages`, {
+        const employeeID = localStorage.getItem("employee_ID");
+        const response = await fetch(`${BASE_URL}/warehouseassignpackages?employeeID=${employeeID}`, {
           method: "GET",
-          credentials: "include", // Include EmployeeID and other cookies in request
+         
         });
 
         if (response.ok) {

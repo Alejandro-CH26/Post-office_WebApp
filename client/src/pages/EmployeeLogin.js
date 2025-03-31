@@ -31,7 +31,7 @@ function EmployeeLogin() {
             const response = await fetch(`${BASE_URL}/employee-login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(credentials),
+                body: JSON.stringify(credentials)
             });
 
             const data = await response.json();

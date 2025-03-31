@@ -5,6 +5,15 @@
   box-sizing: border-box;
   font-family: Arial, sans-serif;
 }
+.homepage {
+  /* Ensure the container is 100% wide and has a gray background */
+  background-color: #f5f5f5;
+  width: 100%;
+  min-height: 100vh; /* if you want it to stretch vertically */
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
 
 /* Global Container */
 body {
@@ -47,8 +56,6 @@ body {
 }
 
 
-/* Footer */
-
 .footer {
   text-align: center;
   padding: 20px;
@@ -60,7 +67,7 @@ body {
   left: 0;
 }
 
-/* Notifications */
+
 .notifications-container {
   padding: 20px;
   max-width: 600px;
@@ -176,4 +183,3 @@ h3 {
     max-width: 90%;
   }
 }
-
