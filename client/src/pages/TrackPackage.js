@@ -12,12 +12,14 @@ const TrackPackage = () => {
   const shownIdsRef = useRef(new Set());
   const isInitialLoad = useRef(true);
 
+  const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
   useEffect(() => {
     const fetchUpdates = () => {
       const customerId = localStorage.getItem("customer_ID");
       if (!customerId) return;
 
-      fetch(`https://post-office-webapp.onrender.com/tracking-updates?sinceId=${lastSeenIdRef.current}&customerId=${customerId}`)
+      fetch(`${BASE_URL}/tracking-updates?sinceId=${lastSeenIdRef.current}&customerId=${customerId}`)
         .then(response => response.json())
         .then(data => {
           if (data && data.length > 0) {

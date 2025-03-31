@@ -12,6 +12,9 @@ function Register() {
   const [lastName, setLastName] = useState("");
   const [dob, setDob] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  
+  const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,7 +31,7 @@ function Register() {
     };
 
     try {
-      const response = await fetch("https://post-office-webapp.onrender.com/register", {
+      const response = await fetch(`${BASE_URL}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newCustomer),

@@ -6,9 +6,11 @@ const Employees = () => {
     const [statusFilter, setStatusFilter] = useState('all');
     const [roleFilter, setRoleFilter] = useState('all');
     const [locationFilter, setLocationFilter] = useState('all');
+    const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 
     useEffect(() => {
-        fetch('https://post-office-webapp.onrender.com/employee-reports')
+        fetch(`${BASE_URL}/employee-reports`)
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data)) {
@@ -34,7 +36,7 @@ const Employees = () => {
         if (!confirmed) return;
 
         try {
-            const res = await fetch('http://localhost:5001/fire-employee', {
+            const res = await fetch(`${BASE_URL}/fire-employee`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ employee_ID: id, isFired: !currentStatus })

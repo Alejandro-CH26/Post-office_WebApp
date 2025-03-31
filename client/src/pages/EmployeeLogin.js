@@ -7,6 +7,8 @@ function EmployeeLogin() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 
     useEffect(() => {
         const role = localStorage.getItem("role");
@@ -26,7 +28,7 @@ function EmployeeLogin() {
         };
 
         try {
-            const response = await fetch("https://post-office-webapp.onrender.com/employee-login", {
+            const response = await fetch(`${BASE_URL}/employee-login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(credentials),
