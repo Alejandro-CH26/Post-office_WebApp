@@ -7,9 +7,10 @@ const Reports = () => {
     const [selectedVehicle, setSelectedVehicle] = useState('');
     const [drivers, setDrivers] = useState([]);
     const [vehicles, setVehicles] = useState([]);
+    const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
     useEffect(() => {
-        fetch('https://post-office-webapp.onrender.com/reports/deliveries-by-driver')
+        fetch(`${BASE_URL}/reports/deliveries-by-driver`)
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data)) {

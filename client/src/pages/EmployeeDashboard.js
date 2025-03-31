@@ -5,6 +5,8 @@ function EmployeeDashboard() {
     const navigate = useNavigate();
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
+    const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 
     useEffect(() => {
         const token = localStorage.getItem("employee_token");
@@ -13,8 +15,7 @@ function EmployeeDashboard() {
             navigate("/employee-login");
             return;
         }
-
-        fetch("https://post-office-webapp.onrender.com/employee-dashboard", {
+        fetch(`${BASE_URL}/employee-dashboard`, {
             method: "GET",
             headers: { Authorization: `Bearer ${token}` },
         })

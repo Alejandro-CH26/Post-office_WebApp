@@ -10,6 +10,8 @@ const InventoryReport = () => {
   const [productFilter, setProductFilter] = useState("all");
   const [currentSortColumn, setCurrentSortColumn] = useState(null);
   const [currentSortDirection, setCurrentSortDirection] = useState("asc");
+  const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 
   // Fetch inventory when the component mounts
   useEffect(() => {
@@ -19,7 +21,7 @@ const InventoryReport = () => {
   const getInventory = async () => {
     setStatusMessage("");
     try {
-      const response = await fetch("http://localhost:5001/inventory");
+      const response = await fetch(`${BASE_URL}/inventory`);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }

@@ -32,6 +32,9 @@ function Onboard() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
+  const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+
   const handleChange = (e) => {
     setEmployee({
       ...employee,
@@ -65,7 +68,7 @@ function Onboard() {
     setLoading(true);
 
     try {
-      const response = await fetch("https://post-office-webapp.onrender.com/onboard", {
+      const response = await fetch(`${BASE_URL}/onboard`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(employee),
