@@ -46,13 +46,17 @@ const BuyInventory = () => {
         }, { ...storeLocations[0], distance: Infinity });
   
         setNearbyStore(closest.name);
-        setSelectedLocationId(closest.id.toString()); // <-- Automatically select closest store
+        setSelectedLocationId(closest.id.toString());
+  
+        // ✅ Save to localStorage
+        localStorage.setItem("location_ID", closest.id.toString());
       },
       (err) => {
         console.log("Geolocation permission denied or failed.", err);
       }
     );
   }, []);
+  
   
 
   useEffect(() => {
@@ -93,7 +97,11 @@ const BuyInventory = () => {
         <select
           className="store-location-dropdown"
           value={selectedLocationId}
-          onChange={(e) => setSelectedLocationId(e.target.value)}
+          onChange={(e) => {
+            setSelectedLocationId(e.target.value);
+            localStorage.setItem("location_ID", e.target.value); // ✅ Keep in sync
+          }}
+          
         >
           <option value="">-- Choose a store --</option>
           {storeLocations.map((store) => (

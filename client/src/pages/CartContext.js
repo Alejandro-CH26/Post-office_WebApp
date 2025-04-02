@@ -33,9 +33,24 @@ export const CartProvider = ({ children }) => {
     fetchCart();
   }, []);
 
-  const addToCart = (item) => {
-    setCart((prevCart) => [...prevCart, item]); // Optional for instant UI feedback
+  const addToCart = (newItem) => {
+    setCart((prevCart) => {
+      const existingIndex = prevCart.findIndex(
+        (item) => item.productId === newItem.productId && item.format === newItem.format
+      );
+  
+      if (existingIndex !== -1) {
+        // If item exists, update the quantity
+        const updatedCart = [...prevCart];
+        updatedCart[existingIndex].quantity += newItem.quantity;
+        return updatedCart;
+      }
+  
+      // If it's a new item, add it to the cart
+      return [...prevCart, newItem];
+    });
   };
+  
 
   const removeFromCart = async (itemToRemove) => {
     try {

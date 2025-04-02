@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import "./inventoryreport.css"; // Import the external CSS file
+import "./inventoryreport.css";
 
 const InventoryReport = () => {
-  // State variables for inventory data, filters, sort, and status message
   const [allInventoryData, setAllInventoryData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [statusMessage, setStatusMessage] = useState("");
@@ -11,7 +10,6 @@ const InventoryReport = () => {
   const [currentSortColumn, setCurrentSortColumn] = useState(null);
   const [currentSortDirection, setCurrentSortDirection] = useState("asc");
 
-  // Fetch inventory when the component mounts
   useEffect(() => {
     getInventory();
   }, []);
@@ -20,9 +18,7 @@ const InventoryReport = () => {
     setStatusMessage("");
     try {
       const response = await fetch("http://localhost:5001/inventory");
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       const data = await response.json();
       if (!data || data.length === 0) {
         setStatusMessage("⚠️ No inventory found.");
@@ -31,7 +27,6 @@ const InventoryReport = () => {
         return;
       }
       setAllInventoryData(data);
-      
       applyFilterAndSort(data, locationFilter, productFilter, currentSortColumn, currentSortDirection);
     } catch (error) {
       console.error("Fetch error:", error);
@@ -39,13 +34,11 @@ const InventoryReport = () => {
     }
   };
 
-  // Return unique options for a given key from the data
   const getUniqueOptions = (data, key) => {
     const options = new Set(data.map((item) => String(item[key]).trim()));
     return Array.from(options);
   };
 
-  // Filter and sort the data then update state
   const applyFilterAndSort = (data, locFilter, prodFilter, sortColumn, sortDirection) => {
     let filtered = data.filter((item) => {
       const matchesLocation = locFilter === "all" || item.location_name === locFilter;
@@ -70,24 +63,22 @@ const InventoryReport = () => {
         return 0;
       });
     }
+
     setFilteredData(filtered);
   };
 
-  // Handle changes for location filter
   const handleLocationChange = (e) => {
     const newFilter = e.target.value;
     setLocationFilter(newFilter);
     applyFilterAndSort(allInventoryData, newFilter, productFilter, currentSortColumn, currentSortDirection);
   };
 
-  // Handle changes for product filter
   const handleProductChange = (e) => {
     const newFilter = e.target.value;
     setProductFilter(newFilter);
     applyFilterAndSort(allInventoryData, locationFilter, newFilter, currentSortColumn, currentSortDirection);
   };
 
-  // When a table header is clicked, toggle or set the sort column/direction
   const onHeaderClick = (columnKey) => {
     let newDirection = "asc";
     if (currentSortColumn === columnKey) {
@@ -109,9 +100,7 @@ const InventoryReport = () => {
         <select id="locationFilter" value={locationFilter} onChange={handleLocationChange}>
           <option value="all">All Locations</option>
           {getUniqueOptions(allInventoryData, "location_name").map((loc) => (
-            <option key={loc} value={loc}>
-              {loc}
-            </option>
+            <option key={loc} value={loc}>{loc}</option>
           ))}
         </select>
 
@@ -119,9 +108,7 @@ const InventoryReport = () => {
         <select id="productFilter" value={productFilter} onChange={handleProductChange}>
           <option value="all">All Products</option>
           {getUniqueOptions(allInventoryData, "product_name").map((prod) => (
-            <option key={prod} value={prod}>
-              {prod}
-            </option>
+            <option key={prod} value={prod}>{prod}</option>
           ))}
         </select>
       </div>
@@ -146,9 +133,9 @@ const InventoryReport = () => {
                   <td>{item.location_name}</td>
                   <td>{item.product_name.trim()}</td>
                   <td>${price.toFixed(2)}</td>
-                  <td>{item.starting_quantity}</td>
-                  <td>{item.total_sold}</td>
-                  <td>{item.adjusted_quantity}</td>
+                  <td>{item.starting_quantity}</td> {/* From desired_stock */}
+                  <td>{item.total_sold}</td>         {/* Counted from transactions */}
+                  <td>{item.adjusted_quantity}</td>  {/* From inventory.quantity */}
                 </tr>
               );
             })

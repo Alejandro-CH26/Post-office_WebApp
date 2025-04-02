@@ -92,7 +92,9 @@ const CartPage = () => {
             <Link to="/buyinventory" className="summary-btn light">
               Continue Shopping
             </Link>
-            <button className="summary-btn dark">Check Out Now</button>
+            <Link to="/checkout" className="summary-btn dark">
+              Check Out Now
+            </Link>
           </div>
         </div>
       )}
