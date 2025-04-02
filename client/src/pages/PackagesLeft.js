@@ -128,7 +128,7 @@ function PackagesLeft({ employeeID }) {
                             >
                                 <div className="flex justify-between items-start mb-2">
                                     <div className="flex items-center">
-                                        <span className="mr-1" role="img" aria-label="Package">📦</span>
+                                        <span className="mr-1" role="img" aria-label="Package">Package</span>
                                         <div className="font-medium text-blue-600">
                                             #{packageID}
                                         </div>
