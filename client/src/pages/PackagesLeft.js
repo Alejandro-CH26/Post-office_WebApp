@@ -107,57 +107,72 @@ function PackagesLeft({ employeeID }) {
             ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                     {packages.map((pkg) => {
-                        const packageID = pkg.Package_ID || pkg.packageID;
-                        const status = deliveryStatus[packageID];
-                        
-                        return (
-                            <div 
-                                key={packageID} 
-                                style={{
-                                    border: "2px solid #999", 
-                                    borderRadius: "0.25rem",
-                                    padding: "0.75rem",
-                                    backgroundColor: "white"
-                                }}
-                                className="package-card text-sm hover:border-blue-500"
-                            >
-                                <div className="flex justify-between items-start mb-2">
-                                    <div className="flex items-center">
-                                        <span className="mr-1" role="img" aria-label="Package">📦</span>
-                                        <div className="font-medium text-blue-600">
-                                            #{packageID}
-                                        </div>
-                                    </div>
-                                    <div className="bg-blue-100 text-blue-800 text-xs px-1.5 py-0.5 rounded">
-                                        Pending delivery
+                    const packageID = pkg.Package_ID || pkg.packageID;
+                    const status = deliveryStatus[packageID];
+                    const senderName = `${pkg.senderFirstName} ${pkg.senderLastName}`;
+                    const recipientName = `${pkg.recipientFirstName} ${pkg.recipientLastName}`;
+                    
+                    return (
+                        <div 
+                            key={packageID} 
+                            style={{
+                                border: "2px solid #999", 
+                                borderRadius: "0.25rem",
+                                padding: "0.75rem",
+                                backgroundColor: "white"
+                            }}
+                            className="package-card text-sm hover:border-blue-500"
+                        >
+                            <div className="flex justify-between items-start mb-2">
+                                <div className="flex items-center">
+                                    <span className="mr-1" role="img" aria-label="Package">📦</span>
+                                    <div className="font-medium text-blue-600">
+                                        #{packageID}
                                     </div>
                                 </div>
-                                
-                                <div className="text-xs text-gray-700 mb-2 border-l-2 border-blue-500 pl-2">
-                                    <p className="truncate">{pkg.address_Street || pkg.addressStreet || "N/A"}</p>
+                                <div className="bg-blue-100 text-blue-800 text-xs px-1.5 py-0.5 rounded">
+                                    Pending delivery
+                                </div>
+                            </div>
+                            
+                            <div className="text-xs text-gray-700 mb-2 border-l-2 border-blue-500 pl-2">
+                                <div className="mb-1">
+                                    <div className="font-semibold">From:</div>
+                                    <div className="truncate" title={senderName}>{senderName}</div>
+                                </div>
+                                <div className="mb-1">
+                                    <div className="font-semibold">To:</div>
+                                    <div className="truncate" title={recipientName}>{recipientName}</div>
+                                </div>
+                                <div className="mt-2">
+                                    <div className="font-semibold">Address:</div>
+                                    <p className="truncate" title={pkg.addressStreet || "N/A"}>
+                                        {pkg.addressStreet || "N/A"}
+                                    </p>
                                     <p className="truncate">
-                                        {pkg.address_City || pkg.addressCity}{pkg.address_City || pkg.addressCity ? "," : ""} {pkg.address_State || pkg.addressState}
+                                        {pkg.addressCity}{pkg.addressCity ? "," : ""} {pkg.addressState}
                                     </p>
                                 </div>
-                                
-                                <button 
-                                    onClick={() => markAsDelivered(packageID)}
-                                    disabled={status === 'loading'}
-                                    className={`w-full py-1 px-2 rounded text-xs transition-colors ${
-                                        status === 'loading' ? 'bg-gray-400 cursor-not-allowed' : 
-                                        status === 'success' ? 'bg-green-600 text-white' :
-                                        status === 'error' ? 'bg-red-500 text-white' :
-                                        'bg-green-500 hover:bg-green-600 text-white'
-                                    }`}
-                                >
-                                    {status === 'loading' ? 'Processing...' : 
-                                     status === 'success' ? 'Delivered! ✓' :
-                                     status === 'error' ? 'Failed! Try Again' :
-                                     'Mark Delivered'}
-                                </button>
                             </div>
-                        );
-                    })}
+                            
+                            <button 
+                                onClick={() => markAsDelivered(packageID)}
+                                disabled={status === 'loading'}
+                                className={`w-full py-1 px-2 rounded text-xs transition-colors ${
+                                    status === 'loading' ? 'bg-gray-400 cursor-not-allowed' : 
+                                    status === 'success' ? 'bg-green-600 text-white' :
+                                    status === 'error' ? 'bg-red-500 text-white' :
+                                    'bg-green-500 hover:bg-green-600 text-white'
+                                }`}
+                            >
+                                {status === 'loading' ? 'Processing...' : 
+                                status === 'success' ? 'Delivered! ✓' :
+                                status === 'error' ? 'Failed! Try Again' :
+                                'Mark Delivered'}
+                            </button>
+                        </div>
+                    );
+                })}
                 </div>
             )}
         </div>
