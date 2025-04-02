@@ -23,7 +23,6 @@ function PackagesLeft({ employeeID }) {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
-                    credentials: 'include'
                 });
 
                 const responseText = await response.text();
@@ -61,7 +60,6 @@ function PackagesLeft({ employeeID }) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                credentials: 'include',
                 body: JSON.stringify({
                     employeeID: employeeID,
                     packageID: packageID
