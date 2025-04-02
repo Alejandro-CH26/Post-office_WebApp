@@ -31,19 +31,29 @@ function driverRoutes(req, res) {
 
         // Updated query to get packages in transit assigned to the driver
         const query = `
-            SELECT P.Package_ID, A.address_Street, A.address_City, A.address_State
+            SELECT 
+                P.Package_ID, 
+                A.address_Street, 
+                A.address_City, 
+                A.address_State,
+                SE.first_name AS sender_first_name,
+                SE.last_name AS sender_last_name,
+                RE.first_name AS recipient_first_name,
+                RE.last_name AS recipient_last_name
             FROM employees AS E
             JOIN delivery_vehicle AS D ON E.employee_ID = D.Driver_ID
             JOIN Package AS P ON D.Vehicle_ID = P.Assigned_vehicle
             JOIN addresses AS A ON A.address_ID = P.Next_Destination
             JOIN tracking_history AS T ON P.Package_ID = T.package_ID
+            JOIN customers AS SE ON P.Sender_Customer_ID = SE.customer_ID
+            JOIN customers AS RE ON P.Recipient_Customer_ID = RE.customer_ID
             WHERE E.employee_ID = ?
             AND T.timestamp = (
                 SELECT MAX(timestamp)
                 FROM tracking_history
                 WHERE package_ID = P.Package_ID
-            )
-            AND (T.status = "In Transit" OR T.status = "Out for Delivery");
+    )
+    AND (T.status = "In Transit" OR T.status = "Out for Delivery");
         `;
 
         connection.query(query, [employeeID], (err, results) => {
@@ -63,7 +73,11 @@ function driverRoutes(req, res) {
                 packageID: row.Package_ID,
                 addressStreet: row.address_Street,
                 addressCity: row.address_City,
-                addressState: row.address_State
+                addressState: row.address_State,
+                senderFirstName: row.sender_first_name,
+                senderLastName: row.sender_last_name,
+                recipientFirstName: row.recipient_first_name,
+                recipientLastName: row.recipient_last_name,
             }));
 
             res.writeHead(200, {
