@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.87a56efc.css",
-    "main.js": "/static/js/main.e83d18ea.js",
+    "main.js": "/static/js/main.17aff8e4.js",
     "static/js/453.419a5d54.chunk.js": "/static/js/453.419a5d54.chunk.js",
     "static/media/mail_hero.jpg": "/static/media/mail_hero.0b320fb9455c96d4aea6.jpg",
     "static/media/LARGEIDPHOTOInterior-Design-Gensler-Old-Chicago-Post-Office-idx201101_ge01-11.20.jpg": "/static/media/LARGEIDPHOTOInterior-Design-Gensler-Old-Chicago-Post-Office-idx201101_ge01-11.20.aa5f4382dc40258ec769.jpg",
@@ -14,11 +14,11 @@
     "static/media/packagetape.webp": "/static/media/packagetape.b6525e0778419c62cd4d.webp",
     "index.html": "/index.html",
     "main.87a56efc.css.map": "/static/css/main.87a56efc.css.map",
-    "main.e83d18ea.js.map": "/static/js/main.e83d18ea.js.map",
+    "main.17aff8e4.js.map": "/static/js/main.17aff8e4.js.map",
     "453.419a5d54.chunk.js.map": "/static/js/453.419a5d54.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.87a56efc.css",
-    "static/js/main.e83d18ea.js"
+    "static/js/main.17aff8e4.js"
   ]
 }

@@ -27,6 +27,7 @@ if (!process.env.JWT_SECRET) {
 const server = http.createServer((req, res) => {
     const allowedOrigins = [
       "http://localhost:3000",
+      "http://localhost:3001",
       "https://post-office-web-app.vercel.app",
       "https://post-office-webapp.onrender.com"
   ];
@@ -414,6 +415,7 @@ const server = http.createServer((req, res) => {
   else if (req.method === "GET" && req.url === "/report") {
       const allowedOrigins = [
         "http://localhost:3000",
+        "http://localhost:3001",
         "https://post-office-web-app.vercel.app"
     ];
 
