@@ -1,16 +1,27 @@
 const connection = require("./db");
 
-function setCorsHeaders(res) {
-    res.setHeader("Access-Control-Allow-Origin", "https://post-office-web-app.vercel.app");
+function setCorsHeaders(req, res) {
+    const allowedOrigins = [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "https://post-office-web-app.vercel.app",
+        "https://post-office-webapp.onrender.com"
+    ];
+    
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader("Access-Control-Allow-Origin", origin);
+    }
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Vary", "Origin");
 }
 
 function driverRoutes(req, res) {
     // Handle CORS preflight requests
     if (req.method === "OPTIONS") {
-        setCorsHeaders(res);  // Set headers first
+        setCorsHeaders(req, res);  // Set headers first
         res.writeHead(200);   // Then set status code
         res.end();
         return true;
@@ -23,7 +34,7 @@ function driverRoutes(req, res) {
         const employeeID = reqUrl.searchParams.get("employeeID");
         
         if (!employeeID) {
-            setCorsHeaders(res);
+            setCorsHeaders(req, res);
             res.writeHead(400, { "Content-Type": "application/json" });
             res.end(JSON.stringify({ error: "Employee ID is required" }));
             return true;
@@ -59,7 +70,7 @@ function driverRoutes(req, res) {
         connection.query(query, [employeeID], (err, results) => {
             if (err) {
                 console.error("❌ Error fetching driver packages:", err);
-                setCorsHeaders(res);
+                setCorsHeaders(req, res);
                 res.writeHead(500, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ error: "Database query failed" }));
                 return;
@@ -77,7 +88,7 @@ function driverRoutes(req, res) {
                 recipientLastName: row.recipient_last_name,
             }));
 
-            setCorsHeaders(res);
+            setCorsHeaders(req, res);
             res.writeHead(200, { "Content-Type": "application/json" });
             res.end(JSON.stringify(packages));
         });
@@ -98,7 +109,7 @@ function driverRoutes(req, res) {
                 const { packageID, employeeID } = JSON.parse(body);
 
                 if (!packageID || !employeeID) {
-                    setCorsHeaders(res);
+                    setCorsHeaders(req, res);
                     res.writeHead(400, { "Content-Type": "application/json" });
                     res.end(JSON.stringify({ error: "Package ID and Employee ID are required" }));
                     return;
@@ -117,14 +128,14 @@ function driverRoutes(req, res) {
                 connection.query(verifyQuery, [packageID, employeeID], (err, results) => {
                     if (err) {
                         console.error("❌ Error verifying package assignment:", err);
-                        setCorsHeaders(res);
+                        setCorsHeaders(req, res);
                         res.writeHead(500, { "Content-Type": "application/json" });
                         res.end(JSON.stringify({ error: "Database query failed" }));
                         return;
                     }
 
                     if (results[0].count === 0) {
-                        setCorsHeaders(res);
+                        setCorsHeaders(req, res);
                         res.writeHead(403, { "Content-Type": "application/json" });
                         res.end(JSON.stringify({ error: "Not authorized to deliver this package" }));
                         return;
@@ -145,7 +156,7 @@ function driverRoutes(req, res) {
                                 sql: err.sql,
                                 code: err.code
                             });
-                            setCorsHeaders(res);
+                            setCorsHeaders(req, res);
                             res.writeHead(500, { "Content-Type": "application/json" });
                             res.end(JSON.stringify({ 
                                 error: "Failed to record delivery",
@@ -155,7 +166,7 @@ function driverRoutes(req, res) {
                         }
 
                         // Success!
-                        setCorsHeaders(res);
+                        setCorsHeaders(req, res);
                         res.writeHead(200, { "Content-Type": "application/json" });
                         res.end(JSON.stringify({ 
                             success: true, 
@@ -165,7 +176,7 @@ function driverRoutes(req, res) {
                 });
             } catch (error) {
                 console.error("❌ Error processing request:", error);
-                setCorsHeaders(res);
+                setCorsHeaders(req, res);
                 res.writeHead(400, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ error: "Invalid request format" }));
             }
