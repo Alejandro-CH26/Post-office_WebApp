@@ -1,33 +1,39 @@
+/* ======= BASE NAVBAR ======= */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: nowrap; /* ensures items won't wrap */
-  background-color: #2d2c72;
-  padding: 15px 30px;
+  background-color: white;
   height: 60px;
+  padding: 0 20px;
+  position: relative;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+/* Align hamburger and logo together */
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ======= LOGO ======= */
 .nav-logo {
-  font-size: 16px; 
+  font-size: 18px;
   font-weight: bold;
-  color: #2d2c72; 
-  text-decoration: none;
-  margin-right: 20px; 
-  list-style: none; 
+  color: #2d2c72;
 }
 
-
-
+/* ======= LINKS (DESKTOP) ======= */
 .nav-links {
   list-style: none;
   display: flex;
   align-items: center;
-  gap: 20px; 
+  gap: 20px;
   padding: 0;
   margin: 0;
 }
-
 
 .nav-links li {
   display: inline;
@@ -35,7 +41,7 @@
 
 .nav-links a {
   text-decoration: none;
-  color: white;
+  color: #2d2c72;
   font-weight: bold;
   font-size: 16px;
   padding: 10px 15px;
@@ -44,17 +50,17 @@
 
 .nav-links a:hover {
   background-color: #004080;
+  color: white;
   border-radius: 5px;
-  padding: 10px 15px;
 }
 
+/* ======= LOGOUT BUTTON ======= */
 .logout-button {
   background: #ff4d4d;
   color: white;
   border: none;
   padding: 8px 12px;
   cursor: pointer;
-  align-self: center;
   font-size: 14px;
   border-radius: 5px;
   transition: background 0.3s ease;
@@ -64,6 +70,7 @@
   background: #cc0000;
 }
 
+/* ======= CART ======= */
 .cart-link {
   position: relative;
 }
@@ -72,4 +79,55 @@
   font-weight: bold;
   color: #d32f2f;
   margin-left: 5px;
+}
+
+/* ======= HAMBURGER ICON ======= */
+.hamburger {
+  display: none;
+  font-size: 24px;
+  color: #2d2c72;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* ======= MOBILE STYLES ======= */
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+  }
+
+  .nav-links {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    flex-direction: column;
+    display: none;
+    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding-bottom: 20px;
+  }
+
+  .nav-links.active {
+    display: flex;
+  }
+
+  .nav-links li {
+    padding: 12px 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    width: 100%;
+  }
+
+  .nav-links a {
+    color: #2d2c72;
+    width: 100%;
+    display: block;
+  }
+
+  .logout-button {
+    width: 100%;
+    text-align: left;
+  }
 }

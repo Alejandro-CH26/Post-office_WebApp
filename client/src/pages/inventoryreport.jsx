@@ -10,14 +10,23 @@ const InventoryReport = () => {
   const [currentSortColumn, setCurrentSortColumn] = useState(null);
   const [currentSortDirection, setCurrentSortDirection] = useState("asc");
 
-  useEffect(() => {
-    getInventory();
-  }, []);
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    return today;
+  });
 
-  const getInventory = async () => {
+  const [showReorderForm, setShowReorderForm] = useState(false);
+  const [restockAmount, setRestockAmount] = useState("");
+  const [feedback, setFeedback] = useState("");
+
+  useEffect(() => {
+    getInventory(selectedDate);
+  }, [selectedDate]);
+
+  const getInventory = async (dateParam = selectedDate) => {
     setStatusMessage("");
     try {
-      const response = await fetch("http://localhost:5001/inventory");
+      const response = await fetch(`http://localhost:5001/inventory?date=${dateParam}`);
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       const data = await response.json();
       if (!data || data.length === 0) {
@@ -89,13 +98,74 @@ const InventoryReport = () => {
     applyFilterAndSort(allInventoryData, locationFilter, productFilter, columnKey, newDirection);
   };
 
+  const handleReorderSubmit = async (e) => {
+    e.preventDefault();
+    setFeedback("");
+
+    const match = allInventoryData.find(
+      (item) =>
+        item.location_name === locationFilter &&
+        item.product_name.trim() === productFilter
+    );
+
+    if (!match) {
+      setFeedback("❌ No matching product/location found in inventory.");
+      return;
+    }
+
+    const product_ID = match.product_ID;
+    const location_ID = match.location_ID;
+
+    try {
+      const response = await fetch("http://localhost:5001/restock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          product_ID,
+          location_ID,
+          amount: parseInt(restockAmount),
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setFeedback("Restock successful!");
+        setRestockAmount("");
+        getInventory(); // Refresh with current date
+      } else {
+        throw new Error(data.error || "Restock failed.");
+      }
+    } catch (err) {
+      console.error("Restock error:", err);
+      setFeedback("❌ Error submitting restock.");
+    }
+  };
+
   return (
-    <div className="inventory-report">
+    <div className={`inventory-report ${showReorderForm ? 'reorder-visible' : ''}`}>
       <h1>Inventory Report</h1>
-      <button onClick={getInventory}>Refresh Inventory</button>
+
+      <div className="inventory-buttons">
+        <button className="action-button" onClick={() => getInventory()}>Refresh Inventory</button>
+        <button className="action-button" onClick={() => setShowReorderForm((prev) => !prev)}>
+          {showReorderForm ? "Hide Reorder Form" : "Reorder Stock"}
+        </button>
+      </div>
+
       <p>{statusMessage}</p>
 
       <div className="filters">
+      <div className="date-filter-wrapper">
+  <label htmlFor="dateFilter"> View as of:</label>
+  <input
+    type="date"
+    id="dateFilter"
+    value={selectedDate}
+    onChange={(e) => setSelectedDate(e.target.value)}
+  />
+</div>
+
+
         <label htmlFor="locationFilter">Filter by Location:</label>
         <select id="locationFilter" value={locationFilter} onChange={handleLocationChange}>
           <option value="all">All Locations</option>
@@ -120,32 +190,75 @@ const InventoryReport = () => {
             <th onClick={() => onHeaderClick("product_name")}>Product Name</th>
             <th onClick={() => onHeaderClick("item_price")}>Price</th>
             <th onClick={() => onHeaderClick("starting_quantity")}>Full Stock</th>
-            <th onClick={() => onHeaderClick("total_sold")}>Total Sold</th>
             <th onClick={() => onHeaderClick("adjusted_quantity")}>Current Stock</th>
+            <th onClick={() => onHeaderClick("total_sold")}>Total Sold</th>
+            <th>Total Sales</th>
           </tr>
         </thead>
         <tbody>
           {filteredData.length > 0 ? (
             filteredData.map((item, index) => {
               const price = parseFloat(String(item.item_price)) || 0;
+              const totalSold = parseInt(item.total_sold) || 0;
+              const totalSales = (price * totalSold).toFixed(2);
+
               return (
                 <tr key={index}>
                   <td>{item.location_name}</td>
                   <td>{item.product_name.trim()}</td>
                   <td>${price.toFixed(2)}</td>
-                  <td>{item.starting_quantity}</td> {/* From desired_stock */}
-                  <td>{item.total_sold}</td>         {/* Counted from transactions */}
-                  <td>{item.adjusted_quantity}</td>  {/* From inventory.quantity */}
+                  <td>{item.starting_quantity}</td>
+                  <td>{item.adjusted_quantity}</td>
+                  <td>{item.total_sold}</td>
+                  <td>${totalSales}</td>
                 </tr>
               );
             })
           ) : (
             <tr>
-              <td colSpan="6">No data</td>
+              <td colSpan="7">No data</td>
             </tr>
           )}
         </tbody>
       </table>
+
+      {showReorderForm && (
+        <div className="reorder-form">
+          <h2>Reorder Stock</h2>
+          <form onSubmit={handleReorderSubmit} className="reorder-flex-form">
+            <div className="form-field">
+              <label>Location:</label>
+              <p>{locationFilter === "all" ? "Select location above" : locationFilter}</p>
+            </div>
+
+            <div className="form-field">
+              <label>Product:</label>
+              <p>{productFilter === "all" ? "Select product above" : productFilter}</p>
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="restockAmount">Quantity:</label>
+              <input
+                type="number"
+                id="restockAmount"
+                min="1"
+                required
+                value={restockAmount}
+                onChange={(e) => setRestockAmount(e.target.value)}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={locationFilter === "all" || productFilter === "all"}
+            >
+              Submit Reorder
+            </button>
+          </form>
+
+          {feedback && <p className="feedback">{feedback}</p>}
+        </div>
+      )}
     </div>
   );
 };

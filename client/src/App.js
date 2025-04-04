@@ -27,6 +27,8 @@ import InventoryReport from "./pages/inventoryreport";
 import ProductDetails from "./pages/productdetails";
 import CartPage from "./pages/CartPage"; 
 import CheckoutPage from "./pages/CheckoutPage";
+import OrderHistory from "./pages/orderHistory";
+
 // Restrict access based on token & role
 // hi
 const PrivateRoute = ({ element, requiredRole }) => {
@@ -84,6 +86,7 @@ function App() {
         <Route path="/inventory" element={<InventoryReport />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/order-history" element={<PrivateRoute element={<OrderHistory />} requiredRole="customer" />} />
 
         {/* Dashboards */}
         <Route path="/customer-dashboard" element={<PrivateRoute element={<CustomerDashboard />} requiredRole="customer" />} />

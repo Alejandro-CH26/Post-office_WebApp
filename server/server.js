@@ -17,8 +17,8 @@ const productsAPI = require("./products");
 const locationAPI = require("./locationAPI");
 const cartAPI = require("./cartAPi"); 
 const handleCheckout = require("./checkout"); // 👈 Add this
-
-
+const orderHistory = require("./orderHistory"); // 👈 Add this
+const restock = require("./restock");
 // API functions
 const EmployeeAPI = require("./API Endpoints/EmployeeAPI.js");
 
@@ -53,6 +53,8 @@ const server = http.createServer((req, res) => {
   if (locationAPI(req, res, reqUrl)) return;
   if (cartAPI(req, res, reqUrl)) return;
   if (handleCheckout(req, res, reqUrl)) return;
+  if (orderHistory(req, res, reqUrl)) return;
+  if (restock(req, res, reqUrl)) return;
   //  Registration Route 
   if (req.method === "POST" && req.url === "/register") {
     let body = "";
