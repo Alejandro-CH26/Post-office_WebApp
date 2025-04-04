@@ -49,15 +49,14 @@ function driverRoutes(req, res) {
                 A.address_State,
                 SE.first_name AS sender_first_name,
                 SE.last_name AS sender_last_name,
-                RE.first_name AS recipient_first_name,
-                RE.last_name AS recipient_last_name
+                P.Recipient_Customer_Name
             FROM employees AS E
             JOIN delivery_vehicle AS D ON E.employee_ID = D.Driver_ID
             JOIN Package AS P ON D.Vehicle_ID = P.Assigned_vehicle
             JOIN addresses AS A ON A.address_ID = P.Next_Destination
             JOIN tracking_history AS T ON P.Package_ID = T.package_ID
             JOIN customers AS SE ON P.Sender_Customer_ID = SE.customer_ID
-            JOIN customers AS RE ON P.Recipient_Customer_ID = RE.customer_ID
+            
             WHERE E.employee_ID = ?
             AND T.timestamp = (
                 SELECT MAX(timestamp)
@@ -84,8 +83,7 @@ function driverRoutes(req, res) {
                 addressState: row.address_State,
                 senderFirstName: row.sender_first_name,
                 senderLastName: row.sender_last_name,
-                recipientFirstName: row.recipient_first_name,
-                recipientLastName: row.recipient_last_name,
+                recipientName: row.Recipient_Customer_Name
             }));
 
             setCorsHeaders(req, res);

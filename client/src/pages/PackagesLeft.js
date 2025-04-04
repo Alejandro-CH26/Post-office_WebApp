@@ -100,7 +100,7 @@ function PackagesLeft({ employeeID }) {
                         const packageID = pkg.Package_ID || pkg.packageID;
                         const status = deliveryStatus[packageID];
                         const senderName = `${pkg.senderFirstName || pkg.sender_first_name} ${pkg.senderLastName || pkg.sender_last_name}`;
-                        const recipientName = `${pkg.recipientFirstName || pkg.recipient_first_name} ${pkg.recipientLastName || pkg.recipient_last_name}`;
+                        const recipientName = pkg.recipientName || "N/A";
                         const addressStreet = pkg.addressStreet || pkg.address_Street || "N/A";
                         const addressCity = pkg.addressCity || pkg.address_City || "";
                         const addressState = pkg.addressState || pkg.address_State || "";
