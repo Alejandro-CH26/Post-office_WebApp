@@ -114,6 +114,30 @@ const server = http.createServer((req, res) => {
         });
     }
 
+    else if (req.method === "GET" && req.url === "/locations") {
+        try {
+            db.query(
+                "SELECT location_ID, name FROM post_office_location",
+                (err, results) => {
+                    if (err) {
+                        console.error("Error fetching locations:", err);
+                        res.writeHead(500, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({ error: "Database error" }));
+                        return;
+                    }
+
+                    res.writeHead(200, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify(results));
+                }
+            );
+        } catch (error) {
+            console.error("Unexpected error:", error);
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ error: "Internal Server Error" }));
+        }
+    }
+
+
     else if (req.method === "POST" && req.url === "/post-office") {
         let body = "";
         req.on("data", (chunk) => (body += chunk.toString()));
@@ -353,62 +377,75 @@ const server = http.createServer((req, res) => {
                 const data = JSON.parse(body);
                 console.log("Received Data:", data);
 
-                // Extract fields from request body
                 const {
                     employeeID, Fname, middleName, Lname, email, phone, emergencyContact,
-                    addressID, street, city, state, zip, apartmentNumber,
-                    role, hourlyWage, supervisorID, location, locationID,
+                    street, city, state, zip, apartmentNumber,
+                    role, hourlyWage, location, locationID,
                     username, password, education, gender,
                     dobDay, dobMonth, dobYear
                 } = data;
 
-                // Hash password
+                // Duplicate check before inserting
+                const [duplicates] = await db.promise().query(
+                    `SELECT * FROM employees 
+                 WHERE Email = ? OR employee_Username = ? OR Phone = ?`,
+                    [email, username, phone]
+                );
+
+                if (duplicates.length > 0) {
+                    const existing = duplicates[0];
+                    let conflictField = "an existing record";
+
+                    if (existing.Email === email) conflictField = "Email";
+                    else if (existing.employee_Username === username) conflictField = "Username";
+                    else if (existing.Phone === phone) conflictField = "Phone number";
+
+                    res.writeHead(409, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify({
+                        status: "error",
+                        message: `${conflictField} already exists.`
+                    }));
+                    return;
+                }
+
+                // Hash the password
                 const hashedPassword = await bcrypt.hash(password, 10);
 
-                // Combine DOB fields
-                const dateOfBirth = `${dobYear}-${dobMonth}-${dobDay}`;
-
-                // SQL query to insert into employees table
+                // Insert employee into the database
                 const sql = `
-          INSERT INTO employees 
-          (employee_ID, First_Name, Middle_Name, Last_Name, Email, Phone, Emergency_Number, 
-          Address_ID, address_Street, address_City, address_State, address_Zipcode, unit_number,
-          Role, Hourly_Wage, Supervisor_ID, Location, Location_ID, 
-          employee_Username, employee_Password, Education, Gender, 
-          DOB_Day, DOB_Month, DOB_Year)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `;
+                INSERT INTO employees 
+                (employee_ID, First_Name, Middle_Name, Last_Name, Email, Phone, Emergency_Number,
+                 address_Street, address_City, address_State, address_Zipcode, unit_number,
+                 Role, Hourly_Wage, Location, Location_ID,
+                 employee_Username, employee_Password, Education, Gender,
+                 DOB_Day, DOB_Month, DOB_Year)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `;
 
                 const values = [
                     employeeID, Fname, middleName || null, Lname, email, phone, emergencyContact || null,
-                    addressID || null, street, city, state, zip, apartmentNumber || null,
-                    role, hourlyWage || null, supervisorID || null, location, locationID || null,
+                    street, city, state, zip, apartmentNumber || null,
+                    role, hourlyWage || null, location, locationID || null,
                     username, hashedPassword, education || null, gender,
                     dobDay, dobMonth, dobYear
                 ];
 
                 db.query(sql, values, (err, result) => {
                     if (err) {
-                        if (err.code === "ER_DUP_ENTRY") {
-                            let errorMessage = "Duplicate entry error: ";
-                            if (err.sqlMessage.includes("employees.Email")) errorMessage = "Email already exists.";
-                            else if (err.sqlMessage.includes("employees.employee_Username")) errorMessage = "Username already exists.";
-                            else if (err.sqlMessage.includes("employees.Phone")) errorMessage = "Phone number already exists.";
-
-                            console.error("Duplicate Entry Error:", errorMessage);
-                            res.writeHead(409, { "Content-Type": "application/json" });
-                            res.end(JSON.stringify({ status: "error", message: errorMessage }));
-                            return;
-                        }
                         console.error("Query Error:", err);
                         res.writeHead(500, { "Content-Type": "application/json" });
                         res.end(JSON.stringify({ status: "error", message: "Database error" }));
-                    } else {
-                        console.log("Employee successfully registered!");
-                        res.writeHead(200, { "Content-Type": "application/json" });
-                        res.end(JSON.stringify({ status: "success", message: "Employee onboarded successfully!" }));
+                        return;
                     }
+
+                    console.log("✅ Employee successfully onboarded!");
+                    res.writeHead(200, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify({
+                        status: "success",
+                        message: "Employee onboarded successfully!"
+                    }));
                 });
+
             } catch (error) {
                 console.error("Registration Error:", error);
                 res.writeHead(500, { "Content-Type": "application/json" });
@@ -416,6 +453,7 @@ const server = http.createServer((req, res) => {
             }
         });
     }
+
     else if (req.method === "POST" && req.url === "/employee-login") {
         EmployeeAPI.employeeLogIn(req, res);
     }
