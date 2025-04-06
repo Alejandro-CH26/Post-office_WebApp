@@ -21,7 +21,7 @@ function Navbar() {
     localStorage.clear();
     setToken(null);
     setRole(null);
-    navigate("/"); 
+    navigate("/");
   };
 
   return (
@@ -55,10 +55,12 @@ function Navbar() {
             <li><Link to="/employeehours">Employee Hours</Link></li>
             <li><Link to="/admin/reports">Reports</Link></li>
             <li><Link to="/admin/employees">Employee List</Link></li>
+            <li><Link to="/admin/create-post-office">Create Post Office</Link></li>
+
           </>
         )}
-          {/* Warehouse-only */}
-          {token && role === "warehouse" && (
+        {/* Warehouse-only */}
+        {token && role === "warehouse" && (
           <>
             <li><Link to="/warehouse-dashboard">Warehouse Dashboard</Link></li>
           </>
