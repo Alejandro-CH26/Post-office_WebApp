@@ -72,11 +72,12 @@ module.exports = function cartAPI(req, res, reqUrl) {
     }
 
     const query = `
-      SELECT c.cart_id, c.quantity, c.format, p.product_name, p.item_price, c.product_id
-      FROM cart c
-      JOIN products p ON c.product_id = p.product_ID
-      WHERE c.customer_id = ?
-    `;
+  SELECT c.cart_id, c.quantity, c.format, p.product_name, p.item_price, c.product_id, p.description
+  FROM cart c
+  JOIN products p ON c.product_id = p.product_ID
+  WHERE c.customer_id = ?
+`;
+
     db.query(query, [customer_ID], (err, results) => {
       if (err) {
         console.error("DB Error:", err);

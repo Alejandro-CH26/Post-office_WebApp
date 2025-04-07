@@ -14,6 +14,7 @@ const CheckoutPage = () => {
   });
 
   const [saveAddress, setSaveAddress] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("Credit Card");
 
   const customerId = localStorage.getItem("customer_ID");
   const locationId = localStorage.getItem("location_ID");
@@ -28,12 +29,12 @@ const CheckoutPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!locationId) {
       alert("Post office location is missing. Please go back and select a store.");
       return;
     }
-  
+
     try {
       const response = await fetch("http://localhost:5001/checkout", {
         method: "POST",
@@ -44,11 +45,12 @@ const CheckoutPage = () => {
           saveAddress,
           shipping: form,
           location_ID: locationId,
+          paymentMethod,
         }),
       });
-  
+
       const result = await response.json();
-  
+
       if (response.ok) {
         alert("Order placed successfully!");
         clearCart();
@@ -60,7 +62,6 @@ const CheckoutPage = () => {
       alert("An error occurred. Try again later.");
     }
   };
-  
 
   return (
     <div className="checkout-wrapper">
@@ -118,6 +119,21 @@ const CheckoutPage = () => {
           />
           <label htmlFor="saveAddress">Save this address</label>
         </div>
+
+        <div className="form-group">
+  <label htmlFor="paymentMethod">Payment Method</label>
+  <select
+    id="paymentMethod"
+    className="select-input"
+    value={paymentMethod}
+    onChange={(e) => setPaymentMethod(e.target.value)}
+    required
+  >
+    <option value="Credit Card">Credit Card</option>
+    <option value="Debit Card">Debit Card</option>
+  </select>
+</div>
+
 
         <button type="submit" className="submit-btn">
           Place Order

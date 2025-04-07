@@ -3,7 +3,7 @@ import { useCart } from "./CartContext";
 import "./CartPage.css";
 import { Link } from "react-router-dom";
 
-// Manual image imports
+// Image imports
 import expressMailImage from "../images/express_mail.jpg";
 import ShippingLabel from "../images/ShippingLabel.jpg";
 import BubbleEnvelope from "../images/BubbleEnvelope2.jpg";
@@ -12,7 +12,6 @@ import medbox from "../images/medbox.webp";
 import largebox from "../images/largebox.webp";
 import packagetape from "../images/packagetape.webp";
 
-// Product image mapping by productId
 const productImages = {
   1: expressMailImage,
   2: ShippingLabel,
@@ -60,8 +59,10 @@ const CartPage = () => {
                     Remove
                   </button>
                 </div>
+
                 <div className="cart-item-right">
                   <h3>{item.name}</h3>
+
                   <div className="cart-item-row">
                     <div><strong>Format:</strong> {item.format}</div>
                     <div>
@@ -77,9 +78,15 @@ const CartPage = () => {
                       />
                     </div>
                     <div>
-                      <strong>Total:</strong> ${(item.quantity * item.price).toFixed(2)}
+                      <strong>Subtotal:</strong> ${(item.quantity * item.price).toFixed(2)}
                     </div>
                   </div>
+
+                  {item.description && (
+                    <div className="cart-description-row">
+                      <span className="cart-description">{item.description}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -88,7 +95,18 @@ const CartPage = () => {
           {/* RIGHT: Order Summary */}
           <div className="cart-summary-box">
             <h2>Order Summary</h2>
-            <p><strong>Total:</strong> ${getTotalPrice()}</p>
+            <ul className="summary-list">
+              {cart.map((item, index) => (
+                <li key={index} className="summary-item">
+                  <div className="summary-item-name">{item.name} (x{item.quantity})</div>
+                  <div className="summary-item-price">${(item.price * item.quantity).toFixed(2)}</div>
+                </li>
+              ))}
+            </ul>
+            <hr />
+            <p className="total-line">
+              <strong>Total:</strong> ${getTotalPrice()}
+            </p>
             <Link to="/buyinventory" className="summary-btn light">
               Continue Shopping
             </Link>

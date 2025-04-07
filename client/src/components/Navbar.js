@@ -53,6 +53,7 @@ function Navbar() {
             <li><Link to="/PackageMaker">PM</Link></li>
             <li><Link to="/trackpackage">Track a Package</Link></li>
             <li><Link to="/buyinventory">Buy Stamps/Inventory</Link></li>
+            <li><Link to="/order-history">Order History</Link></li> {/* NEW LINE HERE */}
             <li className="cart-link">
               <Link to="/cart">
                 Shopping Cart {cartCount > 0 && <span className="cart-count">({cartCount})</span>}

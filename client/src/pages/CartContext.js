@@ -22,6 +22,7 @@ export const CartProvider = ({ children }) => {
           quantity: item.quantity,
           format: item.format,
           price: item.item_price,
+          description: item.description,
         }));
 
         setCart(transformed);
@@ -83,6 +84,7 @@ export const CartProvider = ({ children }) => {
         quantity: item.quantity,
         format: item.format,
         price: item.item_price,
+        description: item.description,
       }));
 
       setCart(transformed);
@@ -135,6 +137,7 @@ export const CartProvider = ({ children }) => {
         quantity: item.quantity,
         format: item.format,
         price: item.item_price,
+        description: item.description, 
       }));
 
       setCart(transformed);

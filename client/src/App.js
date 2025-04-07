@@ -28,6 +28,7 @@ import ProductDetails from "./pages/productdetails";
 import CartPage from "./pages/CartPage"; 
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderHistory from "./pages/orderHistory";
+import SalesReport from "./pages/salesReport";
 
 // Restrict access based on token & role
 // hi
@@ -87,6 +88,10 @@ function App() {
         <Route path="/cart" element={<CartPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/order-history" element={<PrivateRoute element={<OrderHistory />} requiredRole="customer" />} />
+        <Route
+  path="/sales-report"
+  element={<PrivateRoute element={<SalesReport />} requiredRole="admin" />}
+/>
 
         {/* Dashboards */}
         <Route path="/customer-dashboard" element={<PrivateRoute element={<CustomerDashboard />} requiredRole="customer" />} />

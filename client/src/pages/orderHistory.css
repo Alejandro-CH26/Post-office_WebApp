@@ -1,23 +1,156 @@
-.order-history-container {
-    padding: 20px;
-    max-width: 900px;
-    margin: 0 auto;
-  }
-  
-  .transaction-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .transaction-table th,
-  .transaction-table td {
-    border: 1px solid #ccc;
-    padding: 10px;
-    text-align: center;
-  }
-  
-  .transaction-table th {
-    background-color: #f5f5f5;
-    font-weight: bold;
-  }
-  
+.order-history-wrapper {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: Arial, sans-serif;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.order-box {
+  border: 1px solid #ccc;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  background-color: #fafafa;
+}
+
+/* Top header bar */
+.order-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: #f8f8f8;
+  padding: 0.75rem 1rem;
+  border-radius: 8px 8px 0 0;
+  border-bottom: 1px solid #ddd;
+  flex-wrap: wrap;
+}
+
+.delivered-status {
+  color: green;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.order-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.95rem;
+  color: #333;
+  flex-wrap: wrap;
+}
+
+.order-meta span {
+  white-space: nowrap;
+}
+
+/* Image + info section */
+.order-content {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  padding: 1rem;
+}
+
+.order-img img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.order-details {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.order-details .item-name {
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: underline;
+  margin: 0.5rem 0;
+  cursor: pointer;
+}
+
+.order-details p {
+  margin: 0.3rem 0;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.sold-by {
+  margin-top: 0.3rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.order-search {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto 1.5rem auto;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  display: block;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.order-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.order-header-bar h1 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.order-search-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.order-search-input {
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background-color: #f8f8f8;
+  font-size: 1rem;
+  width: 250px;
+}
+
+.order-search-btn {
+  background-color: #2563eb;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.order-search-btn:hover {
+  background-color: #1e40af;
+}
+.order-history-wrapper {
+  padding-bottom: 100px; /* or more if needed */
+}

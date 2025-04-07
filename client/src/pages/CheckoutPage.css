@@ -94,4 +94,26 @@
     font-size: 1.1rem;
     margin: 0.5rem 0;
   }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-top: 1.5rem; /* increased from 1rem to 1.5rem */
+  }
+  
+  .form-group label {
+    margin-bottom: 0.3rem;
+    font-size: 0.95rem;
+    color: #333;
+  }
+  
+  .select-input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    background-color: white;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
   
