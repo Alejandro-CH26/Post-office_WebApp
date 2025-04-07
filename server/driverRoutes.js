@@ -54,16 +54,9 @@ function driverRoutes(req, res) {
             JOIN delivery_vehicle AS D ON E.employee_ID = D.Driver_ID
             JOIN Package AS P ON D.Vehicle_ID = P.Assigned_vehicle
             JOIN addresses AS A ON A.address_ID = P.Next_Destination
-            JOIN tracking_history AS T ON P.Package_ID = T.package_ID
             JOIN customers AS SE ON P.Sender_Customer_ID = SE.customer_ID
-            
             WHERE E.employee_ID = ?
-            AND T.timestamp = (
-                SELECT MAX(timestamp)
-                FROM tracking_history
-                WHERE package_ID = P.Package_ID
-    )
-    AND (T.status = "In Transit" OR T.status = "Out for Delivery");
+            AND P.Assigned_vehicle IS NOT NULL;
         `;
 
         connection.query(query, [employeeID], (err, results) => {
@@ -142,8 +135,13 @@ function driverRoutes(req, res) {
                     // ONLY insert into tracking_history (no other table updates)
                     const trackingQuery = `
                         INSERT INTO tracking_history (package_ID, location_ID, status, timestamp)
-                        SELECT P.Package_ID, P.Next_Destination, 'Delivered', NOW()
+                        SELECT 
+                            P.Package_ID,
+                            P.Next_Destination,
+                            IF(A.Office_Location = 1, 'At Warehouse', 'Delivered') AS status,
+                            NOW()
                         FROM Package P
+                        JOIN addresses A ON P.Next_Destination = A.address_ID
                         WHERE P.Package_ID = ?;
                     `;
 
@@ -164,13 +162,38 @@ function driverRoutes(req, res) {
                         }
 
                         // Success!
+                        const updatePackageQuery = `
+                        UPDATE Package 
+                        SET Assigned_vehicle = NULL
+                        WHERE Package_ID = ?;
+                    `;
+
+                    connection.query(updatePackageQuery, [packageID], (err, updateResult) => {
+                        if (err) {
+                            console.error("❌ Error updating package assignment:", {
+                                sqlMessage: err.sqlMessage,
+                                sql: err.sql,
+                                code: err.code
+                            });
+                            setCorsHeaders(req, res);
+                            res.writeHead(500, { "Content-Type": "application/json" });
+                            res.end(JSON.stringify({ 
+                                error: "Failed to clear vehicle assignment",
+                                details: err.sqlMessage 
+                            }));
+                            return;
+                        }
+
+                        // Success! (updated message)
                         setCorsHeaders(req, res);
                         res.writeHead(200, { "Content-Type": "application/json" });
                         res.end(JSON.stringify({ 
                             success: true, 
-                            message: "Package successfully delivered" 
+                            message: "Package delivered and vehicle assignment removed" 
                         }));
                     });
+                });
+
                 });
             } catch (error) {
                 console.error("❌ Error processing request:", error);
