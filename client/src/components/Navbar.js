@@ -61,17 +61,19 @@ function Navbar() {
           </>
         )}
 
-        {token && role === "employee" && (
-          <>
-            <li><Link to="/onboard">Onboard Employee</Link></li>
-            <li><Link to="/employee/clock">Clock in/out</Link></li>
-          </>
-        )}
+{token && role === "employee" && (
+  <>
+    <li><Link to="/onboard">Onboard Employee</Link></li>
+    <li><Link to="/employee/clock">Clock in/out</Link></li>
+  </>
+)}
+
 
         {/* Driver */}
           {token && role === "driver" && (
             <li><Link to="/driver/clock">Clock in/out</Link></li>
           )}
+
 
         {token && role === "admin" && (
           <>
