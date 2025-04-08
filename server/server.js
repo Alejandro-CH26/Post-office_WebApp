@@ -24,7 +24,7 @@ if (!process.env.JWT_SECRET) {
 
 // Create HTTP Server
 const server = http.createServer((req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "https://post-office-web-app.vercel.app");
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
@@ -38,6 +38,7 @@ const server = http.createServer((req, res) => {
   }
 
   const reqUrl = url.parse(req.url, true);
+  const path = req.url.split('?')[0]; // Path without search parameters
 
   // Route handling:
   if (notificationRoutes(req, res, reqUrl)) return;
@@ -336,10 +337,10 @@ const server = http.createServer((req, res) => {
       }
     });
   }
-  else if (req.method === "POST" && req.url === "/employee-login") {
+  else if (req.method === "POST" && path === "/employee-login") {
     EmployeeAPI.employeeLogIn(req, res);
   }
-  else if (req.url === "/warehouseassignpackages") {
+  else if (path === "/warehouseassignpackages") {
     EmployeeAPI.warehouseAssignPackages(req, res);
   }
   // Admin Login Route
