@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import CreatePostOffice from "./pages/CreatePostOffice";
 
 import HeroSection from "./components/HeroSection";
 import SearchPackage from "./components/SearchPackage";
@@ -18,12 +19,19 @@ import DriverDashboard from "./pages/DriverDashboard";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import PackageMaker from "./pages/PackageMaker"; // adjust the path if needed
+
 import Reports from "./pages/Reports";
 import "./App.css";
 import WarehouseAssignPackages from "./pages/WarehouseAssignPackages";
 import ClockInOut from "./pages/ClockInOut";
 import EmployeeHours from "./pages/EmployeeHours";
 import InventoryReport from "./pages/inventoryreport";
+import ProductDetails from "./pages/productdetails";
+import CartPage from "./pages/CartPage"; 
+import CheckoutPage from "./pages/CheckoutPage";
+import OrderHistory from "./pages/orderHistory";
+import SalesReport from "./pages/salesReport";
 
 // Restrict access based on token & role
 // hi
@@ -66,9 +74,21 @@ function App() {
               <SearchPackage />
             </main>
           }
+
         />
+
+        <Route
+          path="/admin/create-post-office"
+          element={<PrivateRoute element={<CreatePostOffice />} requiredRole="admin" />}
+        />
+
         <Route path="/faq" element={<Faq />} />
         <Route path="/trackpackage" element={<PrivateRoute element={<TrackPackage />} requiredRole="customer" />} />
+        <Route
+          path="/packagemaker"
+          element={<PrivateRoute element={<PackageMaker />} requiredRole="customer" />}
+        />
+
         <Route path="/login" element={<LogIn />} />
         <Route path="/employee-login" element={<EmployeeLogin />} />
         <Route path="/admin-login" element={<AdminLogin />} />
@@ -79,7 +99,13 @@ function App() {
         <Route path="/admin/reports" element={<PrivateRoute element={<Reports />} requiredRole="admin" />} />
         <Route path="/admin/employees" element={<PrivateRoute element={<Employees />} requiredRole="admin" />} />
         <Route path="/inventory" element={<InventoryReport />} />
-
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/order-history" element={<PrivateRoute element={<OrderHistory />} requiredRole="customer" />} />
+        <Route
+  path="/sales-report"
+  element={<PrivateRoute element={<SalesReport />} requiredRole="admin" />}
+/>
 
         {/* Dashboards */}
         <Route path="/customer-dashboard" element={<PrivateRoute element={<CustomerDashboard />} requiredRole="customer" />} />
@@ -88,11 +114,23 @@ function App() {
         <Route path="/admin-dashboard" element={<PrivateRoute element={<AdminDashboard />} requiredRole="admin" />} />
 
         {/* Warehouse Employee Routes */}
-        <Route path="/warehouseassignpackages" element={<PrivateRoute element={<WarehouseAssignPackages />} requiredRole="warehouse" />} />
+        <Route path="/WarehouseAssignPackages" element={<PrivateRoute element={<WarehouseAssignPackages />} requiredRole="warehouse" />} />
         <Route path="/warehouseclockinout" element={<PrivateRoute element={<ClockInOut />} requiredRole="warehouse" />} />
+        <Route path="/inventoryreport" element={<PrivateRoute element={<InventoryReport />} requiredRole="warehouse" />} />
+        <Route path="/products/:productId" element={<ProductDetails />} />
+
+
 
         {/* Catch-all redirect */}
         <Route path="*" element={<Navigate to="/" />} />
+
+        <Route path="/employee/clock" element={<PrivateRoute element={<ClockInOut />} requiredRole="employee" />} />
+        <Route path="/driver/clock" element={<PrivateRoute element={<ClockInOut />} requiredRole="driver" />} />
+        <Route path="/warehouse/clock" element={<PrivateRoute element={<ClockInOut />} requiredRole="warehouse" />} />
+        {/*<Route path="/admin/clock" element={<PrivateRoute element={<ClockInOut />} requiredRole="admin" />} />*/}
+        <Route path="/clock" element={<Navigate to={`/${localStorage.getItem("role")}/clock`} />} />
+
+
       </Routes>
 
       {/* Footer at the bottom */}

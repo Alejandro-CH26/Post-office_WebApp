@@ -7,10 +7,12 @@ function WarehouseEmployeeDashboard() {
   
   const allCookies = document.cookie;
   console.log(allCookies);
+  const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+  
   useEffect(() => {
     async function fetchEmployeeData() {
       try {
-        const response = await fetch('http://localhost:5001/employee/warehousedashboard', {
+        const response = await fetch(`${BASE_URL}/employee/warehousedashboard`, {
           method: "GET",
           credentials: 'include', // Send the employeeID cookie (and all other cookies) with the request
         });
