@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./inventoryreport.css";
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 
 const InventoryReport = () => {
   const [allInventoryData, setAllInventoryData] = useState([]);
@@ -121,7 +123,7 @@ const InventoryReport = () => {
     const location_ID = match.location_ID;
 
     try {
-      const response = await fetch("http://localhost:5001/restock", {
+      const response = await fetch(`${BASE_URL}/restock`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
