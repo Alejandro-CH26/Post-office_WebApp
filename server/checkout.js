@@ -14,7 +14,6 @@ function handleCheckout(req, res, reqUrl) {
         try {
           const { customer_ID, cart, shipping, saveAddress, location_ID, paymentMethod } = JSON.parse(body);
 
-
           if (!customer_ID || !cart || !shipping || !location_ID) {
             throw new Error("Missing required fields in request body.");
           }
@@ -53,7 +52,7 @@ function handleCheckout(req, res, reqUrl) {
                ) VALUES (?, ?, ?, ?, 'Completed', ?)`,
               [customer_ID, location_ID, shippingAddressId, totalAmount, paymentMethod]
             );
-            
+
             const order_ID = orderResult.insertId;
 
             // Get customer name
@@ -61,7 +60,6 @@ function handleCheckout(req, res, reqUrl) {
               `SELECT first_Name FROM customers WHERE customer_ID = ?`,
               [customer_ID]
             );
-            
 
             for (const item of cart) {
               const { productId, quantity, name } = item;
@@ -69,10 +67,10 @@ function handleCheckout(req, res, reqUrl) {
               // Insert into transaction
               const [transactionResult] = await connection.execute(
                 `INSERT INTO transaction (Order_ID, Customer_ID, Payment_method, Status, Item_name, product_ID, Quantity) 
- VALUES (?, ?, ?, 'Completed', ?, ?, ?)`,
-[order_ID, customer_ID, paymentMethod, name, productId, quantity]
-
+                 VALUES (?, ?, ?, 'Completed', ?, ?, ?)`,
+                [order_ID, customer_ID, paymentMethod, name, productId, quantity]
               );
+
               const transaction_ID = transactionResult.insertId;
 
               // Update inventory
@@ -91,16 +89,15 @@ function handleCheckout(req, res, reqUrl) {
 
               const weight = parseFloat(product.weight) || 0.1;
               const fragile = product.fragile ? 1 : 0;
-              const priority = parseInt(product.priority) || 3; // Integer between 1 (high) and 5 (low)
+              const priority = parseInt(product.priority) || 3;
               const length = parseFloat(product.length) || 1;
               const width = parseFloat(product.width) || 1;
               const height = parseFloat(product.height) || 1;
-              
-              // Lower number = higher priority = higher cost
+
               const shippingCost = parseFloat((weight * 1.5 + (6 - priority) * 0.5).toFixed(2));
-              
+
               // Insert into package table
-              await connection.execute(
+              const [packageResult] = await connection.execute(
                 `INSERT INTO package (
                   Weight, Sender_Customer_ID, Origin_ID, Destination_ID, Shipping_Cost,
                   Priority, Fragile, Transaction_ID, Length, Width, Height,
@@ -118,9 +115,18 @@ function handleCheckout(req, res, reqUrl) {
                   length,
                   width,
                   height,
-                  location_ID, // location the customer selected at checkout,
+                  location_ID,
                   customer_Name
                 ]
+              );
+
+              const package_ID = packageResult.insertId;
+
+              // Insert into tracking_history table
+              await connection.execute(
+                `INSERT INTO tracking_history (package_ID, location_ID, status)
+                 VALUES (?, ?, ?)`,
+                [package_ID, location_ID, 'Package Created']
               );
             }
 
@@ -139,10 +145,10 @@ function handleCheckout(req, res, reqUrl) {
                 },
               });
 
-              const itemsHTML = cart.map(item => 
+              const itemsHTML = cart.map(item =>
                 `<li>${item.name} — ${item.quantity} × $${Number(item.price).toFixed(2)} = <strong>$${(item.quantity * Number(item.price)).toFixed(2)}</strong></li>`
               ).join("");
-              
+
               await transporter.sendMail({
                 from: `"Post Office" <${process.env.EMAIL_USER}>`,
                 to: customer_Email,

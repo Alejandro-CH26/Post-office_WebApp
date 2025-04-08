@@ -185,27 +185,29 @@ const SalesReport = () => {
         <div className="report-table-wrapper">
           <table className="sales-report-table">
             <thead>
-              <tr>
-                <th onClick={() => handleSort("Transaction_ID")}>Sale ID{sortArrow("Transaction_ID")}</th>
-                <th onClick={() => handleSort("customer_name")}>Customer Name{sortArrow("customer_name")}</th>
-                <th onClick={() => handleSort("Item_name")}>Type{sortArrow("Item_name")}</th>
-                <th onClick={() => handleSort("Quantity")}>Quantity{sortArrow("Quantity")}</th>
-                <th onClick={() => handleSort("item_price")}>Amount{sortArrow("item_price")}</th>
-                <th onClick={() => handleSort("Date")}>Date{sortArrow("Date")}</th>
-                <th onClick={() => handleSort("Location")}>Location{sortArrow("Location")}</th>
-              </tr>
+            <tr>
+  <th onClick={() => handleSort("Transaction_ID")}>Sale ID{sortArrow("Transaction_ID")}</th>
+  <th onClick={() => handleSort("Date")}>Date{sortArrow("Date")}</th>
+  <th onClick={() => handleSort("customer_name")}>Customer Name{sortArrow("customer_name")}</th>
+  <th onClick={() => handleSort("Item_name")}>Type{sortArrow("Item_name")}</th>
+  <th onClick={() => handleSort("Quantity")}>Quantity{sortArrow("Quantity")}</th>
+  <th onClick={() => handleSort("item_price")}>Amount{sortArrow("item_price")}</th>
+  <th onClick={() => handleSort("Location")}>Location{sortArrow("Location")}</th>
+</tr>
+
             </thead>
             <tbody>
               {getSortedSales().map((sale) => (
-                <tr key={sale.Transaction_ID}>
-                  <td>{sale.Transaction_ID}</td>
-                  <td>{sale.customer_name}</td>
-                  <td>{sale.Item_name}</td>
-                  <td>{sale.Quantity}</td>
-                  <td>${(sale.item_price * sale.Quantity).toFixed(2)}</td>
-                  <td>{new Date(sale.Date).toLocaleDateString()}</td>
-                  <td>{sale.Location}</td>
-                </tr>
+               <tr key={sale.Transaction_ID}>
+               <td>{sale.Transaction_ID}</td>
+               <td>{new Date(sale.Date).toLocaleDateString()}</td>
+               <td>{sale.customer_name}</td>
+               <td>{sale.Item_name}</td>
+               <td>{sale.Quantity}</td>
+               <td>${(sale.item_price * sale.Quantity).toFixed(2)}</td>
+               <td>{sale.Location}</td>
+             </tr>
+             
               ))}
             </tbody>
           </table>
