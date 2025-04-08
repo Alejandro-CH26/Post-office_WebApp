@@ -40,10 +40,21 @@ function notificationRoutes(req, res) {
     }
 
     connection.query(
-      `SELECT t.tracking_history_ID, t.package_ID, t.status, t.timestamp 
-       FROM tracking_history t 
-       WHERE t.package_ID = ?
-       ORDER BY t.timestamp ASC`,
+      `
+      SELECT 
+  t.tracking_history_ID,
+  t.package_ID,
+  t.status,
+  t.timestamp,
+  a.address_City,
+  a.address_State,
+  a.address_Zipcode
+FROM tracking_history t
+JOIN package p ON t.package_ID = p.Package_ID
+LEFT JOIN addresses a ON p.Destination_ID = a.address_ID
+WHERE t.package_ID = ?
+ORDER BY t.timestamp ASC;
+`,
       [packageId],
       (err, results) => {
         if (err) {
@@ -71,19 +82,31 @@ if (req.method === "GET" && reqUrl.pathname === "/customer-sent-packages") {
   }
 
   connection.query(
-    `SELECT 
-       p.Package_ID,
-       th.status AS latest_status,
-       th.timestamp AS latest_time
-     FROM package p
-     INNER JOIN (
-       SELECT package_ID, MAX(timestamp) AS latest_timestamp
-       FROM tracking_history
-       GROUP BY package_ID
-     ) latest ON p.Package_ID = latest.package_ID
-     INNER JOIN tracking_history th 
-       ON th.package_ID = latest.package_ID AND th.timestamp = latest.latest_timestamp
-     WHERE p.Sender_Customer_ID = ?`,
+    `
+SELECT 
+  p.Package_ID,
+  a.address_Street,
+  a.address_City AS destination_city,
+  a.address_State AS destination_state,
+  a.address_Zipcode AS destination_zip,
+  th_latest.status AS latest_status,
+  th_latest.timestamp AS latest_time,
+  th_sent.timestamp AS sent_date
+FROM package p
+JOIN addresses a ON p.Destination_ID = a.address_ID
+JOIN (
+  SELECT package_ID, MAX(timestamp) AS latest_timestamp
+  FROM tracking_history
+  GROUP BY package_ID
+) latest ON p.Package_ID = latest.package_ID
+JOIN tracking_history th_latest 
+  ON th_latest.package_ID = latest.package_ID AND th_latest.timestamp = latest.latest_timestamp
+LEFT JOIN tracking_history th_sent
+  ON th_sent.package_ID = p.Package_ID AND th_sent.status = 'Shipment Created'
+WHERE p.Sender_Customer_ID = ?
+
+
+`,
     [customerId],
     (err, results) => {
       if (err) {

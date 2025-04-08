@@ -26,6 +26,7 @@ const restock = require("./restock");
 const salesReport = require("./salesReport");
 // API functions
 const EmployeeAPI = require("./API Endpoints/EmployeeAPI.js");
+const postOfficeAPI = require("./postOffice");
 
 if (!process.env.JWT_SECRET) {
     console.error("JWT_SECRET is missing in .env file!");
@@ -49,6 +50,8 @@ const server = http.createServer((req, res) => {
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
+  const reqUrl = url.parse(req.url, true);
+  const path = req.url.split('?')[0]; // Path without search parameters
     console.log(req.method);
     console.log(req.url);
 
@@ -58,7 +61,6 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    const reqUrl = url.parse(req.url, true);
 
     // Route handling:
     if (notificationRoutes(req, res, reqUrl)) return;
@@ -78,6 +80,8 @@ const server = http.createServer((req, res) => {
     if (orderHistory(req, res, reqUrl)) return;
     if (restock(req, res, reqUrl)) return;
     if (salesReport(req, res, reqUrl)) return;
+    if (postOfficeAPI(req, res, reqUrl)) return;
+
     // Registration Route 
     if (req.method === "POST" && req.url === "/register") {
         let body = "";
@@ -155,73 +159,6 @@ const server = http.createServer((req, res) => {
             res.writeHead(500, { "Content-Type": "application/json" });
             res.end(JSON.stringify({ error: "Internal Server Error" }));
         }
-    }
-
-
-    else if (req.method === "POST" && req.url === "/post-office") {
-        let body = "";
-        req.on("data", (chunk) => (body += chunk.toString()));
-
-        req.on("end", async () => {
-            try {
-                const data = JSON.parse(body);
-                const {
-                    name,
-                    street_address,
-                    city,
-                    state,
-                    zip,
-                    office_phone,
-                } = data;
-
-                if (!name || !street_address || !city || !state || !zip || !office_phone) {
-                    res.writeHead(400, { "Content-Type": "application/json" });
-                    res.end(JSON.stringify({ status: "error", message: "Missing required fields." }));
-                    return;
-                }
-
-                const [addressCheck] = await db.promise().query(
-                    `SELECT * FROM post_office_location
-           WHERE street_address = ? AND city = ? AND state = ? AND zip = ?`,
-                    [street_address, city, state, zip]
-                );
-
-                if (addressCheck.length > 0) {
-                    res.writeHead(409, { "Content-Type": "application/json" });
-                    res.end(JSON.stringify({ status: "error", message: "A post office at this address already exists." }));
-                    return;
-                }
-
-                const [phoneCheck] = await db.promise().query(
-                    `SELECT * FROM post_office_location WHERE office_phone = ?`,
-                    [office_phone]
-                );
-
-                if (phoneCheck.length > 0) {
-                    res.writeHead(409, { "Content-Type": "application/json" });
-                    res.end(JSON.stringify({ status: "error", message: "Office phone number is already in use." }));
-                    return;
-                }
-
-                const [result] = await db.promise().query(
-                    `INSERT INTO post_office_location
-           (name, street_address, city, state, zip, office_phone)
-           VALUES (?, ?, ?, ?, ?, ?)`,
-                    [name, street_address, city, state, zip, office_phone]
-                );
-
-                res.writeHead(201, { "Content-Type": "application/json" });
-                res.end(JSON.stringify({
-                    status: "success",
-                    message: "Post office created successfully.",
-                    postOfficeID: result.insertId,
-                }));
-            } catch (err) {
-                console.error("Post Office Creation Error:", err);
-                res.writeHead(500, { "Content-Type": "application/json" });
-                res.end(JSON.stringify({ status: "error", message: "Internal Server Error" }));
-            }
-        });
     }
 
     // Login Route (JWT Authentication)
@@ -477,7 +414,7 @@ const server = http.createServer((req, res) => {
     else if (req.method === "POST" && req.url === "/employee-login") {
         EmployeeAPI.employeeLogIn(req, res);
     }
-    else if (reqUrl.pathname === "/warehouseassignpackages" && req.method === "GET") {
+    else if (reqUrl.pathname === "/warehouseassignpackages") {
         EmployeeAPI.warehouseAssignPackages(req, res);
     }
     // Admin Login Route

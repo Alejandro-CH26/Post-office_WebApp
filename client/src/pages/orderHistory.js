@@ -9,6 +9,7 @@ import medbox from "../images/medbox.webp";
 import largebox from "../images/largebox.webp";
 import packagetape from "../images/packagetape.webp";
 import packageBox from "../images/package.jpg.webp"; // Default image
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const productImages = {
   1: expressMailImage,
@@ -29,8 +30,8 @@ const OrderHistory = () => {
 
   useEffect(() => {
     if (!customerId) return;
-
-    fetch(`http://localhost:5001/order-history?customer_ID=${customerId}`)
+   
+    fetch(`${BASE_URL}/order-history?customer_ID=${customerId}`)
       .then((res) => res.json())
       .then((data) => setOrders(data.data || []))
       .catch((err) => console.error("Error fetching order history:", err));
