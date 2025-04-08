@@ -5,11 +5,12 @@ const TrackPackage = () => {
   const [trackingNumber, setTrackingNumber] = useState('');
   const [trackingResults, setTrackingResults] = useState([]);
   const [sentPackages, setSentPackages] = useState([]);
-  const [selectedSentPackage, setSelectedSentPackage] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [showFullHistory, setShowFullHistory] = useState(false);
-  const [view, setView] = useState('receiving'); // 'receiving' or 'sending'
+  const [view, setView] = useState('receiving');
+  const [sortOrder, setSortOrder] = useState('newest');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
   const isLoggedIn = !!localStorage.getItem("token");
@@ -65,6 +66,16 @@ const TrackPackage = () => {
     }
   };
 
+  const handleViewChange = (newView) => {
+    setView(newView);
+    if (newView === 'sending') {
+      setTrackingResults([]);
+      setErrorMessage('');
+      setTrackingNumber('');
+      setShowFullHistory(false);
+    }
+  };
+
   const toggleHistory = () => {
     setShowFullHistory(prev => !prev);
   };
@@ -72,6 +83,14 @@ const TrackPackage = () => {
   const visibleUpdates = showFullHistory
     ? trackingResults
     : trackingResults.slice(-1);
+
+  const sortedPackages = [...sentPackages]
+    .filter(pkg => pkg.Package_ID.toString().includes(searchQuery))
+    .sort((a, b) => {
+      const dateA = new Date(a.sent_date);
+      const dateB = new Date(b.sent_date);
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    });
 
   return (
     <div className="notifications-container">
@@ -82,13 +101,13 @@ const TrackPackage = () => {
       {isLoggedIn && role === "customer" && (
         <div className="tab-toggle">
           <button
-            onClick={() => setView("receiving")}
+            onClick={() => handleViewChange("receiving")}
             className={view === "receiving" ? "active-tab" : ""}
           >
             Receiving
           </button>
           <button
-            onClick={() => setView("sending")}
+            onClick={() => handleViewChange("sending")}
             className={view === "sending" ? "active-tab" : ""}
           >
             Sending
@@ -96,48 +115,70 @@ const TrackPackage = () => {
         </div>
       )}
 
-      {/* Receiving View */}
       {view === "receiving" && (
+        <div className="tracking-form">
+          <input
+            type="text"
+            placeholder="Enter tracking number"
+            value={trackingNumber}
+            onChange={(e) => setTrackingNumber(e.target.value)}
+          />
+          <button onClick={() => handleTrack()}>Track</button>
+        </div>
+      )}
+
+      {view === "sending" && (
         <>
           <div className="tracking-form">
             <input
               type="text"
-              placeholder="Enter tracking number"
-              value={trackingNumber}
-              onChange={(e) => setTrackingNumber(e.target.value)}
+              placeholder="Search by tracking number"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <button onClick={() => handleTrack()}>Track</button>
+            <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
           </div>
-        </>
-      )}
 
-      {/* Sending View */}
-      {view === "sending" && (
-        <>
-          {sentPackages.length === 0 ? (
+          {sortedPackages.length === 0 ? (
             <p>No packages found that you’ve sent.</p>
           ) : (
-            <div className="tracking-form">
-              <select
-                value={selectedSentPackage}
-                onChange={(e) => setSelectedSentPackage(e.target.value)}
-              >
-                <option value="">Select a package you’ve sent</option>
-                {sentPackages.map(pkg => (
-                  <option key={pkg.Package_ID} value={pkg.Package_ID}>
-                    Package #{pkg.Package_ID}
-                  </option>
-                ))}
-              </select>
-              <button onClick={() => handleTrack(selectedSentPackage)}>Track</button>
-            </div>
+            <ul className="notification-list">
+              {sortedPackages.map((pkg) => (
+                <li key={pkg.Package_ID} className="notification-item">
+                  <strong>Package #{pkg.Package_ID}</strong>
+                  <p>
+                    Destination:{" "}
+                    {pkg.address_Street && pkg.destination_city && pkg.destination_state && pkg.destination_zip
+                      ? `${pkg.address_Street}, ${pkg.destination_city}, ${pkg.destination_state} ${pkg.destination_zip}`
+                      : "Unknown"}
+                  </p>
+                  <p>
+                    Sent:{" "}
+                    {pkg.sent_date
+                      ? new Date(pkg.sent_date).toLocaleDateString()
+                      : "N/A"}
+                  </p>
+                  <button
+                    className="toggle-button"
+                    onClick={() => {
+                      setTrackingNumber(pkg.Package_ID);
+                      handleViewChange("receiving");
+                      handleTrack(pkg.Package_ID);
+                    }}
+                  >
+                    View Tracking
+                  </button>
+                </li>
+              ))}
+            </ul>
           )}
         </>
       )}
 
-      {/* Shared tracking display */}
       {loading && <p>Loading tracking history...</p>}
-
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       {trackingResults.length > 0 && (
@@ -149,7 +190,10 @@ const TrackPackage = () => {
           <ul className="notification-list">
             {visibleUpdates.map((update, index) => (
               <li key={index} className="notification-item">
-                <strong>Package #{update.package_ID}</strong> {update.status}
+                <strong>Package #{update.package_ID}</strong>{" "}
+                {update.status === "Delivered" && update.address_City
+                  ? `Delivered (${update.address_City}, ${update.address_State} ${update.address_Zipcode})`
+                  : update.status}
                 <br />
                 <small>{new Date(update.timestamp).toLocaleString()}</small>
               </li>
@@ -157,6 +201,8 @@ const TrackPackage = () => {
           </ul>
         </>
       )}
+
+      <div className="bottom-spacer" />
     </div>
   );
 };
