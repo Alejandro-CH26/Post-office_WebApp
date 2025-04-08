@@ -1,53 +1,49 @@
-// inventory.js
-const connection = require("./db"); // DB connection
+const connection = require("./db");
+const url = require("url");
 
 module.exports = (req, res, reqUrl) => {
-  // 1) Check if it's GET /inventory
   if (req.method === "GET" && reqUrl.pathname === "/inventory") {
+    const parsedUrl = url.parse(req.url, true);
+    const selectedDate = parsedUrl.query.date; // from frontend
+
     const sql = `
-      SELECT
-        l.name AS location_name,
-        p.product_name,
-        p.item_price,
-        i.quantity AS starting_quantity,
-        
-        -- Sum the transaction Quantity (not just 1) if Status = 'Completed'
-        COALESCE(
-          SUM(
-            CASE WHEN t.Status = 'Completed' THEN t.Quantity ELSE 0 END
-          ), 
-          0
-        ) AS total_sold,
-        
-        -- Adjusted quantity is starting_quantity minus total sold
-        i.quantity - COALESCE(
-          SUM(
-            CASE WHEN t.Status = 'Completed' THEN t.Quantity ELSE 0 END
-          ), 
-          0
-        ) AS adjusted_quantity
-
-      FROM post_office_location l
-      JOIN inventory i 
-        ON l.location_ID = i.location_ID
-      JOIN products p 
-        ON i.product_ID = p.product_ID
-      LEFT JOIN orders o 
-        ON o.address_id = l.location_ID
-      LEFT JOIN transaction t 
-        ON t.order_id = o.order_id 
-        AND t.Item_name = p.product_name
-
-      GROUP BY 
-        l.name, 
-        p.product_name, 
-        p.item_price, 
-        i.quantity
-
-      ORDER BY p.product_name;
-    `;
-
-    connection.query(sql, (err, results) => {
+    SELECT
+      l.location_ID,
+      p.product_ID,
+      l.name AS location_name,
+      p.product_name,
+      p.item_price,
+      p.desired_stock AS starting_quantity,
+      i.quantity AS adjusted_quantity,
+  
+      COALESCE(
+        SUM(
+          CASE
+            WHEN o.Order_Date <= ? AND t.Status = 'Completed'
+            THEN t.Quantity
+            ELSE 0
+          END
+        ),
+        0
+      ) AS total_sold
+  
+    FROM post_office_location l
+    JOIN inventory i ON l.location_ID = i.location_ID
+    JOIN products p ON i.product_ID = p.product_ID
+    LEFT JOIN orders o ON o.address_id = l.location_ID
+    LEFT JOIN transaction t ON t.order_id = o.order_id
+      AND t.product_ID = p.product_ID
+  
+    GROUP BY
+      l.location_ID, p.product_ID,
+      l.name, p.product_name, p.item_price,
+      p.desired_stock, i.quantity
+  
+    ORDER BY p.product_name;
+  `;
+  
+ 
+    connection.query(sql, [selectedDate], (err, results) => {
       if (err) {
         console.error("❌ Database Error:", err);
         if (!res.headersSent) {
@@ -62,10 +58,8 @@ module.exports = (req, res, reqUrl) => {
       }
     });
 
-    // Return true so server.js knows we handled this request
     return true;
   }
 
-  // 2) Not our route => return false
   return false;
 };
