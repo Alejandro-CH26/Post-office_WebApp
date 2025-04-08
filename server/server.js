@@ -11,6 +11,7 @@ const notificationRoutes = require("./notificationRoutes");
 const reportRoutes = require("./reportRoutes");
 const employeeRoutes = require("./employeeRoutes");
 const driverRoutes = require("./driverRoutes");
+const clockRoutes = require("./clockRoutes");
 
 // Import the inventory API from the same folder
 const inventoryAPI = require("./inventory");
@@ -47,6 +48,8 @@ const server = http.createServer((req, res) => {
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
+  const reqUrl = url.parse(req.url, true);
+  const path = req.url.split('?')[0]; // Path without search parameters
     console.log(req.method);
     console.log(req.url);
 
@@ -56,12 +59,15 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    const reqUrl = url.parse(req.url, true);
 
     // Route handling:
     if (notificationRoutes(req, res, reqUrl)) return;
     if (reportRoutes(req, res, reqUrl)) return;
     if (employeeRoutes(req, res, reqUrl)) return;
+    //if (inventoryAPI(req, res, reqUrl)) return; 
+    //if (driverRoutes(req, res, reqUrl)) return; 
+    if (clockRoutes(req, res, reqUrl)) return; 
+
     if (inventoryAPI(req, res, reqUrl)) return; // New Inventory route
     if (driverRoutes(req, res, reqUrl)) return; // New Driver route
     if (productsAPI(req, res, reqUrl)) return;
@@ -405,7 +411,7 @@ const server = http.createServer((req, res) => {
     else if (req.method === "POST" && req.url === "/employee-login") {
         EmployeeAPI.employeeLogIn(req, res);
     }
-    else if (reqUrl.pathname === "/warehouseassignpackages" && req.method === "GET") {
+    else if (reqUrl.pathname === "/warehouseassignpackages") {
         EmployeeAPI.warehouseAssignPackages(req, res);
     }
     // Admin Login Route

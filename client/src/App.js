@@ -123,6 +123,14 @@ function App() {
 
         {/* Catch-all redirect */}
         <Route path="*" element={<Navigate to="/" />} />
+
+        <Route path="/employee/clock" element={<PrivateRoute element={<ClockInOut />} requiredRole="employee" />} />
+        <Route path="/driver/clock" element={<PrivateRoute element={<ClockInOut />} requiredRole="driver" />} />
+        <Route path="/warehouse/clock" element={<PrivateRoute element={<ClockInOut />} requiredRole="warehouse" />} />
+        {/*<Route path="/admin/clock" element={<PrivateRoute element={<ClockInOut />} requiredRole="admin" />} />*/}
+        <Route path="/clock" element={<Navigate to={`/${localStorage.getItem("role")}/clock`} />} />
+
+
       </Routes>
 
       {/* Footer at the bottom */}
