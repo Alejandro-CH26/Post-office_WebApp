@@ -73,7 +73,7 @@ function Navbar() {
             <li><Link to="/admin/reports">Reports</Link></li>
             <li><Link to="/admin/employees">Employee List</Link></li>
             <li><Link to="/admin/create-post-office">Create Post Office</Link></li>
-            <li><Link to="/admin/sales-report">Sales Report</Link></li>
+            <li><Link to="/sales-report">Sales Report</Link></li>
           </>
         )}
 
