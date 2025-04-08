@@ -86,7 +86,10 @@ function Navbar() {
         )}
 
         {token && role === "warehouse" && (
-          <li><Link to="/warehouse-dashboard">Warehouse Dashboard</Link></li>
+          <>
+            <li><Link to="/warehouse-dashboard">Warehouse Dashboard</Link></li>
+            <li><Link to="/warehouse/clock">Clock in/out</Link></li>
+          </>
         )}
 
         {!token && (
