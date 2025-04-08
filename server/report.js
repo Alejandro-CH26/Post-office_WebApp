@@ -18,7 +18,7 @@ function formatTimestamp(timestamp) {
 
 function handleReportRequest(req, res) {
     try {
-        // Fetch available months and locations for dropdowns
+        // Fetch available months, locations, and employee names for dropdowns
         const monthsQuery = `
             SELECT DISTINCT 
                 DATE_FORMAT(clock_in_time, '%Y-%m') AS month_key,
@@ -82,8 +82,8 @@ function handleReportRequest(req, res) {
                     e.employee_ID, h.clock_in_time
             `
         };
-        
-        // Fetch months and locations first
+
+        // Fetch months, locations, and employees first
         db.query(monthsQuery, (monthErr, months) => {
             if (monthErr) {
                 console.error('Months Query Error:', monthErr);

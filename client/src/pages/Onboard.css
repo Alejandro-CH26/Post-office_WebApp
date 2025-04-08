@@ -1,4 +1,89 @@
-const formStyles = {
+.onboard-container {
+    display: flex;
+    justify-content: center;
+    padding: 60px 0;
+    background-color: #f9f9f9;
+    min-height: 100vh;
+  }
+  
+  .onboard-box {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 900px;
+  }
+  
+  .onboard-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    margin-bottom: 25px;
+  }
+  
+  .onboard-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .form-columns {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .form-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .dob-section {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .onboard-form input,
+  .onboard-form select {
+    padding: 12px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 100%;
+  }
+  
+  .onboard-form input:focus,
+  .onboard-form select:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
+  }
+  
+  .onboard-button {
+    padding: 14px;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+  }
+  
+  .onboard-button:hover {
+    background-color: #0056b3;
+  }
+  
+
+
+
+
+/* const formStyles = {
     container: {
       padding: "32px",
       maxWidth: "900px",
@@ -55,4 +140,4 @@ const formStyles = {
     buttonHover: {
       backgroundColor: "#357ABD",
     },
-  };
+  }; */

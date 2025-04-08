@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import CreatePostOffice from "./pages/CreatePostOffice";
 
 import HeroSection from "./components/HeroSection";
 import SearchPackage from "./components/SearchPackage";
@@ -18,6 +19,8 @@ import DriverDashboard from "./pages/DriverDashboard";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import PackageMaker from "./pages/PackageMaker"; // adjust the path if needed
+
 import Reports from "./pages/Reports";
 import "./App.css";
 import WarehouseAssignPackages from "./pages/WarehouseAssignPackages";
@@ -71,10 +74,21 @@ function App() {
               <SearchPackage />
             </main>
           }
-        
+
         />
+
+        <Route
+          path="/admin/create-post-office"
+          element={<PrivateRoute element={<CreatePostOffice />} requiredRole="admin" />}
+        />
+
         <Route path="/faq" element={<Faq />} />
         <Route path="/trackpackage" element={<PrivateRoute element={<TrackPackage />} requiredRole="customer" />} />
+        <Route
+          path="/packagemaker"
+          element={<PrivateRoute element={<PackageMaker />} requiredRole="customer" />}
+        />
+
         <Route path="/login" element={<LogIn />} />
         <Route path="/employee-login" element={<EmployeeLogin />} />
         <Route path="/admin-login" element={<AdminLogin />} />

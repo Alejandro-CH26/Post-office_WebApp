@@ -43,6 +43,9 @@ function WarehouseAssignPackages() {
   const [submittedPackage, setSubmittedPackage] = useState(null);
   const [error, setError] = useState(""); // To handle errors during fetch
 
+  const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+
   // Dummy dropdown data (to be replaced with backend logic later)
   const postOfficeAndWarehouses = ["Warehouse 1", "Post Office 2", "Warehouse 3"];
   const residentialAndBusinessAddresses = ["123 Elm St", "456 Oak Ave", "789 Pine Blvd"];
@@ -58,7 +61,7 @@ function WarehouseAssignPackages() {
     async function fetchPackages() {
       try {
         const employeeID = localStorage.getItem("employee_ID");
-        const response = await fetch(`http://localhost:5001/warehouseassignpackages?employeeID=${employeeID}`, {
+        const response = await fetch(`${BASE_URL}/warehouseassignpackages?employeeID=${employeeID}`, {
           method: "GET",
          
         });

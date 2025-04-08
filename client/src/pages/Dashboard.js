@@ -13,8 +13,10 @@ function Dashboard() {
             navigate("/login");
             return;
         }
+        
+        const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-        fetch("http://localhost:5001/dashboard", {
+        fetch(`${BASE_URL}/dashboard`, {
             method: "GET",
             headers: { Authorization: `Bearer ${token}` },
         })

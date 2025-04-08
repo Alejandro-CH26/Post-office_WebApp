@@ -2,11 +2,13 @@ import { useState } from "react";
 
 function EmployeeHourReportButton() {
   const [loading, setLoading] = useState(false);
+  const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 
   const handleGenerateReport = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5001/report", {
+      const response = await fetch(`${BASE_URL}/report`, {
         method: 'GET'
       });
 

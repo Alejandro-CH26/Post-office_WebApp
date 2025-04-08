@@ -6,9 +6,11 @@ const Employees = () => {
     const [statusFilter, setStatusFilter] = useState('all');
     const [roleFilter, setRoleFilter] = useState('all');
     const [locationFilter, setLocationFilter] = useState('all');
+    const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 
     useEffect(() => {
-        fetch('http://localhost:5001/employee-reports')
+        fetch(`${BASE_URL}/employee-reports`)
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data)) {
@@ -34,7 +36,7 @@ const Employees = () => {
         if (!confirmed) return;
 
         try {
-            const res = await fetch('http://localhost:5001/fire-employee', {
+            const res = await fetch(`${BASE_URL}/fire-employee`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ employee_ID: id, isFired: !currentStatus })
@@ -54,7 +56,7 @@ const Employees = () => {
         }
     };
 
-    // 🔍 Combined filtering
+    //  Combined filtering
     const filteredEmployees = employees.filter(emp => {
         const statusMatch =
             statusFilter === 'all' ||
@@ -67,13 +69,13 @@ const Employees = () => {
         return statusMatch && roleMatch && locationMatch;
     });
 
-    // 🔁 Get unique roles and locations for filter dropdowns
+    //  Get unique roles and locations for filter dropdowns
     const uniqueRoles = [...new Set(employees.map(emp => emp.position))];
     const uniqueLocations = [...new Set(employees.map(emp => emp.location))];
 
     return (
         <div className="reports-container">
-            <h2>👥 Current Employees</h2>
+            <h2>Current Employees</h2>
 
             <div className="filter-container">
                 <label>Status:</label>
@@ -122,7 +124,7 @@ const Employees = () => {
                                 <td>{emp.name}</td>
                                 <td>{emp.location}</td>
                                 <td>{emp.position}</td>
-                                <td>{emp.isSupervisor ? "✅" : "❌"}</td>
+                                <td>{emp.isSupervisor ? "Yes" : "No"}</td>
                                 <td>{emp.isFired ? "Yes" : "No"}</td>
                                 <td>
                                     <button
@@ -140,5 +142,4 @@ const Employees = () => {
         </div>
     );
 };
-
 export default Employees;

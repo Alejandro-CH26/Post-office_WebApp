@@ -9,6 +9,8 @@ const InventoryReport = () => {
   const [productFilter, setProductFilter] = useState("all");
   const [currentSortColumn, setCurrentSortColumn] = useState(null);
   const [currentSortDirection, setCurrentSortDirection] = useState("asc");
+  const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
@@ -26,8 +28,10 @@ const InventoryReport = () => {
   const getInventory = async (dateParam = selectedDate) => {
     setStatusMessage("");
     try {
-      const response = await fetch(`http://localhost:5001/inventory?date=${dateParam}`);
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      const response = await fetch(`${BASE_URL}/inventory`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
       const data = await response.json();
       if (!data || data.length === 0) {
         setStatusMessage("⚠️ No inventory found.");

@@ -17,6 +17,9 @@ function PackageMaker() {
     const [width, setWidth] = useState("");
     const [height, setHeight] = useState("");
 
+    const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -36,7 +39,7 @@ function PackageMaker() {
         };
 
         try {
-            const response = await fetch("http://localhost:5001/addPackage", {
+            const response = await fetch(`${BASE_URL}/addPackage`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(newPackage),

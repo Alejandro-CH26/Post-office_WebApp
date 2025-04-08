@@ -12,7 +12,9 @@ function AdminLogin() {
         e.preventDefault();
 
         try {
-            const response = await fetch("http://localhost:5001/admin-login", {
+            const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+            const response = await fetch(`${BASE_URL}/admin-login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

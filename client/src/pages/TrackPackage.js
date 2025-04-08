@@ -12,19 +12,21 @@ const TrackPackage = () => {
   const shownIdsRef = useRef(new Set());
   const isInitialLoad = useRef(true);
 
+  const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
   useEffect(() => {
     const fetchUpdates = () => {
       const customerId = localStorage.getItem("customer_ID");
       if (!customerId) return;
 
-      fetch(`http://localhost:5001/tracking-updates?sinceId=${lastSeenIdRef.current}&customerId=${customerId}`)
+      fetch(`${BASE_URL}/tracking-updates?sinceId=${lastSeenIdRef.current}&customerId=${customerId}`)
         .then(response => response.json())
         .then(data => {
           if (data && data.length > 0) {
             data.forEach(update => {
               if (!shownIdsRef.current.has(update.tracking_history_ID)) {
                 if (!isInitialLoad.current) {
-                  toast.info(`📦 Package #${update.Package_ID}: ${update.status}`);
+                  toast.info(` Package #${update.Package_ID}: ${update.status}`);
                 }
                 shownIdsRef.current.add(update.tracking_history_ID);
               }
@@ -106,9 +108,9 @@ const TrackPackage = () => {
         <ul className="notification-list">
           {filteredNotifications.map((update, index) => (
             <li key={index} className="notification-item">
-              📦 <strong>Package #{update.Package_ID}</strong>: {update.status}
+               <strong>Package #{update.Package_ID}</strong>: {update.status}
               <br />
-              🕒 <small>{new Date(update.timestamp).toLocaleString()}</small>
+               <small>{new Date(update.timestamp).toLocaleString()}</small>
             </li>
           ))}
         </ul>
