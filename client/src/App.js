@@ -27,6 +27,11 @@ import WarehouseAssignPackages from "./pages/WarehouseAssignPackages";
 import ClockInOut from "./pages/ClockInOut";
 import EmployeeHours from "./pages/EmployeeHours";
 import InventoryReport from "./pages/inventoryreport";
+import ProductDetails from "./pages/productdetails";
+import CartPage from "./pages/CartPage"; 
+import CheckoutPage from "./pages/CheckoutPage";
+import OrderHistory from "./pages/orderHistory";
+import SalesReport from "./pages/salesReport";
 
 // Restrict access based on token & role
 // hi
@@ -94,7 +99,13 @@ function App() {
         <Route path="/admin/reports" element={<PrivateRoute element={<Reports />} requiredRole="admin" />} />
         <Route path="/admin/employees" element={<PrivateRoute element={<Employees />} requiredRole="admin" />} />
         <Route path="/inventory" element={<InventoryReport />} />
-
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/order-history" element={<PrivateRoute element={<OrderHistory />} requiredRole="customer" />} />
+        <Route
+  path="/sales-report"
+  element={<PrivateRoute element={<SalesReport />} requiredRole="admin" />}
+/>
 
         {/* Dashboards */}
         <Route path="/customer-dashboard" element={<PrivateRoute element={<CustomerDashboard />} requiredRole="customer" />} />
@@ -105,8 +116,10 @@ function App() {
         {/* Warehouse Employee Routes */}
         <Route path="/WarehouseAssignPackages" element={<PrivateRoute element={<WarehouseAssignPackages />} requiredRole="warehouse" />} />
         <Route path="/warehouseclockinout" element={<PrivateRoute element={<ClockInOut />} requiredRole="warehouse" />} />
-        <Route path="/inventoryreport" element={<PrivateRoute element={<InventoryReport />} requiredRole="warehouse" />}
-        />
+        <Route path="/inventoryreport" element={<PrivateRoute element={<InventoryReport />} requiredRole="warehouse" />} />
+        <Route path="/products/:productId" element={<ProductDetails />} />
+
+
 
         {/* Catch-all redirect */}
         <Route path="*" element={<Navigate to="/" />} />
