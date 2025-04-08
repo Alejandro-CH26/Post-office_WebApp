@@ -25,6 +25,7 @@ function WarehouseAssignPackages() {
 
     const fetchPackages = async () => {
         try {
+           
             const response = await fetch(`${BASE_URL}/warehouseassignpackages?employeeID=${employeeID}`, {
               method: "GET",
              

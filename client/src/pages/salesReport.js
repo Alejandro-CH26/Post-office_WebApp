@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./salesReport.css";
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const SalesReport = () => {
   const [sales, setSales] = useState([]);
@@ -40,7 +41,7 @@ const SalesReport = () => {
   const fetchLocations = async () => {
     try {
       setError(null);
-      const res = await fetch("http://localhost:5001/active-locations");
+      const res = await fetch(`${BASE_URL}/active-locations`);
       const data = await res.json();
       setLocations(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -64,8 +65,8 @@ const SalesReport = () => {
 
     try {
       const [salesRes, summaryRes] = await Promise.all([
-        fetch(`http://localhost:5001/sales-report?${params.toString()}`, { signal: controller.signal }),
-        fetch(`http://localhost:5001/sales-summary?${params.toString()}`, { signal: controller.signal }),
+        fetch(`${BASE_URL}/sales-report?${params.toString()}`, { signal: controller.signal }),
+        fetch(`${BASE_URL}/sales-summary?${params.toString()}`, { signal: controller.signal }),
       ]);
 
       const salesData = await salesRes.json();

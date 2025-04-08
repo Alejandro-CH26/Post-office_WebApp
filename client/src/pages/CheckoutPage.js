@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./CheckoutPage.css";
 import { useCart } from "./CartContext";
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const CheckoutPage = () => {
   const { cart, clearCart } = useCart();
@@ -36,7 +37,7 @@ const CheckoutPage = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:5001/checkout", {
+      const response = await fetch(`${BASE_URL}/checkout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
