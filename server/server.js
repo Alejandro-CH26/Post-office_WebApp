@@ -11,6 +11,8 @@ const notificationRoutes = require("./notificationRoutes");
 const reportRoutes = require("./reportRoutes");
 const employeeRoutes = require("./employeeRoutes");
 const driverRoutes = require("./driverRoutes");
+const postOfficeRoutes = require("./postofficesRoutes");
+
 const clockRoutes = require("./clockRoutes");
 
 // Import the inventory API from the same folder
@@ -64,6 +66,7 @@ const server = http.createServer((req, res) => {
     if (notificationRoutes(req, res, reqUrl)) return;
     if (reportRoutes(req, res, reqUrl)) return;
     if (employeeRoutes(req, res, reqUrl)) return;
+    if (postOfficeRoutes(req, res, reqUrl)) return;
     //if (inventoryAPI(req, res, reqUrl)) return; 
     //if (driverRoutes(req, res, reqUrl)) return; 
     if (clockRoutes(req, res, reqUrl)) return; 

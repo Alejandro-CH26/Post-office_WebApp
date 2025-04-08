@@ -32,9 +32,14 @@ import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderHistory from "./pages/orderHistory";
 import SalesReport from "./pages/salesReport";
+import EditEmployees from "./pages/EditEmployees";
+import PostOffices from "./pages/PostOffices";
+import EditPostOffices from "./pages/EditPostOffices";
+
 
 // Restrict access based on token & role
 // hi
+// hello
 const PrivateRoute = ({ element, requiredRole }) => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
@@ -83,7 +88,7 @@ function App() {
         />
 
         <Route path="/faq" element={<Faq />} />
-        <Route path="/trackpackage" element={<PrivateRoute element={<TrackPackage />} requiredRole="customer" />} />
+        <Route path="/trackpackage" element={<TrackPackage />} />
         <Route
           path="/packagemaker"
           element={<PrivateRoute element={<PackageMaker />} requiredRole="customer" />}
@@ -98,6 +103,9 @@ function App() {
         <Route path="/employeehours" element={<PrivateRoute element={<EmployeeHours />} requiredRole="admin" />} />
         <Route path="/admin/reports" element={<PrivateRoute element={<Reports />} requiredRole="admin" />} />
         <Route path="/admin/employees" element={<PrivateRoute element={<Employees />} requiredRole="admin" />} />
+        <Route path="/admin/editemployees/:id" element={<PrivateRoute element={<EditEmployees />} requiredRole="admin" />} />
+        <Route path="/admin/postoffices" element={<PrivateRoute element={<PostOffices />} requiredRole="admin" />} />
+        <Route path="/admin/editpostoffices/:id" element={<PrivateRoute element={<EditPostOffices />} requiredRole="admin" />} />
         <Route path="/inventory" element={<InventoryReport />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
