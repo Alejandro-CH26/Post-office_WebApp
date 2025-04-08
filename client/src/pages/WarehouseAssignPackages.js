@@ -20,12 +20,12 @@ function WarehouseAssignPackages() {
         5: "Economy"
     };
   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
-
+  const employeeID = localStorage.getItem("employee_ID");
 
 
     const fetchPackages = async () => {
         try {
-            const employeeID = localStorage.getItem("employee_ID");
+           
             const response = await fetch(`${BASE_URL}/warehouseassignpackages?employeeID=${employeeID}`, {
               method: "GET",
              
