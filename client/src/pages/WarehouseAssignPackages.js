@@ -19,13 +19,16 @@ function WarehouseAssignPackages() {
         4: "Standard",
         5: "Economy"
     };
+  const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+
 
     const fetchPackages = async () => {
         try {
             const employeeID = localStorage.getItem("employee_ID");
-            const response = await fetch(`http://localhost:5001/warehouseassignpackages?employeeID=${employeeID}`, {
-                method: "GET",
-                credentials: "include",
+            const response = await fetch(`${BASE_URL}/warehouseassignpackages?employeeID=${employeeID}`, {
+              method: "GET",
+             
             });
 
             if (response.ok) {
@@ -36,6 +39,7 @@ function WarehouseAssignPackages() {
                 setPackages(data.packages || []);
                 setDeliveryVehicles(data.deliveryVehicles || []);
                 setFilteredVehicles(data.deliveryVehicles || []);
+
 
                 // Set post offices separately
                 const postOffices = data.postOffices.map(postOffice => ({
@@ -48,8 +52,7 @@ function WarehouseAssignPackages() {
                 }));
 
                 setLocations(postOffices); // Default locations hold only warehouses
-
-            } else {
+              } else {
                 setError("Failed to fetch data. Please try again.");
             }
         } catch (err) {

@@ -2,6 +2,26 @@ const connection = require("../db");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
+const allowedOrigins = [
+    "http://localhost:3000",
+    "https://post-office-web-app.vercel.app",
+    "https://post-office-webapp.onrender.com"
+  ];
+
+function getCORSOrigin(req) {
+  const origin = req.headers.origin;
+  return allowedOrigins.includes(origin) ? origin : "http://localhost:3000";
+}
+
+function setCORSHeaders(req, res, allowCredentials = false) {
+    const origin = getCORSOrigin(req);
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    if (allowCredentials) {
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+    }
+  }
 
 async function employeeLogIn(req, res) {
     let body = "";
@@ -9,7 +29,7 @@ async function employeeLogIn(req, res) {
     req.on("data", chunk => {
         body += chunk.toString();
     });
-
+    setCORSHeaders(req, res);
     req.on("end", async () => {
         try {
             const { employee_Username, employee_Password } = JSON.parse(body);
@@ -18,12 +38,12 @@ async function employeeLogIn(req, res) {
             connection.query(sql, [employee_Username], async (err, results) => {
                 if (err) {
                     console.error(" DB Error:", err);
-                    res.writeHead(500, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app"});
+                    res.writeHead(500, { "Content-Type": "application/json" });
                     return res.end(JSON.stringify({ error: "Server error" }));
                 }
 
                 if (results.length === 0) {
-                    res.writeHead(401, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", });
+                    res.writeHead(401, { "Content-Type": "application/json" });
                     return res.end(JSON.stringify({ error: "Invalid username or password" }));
                 }
 
@@ -31,7 +51,7 @@ async function employeeLogIn(req, res) {
                 const isMatch = await bcrypt.compare(employee_Password, employee.employee_Password);
 
                 if (!isMatch) {
-                    res.writeHead(401, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", });
+                    res.writeHead(401, { "Content-Type": "application/json" });
                     return res.end(JSON.stringify({ error: "Invalid username or password" }));
                 }
 
@@ -48,7 +68,7 @@ async function employeeLogIn(req, res) {
                 );
 
                 //  Send token + role info to frontend
-                res.writeHead(200, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app",});
+                res.writeHead(200, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({
                     token,
                     role: employee.Role.toLowerCase(),
@@ -58,7 +78,7 @@ async function employeeLogIn(req, res) {
             });
         } catch (err) {
             console.error(" Error parsing employee login:", err);
-            res.writeHead(500, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app" });
+            res.writeHead(500, { "Content-Type": "application/json" });
             res.end(JSON.stringify({ error: "Internal server error" }));
         }
     });
@@ -78,53 +98,38 @@ async function warehouseDashboard(req, res) {
                 (err, results) => {
                     if (err) {
                         console.error('Error accessing database', err);
-                        res.writeHead(500, { 
-                            'Content-Type': 'application/json',
-                            "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", // Allow the React app origin
-                            "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
-                        });
+                        setCORSHeaders(req, res, true);
+                        res.writeHead(500, { "Content-Type": "application/json" });
                         res.end(JSON.stringify({ error: 'Database Query Error' }));
                         return;
                     }
 
                     if (results.length > 0) {
-                        res.writeHead(200, { 
-                            'Content-Type': 'application/json',
-                            "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", // Allow the React app origin
-                            "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
-                        });
+                        setCORSHeaders(req, res, true);
+                        res.writeHead(200, { "Content-Type": "application/json" });
                         res.end(JSON.stringify({ name: results[0].First_Name }));
                     } else {
-                        res.writeHead(404, { 
-                            'Content-Type': 'application/json',
-                            "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", // Allow the React app origin
-                            "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
-                        });
+                        setCORSHeaders(req, res, true);
+                        res.writeHead(404, { "Content-Type": "application/json" });
                         res.end(JSON.stringify({ error: 'Employee not found' }));
                     }
                 
                 }
             );
         } else {
-            res.writeHead(401, { 
-                'Content-Type': 'application/json',
-                "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", // Allow the React app origin
-                "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
-             });
+            setCORSHeaders(req, res, true);
+            res.writeHead(401, { "Content-Type": "application/json" });
             res.end(JSON.stringify({ error: 'Unauthorized, incorrect employee ID' }));
         }
     } else {
-        res.writeHead(401, { 
-            'Content-Type': 'application/json',
-            "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", // Allow the React app origin
-            "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
-         });
+        setCORSHeaders(req, res, true);
+        res.writeHead(401, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: 'Unauthorized, no cookies' }));
     }
 }
 
 async function warehouseAssignPackages(req, res) {
-    // var cookies = req.headers?.cookie;
+       // var cookies = req.headers?.cookie;
     // console.log("Cookies", cookies);
     const queryString = req.url.split('?')[1];
     const urlParams = new URLSearchParams(queryString);
@@ -134,7 +139,8 @@ async function warehouseAssignPackages(req, res) {
         //var employeeID = cookies.split('; ').find(row => row.startsWith('employeeID='))?.split('=')[1];
         var employeeID = urlParams.get('employeeID');
         console.log(employeeID);
-        if (employeeID) {
+
+           if (employeeID) {
             if (req.method === "GET") { // If the request is GET (employee is attempting to view packages)
                 // GET the Package_ID, address_City, and address_State of every package needing to be processed at
                 // the employee's location.
@@ -148,21 +154,15 @@ async function warehouseAssignPackages(req, res) {
                     (err, results) => {
                         if (err) {
                             console.error('Error accessing database', err);
-                            res.writeHead(500, { 
-                                'Content-Type': 'application/json',
-                                "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", // Allow the React app origin
-                                "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
-                            });
+                            setCORSHeaders(req, res, true);
+                            res.writeHead(500, { "Content-Type": "application/json" });
                             res.end(JSON.stringify({ error: 'Database Query Error' }));
                             return;
                         }
                         console.log("Packages", results);
                         if (results.length > 0) {
-                            res.writeHead(200, { 
-                                'Content-Type': 'application/json',
-                                "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", // Allow the React app origin
-                                "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
-                            });
+                            setCORSHeaders(req, res, true);
+                            res.writeHead(200, { "Content-Type": "application/json" });
                         
                             var packages = results.map(row => ({
                                 packageID: row.Package_ID,
@@ -174,7 +174,43 @@ async function warehouseAssignPackages(req, res) {
                         }
                     }
                 );
-                // GET the Post Office and Warehouse locations
+
+            } else if (req.method === "POST") { // If the request is POST (employee is attempting to assign a package)
+
+            }
+        } else {
+            setCORSHeaders(req, res, true);
+            res.writeHead(401, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ error: 'Unauthorized, incorrect employee ID' }));
+        }
+    } else {
+        setCORSHeaders(req, res, true);
+        res.writeHead(401, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: 'Unauthorized, no cookies' }));
+    }
+}
+
+module.exports = {
+    employeeLogIn,
+    warehouseDashboard,
+    warehouseAssignPackages
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                  // GET the Post Office and Warehouse locations
                 // var postOfficeQuery = `
                 // select addresses.address_Street, addresses.address_City, addresses.address_State, addresses.address_Zipcode
                 // from db1.addresses
@@ -207,33 +243,3 @@ async function warehouseAssignPackages(req, res) {
                 //         }
                 //     }
                 // );
-
-
-
-
-            } else if (req.method === "POST") { // If the request is POST (employee is attempting to assign a package)
-
-            }
-        } else {
-            res.writeHead(401, { 
-                'Content-Type': 'application/json',
-                "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", // Allow the React app origin
-                "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
-             });
-            res.end(JSON.stringify({ error: 'Unauthorized, incorrect employee ID' }));
-        }
-    } else {
-        res.writeHead(401, { 
-            'Content-Type': 'application/json',
-            "Access-Control-Allow-Origin": "https://post-office-web-app.vercel.app", // Allow the React app origin
-            "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
-         });
-        res.end(JSON.stringify({ error: 'Unauthorized, no cookies' }));
-    }
-}
-
-module.exports = {
-    employeeLogIn,
-    warehouseDashboard,
-    warehouseAssignPackages
-  };

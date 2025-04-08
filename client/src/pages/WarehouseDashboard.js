@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import  { jwtDecode } from "jwt-decode";
 
 function WarehouseDashboard() {
     const [name, setName] = useState("");
@@ -14,6 +14,7 @@ function WarehouseDashboard() {
                 const decoded = jwtDecode(token);
                 setName(decoded.firstName || "Employee");
                 setEmployeeID(decoded.id || "N/A");
+                localStorage.setItem("employee_ID", decoded.id);
 
             } catch (err) {
                 console.error("Invalid token:", err);
@@ -31,10 +32,15 @@ function WarehouseDashboard() {
       return (
         <div style={{ textAlign: 'center', padding: '20px' }}>
           <h1>Hello, {name}</h1>
-          <Link to="/WarehouseAssignPackages">
-          <button style={buttonStyle}>View Packages</button>
-          </Link>
-          <Link to ="/WarehouseClockInOut">
+          <Link to="/WarehouseAssignPackages" style={{ textDecoration: 'none' }}>
+         <button style={buttonStyle}>View Packages</button>
+    </Link>
+              {/* New button: Check Inventory */}
+      <Link to="/inventoryreport"style={{ textDecoration: 'none' }}>
+        <button style={buttonStyle}>Check Inventory</button>
+      </Link>
+
+          <Link to ="/WarehouseClockInOut"style={{ textDecoration: 'none' }}>
           <button style={buttonStyle}>Clock In/Out</button>
           </Link>
           
@@ -43,7 +49,3 @@ function WarehouseDashboard() {
 }
 
 export default WarehouseDashboard;
-
-
-
-
