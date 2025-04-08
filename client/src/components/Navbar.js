@@ -34,8 +34,8 @@ function Navbar() {
         {/* Customer-only */}
         {token && role === "customer" && (
           <>
-            <li><Link to="/PackageMaker">PM</Link></li>
             <li><Link to="/trackpackage">Track a Package</Link></li>
+            <li><Link to="/PackageMaker">PM</Link></li>
             <li><Link to="/buyinventory">Buy Stamps/Inventory</Link></li>
           </>
         )}
@@ -55,6 +55,7 @@ function Navbar() {
             <li><Link to="/employeehours">Employee Hours</Link></li>
             <li><Link to="/admin/reports">Reports</Link></li>
             <li><Link to="/admin/employees">Employee List</Link></li>
+            <li><Link to="/admin/postoffices">Post Office List</Link></li>
           </>
         )}
           {/* Warehouse-only */}
@@ -68,6 +69,7 @@ function Navbar() {
         {/* Not logged in */}
         {!token && (
           <>
+            <li><Link to="/trackpackage">Track a Package</Link></li>
             <li><Link to="/login">Log in</Link></li>
             <li><Link to="/employee-login">Employee Login</Link></li>
             <li><Link to="/admin-login">Admin Login</Link></li>

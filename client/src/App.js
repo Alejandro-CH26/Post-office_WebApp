@@ -24,6 +24,10 @@ import WarehouseAssignPackages from "./pages/WarehouseAssignPackages";
 import ClockInOut from "./pages/ClockInOut";
 import EmployeeHours from "./pages/EmployeeHours";
 import InventoryReport from "./pages/inventoryreport";
+import EditEmployees from "./pages/EditEmployees";
+import PostOffices from "./pages/PostOffices";
+import EditPostOffices from "./pages/EditPostOffices";
+
 
 // Restrict access based on token & role
 // hi
@@ -69,7 +73,7 @@ function App() {
         
         />
         <Route path="/faq" element={<Faq />} />
-        <Route path="/trackpackage" element={<PrivateRoute element={<TrackPackage />} requiredRole="customer" />} />
+        <Route path="/trackpackage" element={<TrackPackage />} />
         <Route path="/login" element={<LogIn />} />
         <Route path="/employee-login" element={<EmployeeLogin />} />
         <Route path="/admin-login" element={<AdminLogin />} />
@@ -79,6 +83,9 @@ function App() {
         <Route path="/employeehours" element={<PrivateRoute element={<EmployeeHours />} requiredRole="admin" />} />
         <Route path="/admin/reports" element={<PrivateRoute element={<Reports />} requiredRole="admin" />} />
         <Route path="/admin/employees" element={<PrivateRoute element={<Employees />} requiredRole="admin" />} />
+        <Route path="/admin/editemployees/:id" element={<PrivateRoute element={<EditEmployees />} requiredRole="admin" />} />
+        <Route path="/admin/postoffices" element={<PrivateRoute element={<PostOffices />} requiredRole="admin" />} />
+        <Route path="/admin/editpostoffices/:id" element={<PrivateRoute element={<EditPostOffices />} requiredRole="admin" />} />
         <Route path="/inventory" element={<InventoryReport />} />
 
 

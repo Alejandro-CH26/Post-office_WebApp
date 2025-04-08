@@ -1,119 +1,161 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState, useEffect } from 'react';
 import './TrackPackage.css';
 
 const TrackPackage = () => {
-  const [notifications, setNotifications] = useState([]);
-  const [filteredNotifications, setFilteredNotifications] = useState([]);
-  const [selectedPackageId, setSelectedPackageId] = useState('none'); // default is "Select a Package"
-  const [selectedStatus, setSelectedStatus] = useState('');
-  const lastSeenIdRef = useRef(0);
-  const shownIdsRef = useRef(new Set());
-  const isInitialLoad = useRef(true);
+  const [trackingNumber, setTrackingNumber] = useState('');
+  const [trackingResults, setTrackingResults] = useState([]);
+  const [sentPackages, setSentPackages] = useState([]);
+  const [selectedSentPackage, setSelectedSentPackage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showFullHistory, setShowFullHistory] = useState(false);
+  const [view, setView] = useState('receiving'); // 'receiving' or 'sending'
 
   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+  const isLoggedIn = !!localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+  const customerId = localStorage.getItem("customer_ID");
 
   useEffect(() => {
-    const fetchUpdates = () => {
-      const customerId = localStorage.getItem("customer_ID");
-      if (!customerId) return;
-
-      fetch(`${BASE_URL}/tracking-updates?sinceId=${lastSeenIdRef.current}&customerId=${customerId}`)
-        .then(response => response.json())
+    if (view === 'sending' && isLoggedIn && role === "customer" && customerId) {
+      fetch(`${BASE_URL}/customer-sent-packages?customerId=${customerId}`)
+        .then(res => res.json())
         .then(data => {
-          if (data && data.length > 0) {
-            data.forEach(update => {
-              if (!shownIdsRef.current.has(update.tracking_history_ID)) {
-                if (!isInitialLoad.current) {
-                  toast.info(` Package #${update.Package_ID}: ${update.status}`);
-                }
-                shownIdsRef.current.add(update.tracking_history_ID);
-              }
-            });
-
-            setNotifications(prev => {
-              const existingIds = new Set(prev.map(n => n.tracking_history_ID));
-              const newUnique = data.filter(n => !existingIds.has(n.tracking_history_ID));
-              return [...newUnique, ...prev];
-            });
-
-            const highestId = Math.max(...data.map(d => d.tracking_history_ID));
-            lastSeenIdRef.current = highestId;
-          }
-
-          isInitialLoad.current = false;
+          const unique = Array.isArray(data)
+            ? Object.values(
+                data.reduce((acc, curr) => {
+                  acc[curr.Package_ID] = curr;
+                  return acc;
+                }, {})
+              )
+            : [];
+          setSentPackages(unique);
         })
-        .catch(error => console.error('Error fetching tracking updates:', error));
-    };
+        .catch(err => console.error("Error fetching sent packages:", err));
+    }
+  }, [view]);
 
-    fetchUpdates();
-    const interval = setInterval(fetchUpdates, 10000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    let filtered = notifications;
-
-    if (selectedPackageId !== 'none' && selectedPackageId !== 'all') {
-      filtered = filtered.filter(update => update.Package_ID === parseInt(selectedPackageId));
+  const handleTrack = async (overrideId = null) => {
+    const packageId = overrideId || trackingNumber;
+    if (!packageId) {
+      setErrorMessage('Please enter or select a tracking number.');
+      setTrackingResults([]);
+      return;
     }
 
-    if (selectedStatus) {
-      filtered = filtered.filter(update => update.status === selectedStatus);
+    setLoading(true);
+    setErrorMessage('');
+    setTrackingResults([]);
+    setShowFullHistory(false);
+
+    try {
+      const response = await fetch(`${BASE_URL}/tracking-history?packageId=${packageId}`);
+      const data = await response.json();
+
+      if (!Array.isArray(data) || data.length === 0) {
+        setErrorMessage('No tracking history found for that number.');
+      } else {
+        setTrackingResults(data);
+      }
+    } catch (error) {
+      console.error('Error fetching tracking history:', error);
+      setErrorMessage('Failed to fetch tracking history. Please try again later.');
+    } finally {
+      setLoading(false);
     }
+  };
 
-    setFilteredNotifications(filtered);
-  }, [notifications, selectedPackageId, selectedStatus]);
+  const toggleHistory = () => {
+    setShowFullHistory(prev => !prev);
+  };
 
-  const uniquePackageIds = [...new Set(notifications.map(update => update.Package_ID))];
-  const uniqueStatuses = [...new Set(notifications.map(update => update.status))];
+  const visibleUpdates = showFullHistory
+    ? trackingResults
+    : trackingResults.slice(-1);
 
   return (
     <div className="notifications-container">
-      <ToastContainer position="top-right" autoClose={5000} hideProgressBar />
-      
       <div className="notifications-header">
-        <h2>Tracking History</h2>
+        <h2>Track a Package</h2>
       </div>
 
-      <div className="filter-bar">
-        <select
-          value={selectedPackageId}
-          onChange={(e) => setSelectedPackageId(e.target.value)}
-        >
-          <option value="none">Select a Package</option>
-          <option value="all">All Packages</option>
-          {uniquePackageIds.map(id => (
-            <option key={id} value={id}>Package #{id}</option>
-          ))}
-        </select>
+      {isLoggedIn && role === "customer" && (
+        <div className="tab-toggle">
+          <button
+            onClick={() => setView("receiving")}
+            className={view === "receiving" ? "active-tab" : ""}
+          >
+            Receiving
+          </button>
+          <button
+            onClick={() => setView("sending")}
+            className={view === "sending" ? "active-tab" : ""}
+          >
+            Sending
+          </button>
+        </div>
+      )}
 
-        <select
-          value={selectedStatus}
-          onChange={(e) => setSelectedStatus(e.target.value)}
-        >
-          <option value="">All Statuses</option>
-          {uniqueStatuses.map(status => (
-            <option key={status} value={status}>{status}</option>
-          ))}
-        </select>
-      </div>
+      {/* Receiving View */}
+      {view === "receiving" && (
+        <>
+          <div className="tracking-form">
+            <input
+              type="text"
+              placeholder="Enter tracking number"
+              value={trackingNumber}
+              onChange={(e) => setTrackingNumber(e.target.value)}
+            />
+            <button onClick={() => handleTrack()}>Track</button>
+          </div>
+        </>
+      )}
 
-      {selectedPackageId === 'none' ? (
-        <p>Please select a package to view its tracking history.</p>
-      ) : filteredNotifications.length === 0 ? (
-        <p>No tracking updates available.</p>
-      ) : (
-        <ul className="notification-list">
-          {filteredNotifications.map((update, index) => (
-            <li key={index} className="notification-item">
-               <strong>Package #{update.Package_ID}</strong>: {update.status}
-              <br />
-               <small>{new Date(update.timestamp).toLocaleString()}</small>
-            </li>
-          ))}
-        </ul>
+      {/* Sending View */}
+      {view === "sending" && (
+        <>
+          {sentPackages.length === 0 ? (
+            <p>No packages found that you’ve sent.</p>
+          ) : (
+            <div className="tracking-form">
+              <select
+                value={selectedSentPackage}
+                onChange={(e) => setSelectedSentPackage(e.target.value)}
+              >
+                <option value="">Select a package you’ve sent</option>
+                {sentPackages.map(pkg => (
+                  <option key={pkg.Package_ID} value={pkg.Package_ID}>
+                    Package #{pkg.Package_ID}
+                  </option>
+                ))}
+              </select>
+              <button onClick={() => handleTrack(selectedSentPackage)}>Track</button>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Shared tracking display */}
+      {loading && <p>Loading tracking history...</p>}
+
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
+
+      {trackingResults.length > 0 && (
+        <>
+          <button onClick={toggleHistory} className="toggle-button">
+            {showFullHistory ? 'Show Latest Only' : 'Show Full History'}
+          </button>
+
+          <ul className="notification-list">
+            {visibleUpdates.map((update, index) => (
+              <li key={index} className="notification-item">
+                <strong>Package #{update.package_ID}</strong> {update.status}
+                <br />
+                <small>{new Date(update.timestamp).toLocaleString()}</small>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </div>
   );
