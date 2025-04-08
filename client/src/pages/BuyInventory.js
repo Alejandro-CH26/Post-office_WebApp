@@ -10,8 +10,8 @@ import smallbox from "../images/smallbox.webp";
 import medbox from "../images/medbox.webp";
 import largebox from "../images/largebox.webp";
 import packagetape from "../images/packagetape.webp";
-const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
+const BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5001";
 
 const BuyInventory = () => {
   const productRef = useRef(null);
@@ -26,18 +26,16 @@ const BuyInventory = () => {
 
   // Fetch all store locations dynamically
   useEffect(() => {
-    fetch("/locations")
+    fetch(`${BASE_URL}/locations`)
       .then((res) => res.json())
       .then((locations) => {
         setStoreLocations(locations);
 
-        // Estimate closest store if geolocation is available
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const userLat = position.coords.latitude;
             const userLng = position.coords.longitude;
 
-            // Use dummy lat/lng fallback since actual data isn't in DB yet
             const withFallbackCoords = locations.map((loc) => ({
               ...loc,
               lat: parseFloat(loc.lat || 0),
@@ -71,7 +69,7 @@ const BuyInventory = () => {
   useEffect(() => {
     if (!selectedLocationId) return;
 
-    fetch(`/api/location?location_id=${selectedLocationId}`)
+    fetch(`${BASE_URL}/api/location?location_id=${selectedLocationId}`)
       .then((res) => res.json())
       .then((data) => {
         const invMap = {};
