@@ -34,16 +34,16 @@ function handleReportRequest(req, res) {
         `;
 
         const employeesQuery = `
-            SELECT DISTINCT 
-                employee_ID, 
-                CONCAT(First_Name, ' ', COALESCE(Middle_Name, ''), ' ', Last_Name) AS full_name
-            FROM employees
-            ORDER BY full_name
-        `;
+             SELECT DISTINCT 
+                 employee_ID, 
+                 CONCAT(First_Name, ' ', COALESCE(Middle_Name, ''), ' ', Last_Name) AS full_name
+             FROM employees
+             ORDER BY full_name
+         `;
 
         // Main report query with dynamic filtering
         const summaryReportConfig = {
-            title: 'Employee Hours Summary Report',
+             title: 'Employee Hours Summary Report',
             timestamp: new Date().toISOString(),
             query: `
                 SELECT 
@@ -102,20 +102,20 @@ function handleReportRequest(req, res) {
                         employees = [];
                     }
 
-                    // Run summary report query
-                    db.query(summaryReportConfig.query, (summaryErr, summaryResults) => {
-                        if (summaryErr) {
-                            console.error('Summary Report Query Error:', summaryErr);
-                            summaryResults = [];
+                   // Run summary report query
+                   db.query(summaryReportConfig.query, (summaryErr, summaryResults) => {
+                    if (summaryErr) {
+                        console.error('Summary Report Query Error:', summaryErr);
+                        summaryResults = [];
+                    }
+
+                    // Run detailed report query
+                    db.query(detailedReportConfig.query, (detailErr, detailResults) => {
+                        if (detailErr) {
+                            console.error('Detailed Report Query Error:', detailErr);
+                            detailResults = [];
+                    
                         }
-
-                        // Run detailed report query
-                        db.query(detailedReportConfig.query, (detailErr, detailResults) => {
-                            if (detailErr) {
-                                console.error('Detailed Report Query Error:', detailErr);
-                                detailResults = [];
-                            }
-
                             const reportHtml = `
                             <html>
                             <head>
@@ -177,102 +177,102 @@ function handleReportRequest(req, res) {
                                 <div class="container">
                                     <h1>Employee Hours Report</h1>
                                     <p><strong>Generated:</strong> ${formatTimestamp(summaryReportConfig.timestamp)}</p>
-                                    
-                                    <div class="filter-container">
-                                        <select id="monthSelect" onchange="filterTables()">
-                                            <option value="">All Months</option>
-                                            ${months.map(m => `
-                                                <option value="${m.month_key}">
-                                                    ${m.month_name}
-                                                </option>
-                                            `).join('')}
-                                        </select>
-                                        
-                                        <select id="locationSelect" onchange="filterTables()">
-                                            <option value="">All Locations</option>
-                                            ${locations.map(l => `
-                                                <option value="${l.name}">
-                                                    ${l.name}
-                                                </option>
-                                            `).join('')}
-                                        </select>
 
-                                        <select id="employeeSelect" onchange="filterTables()">
-                                            <option value="">All Employees</option>
-                                            ${employees.map(e => `
-                                                <option value="${e.employee_ID}">
-                                                    ${e.full_name}
-                                                </option>
-                                            `).join('')}
-                                        </select>
-                                    </div>
-                                    
-                                    <h2>Hours Summary Report</h2>
-                                    <table>
-                                        <thead>
-                                            <tr>
-                                                <th>Employee ID</th>
-                                                <th>Name</th>
-                                                <th>Location</th>
-                                                <th>Total Hours</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="summaryTableBody">
-                                            ${summaryResults.map(row => `
-                                                <tr data-month="${row.month_key}" 
-                                                    data-location="${row.location}" 
-                                                    data-employeeid="${row.employee_ID}">
-                                                    <td>${row.employee_ID}</td>
-                                                    <td>${row.first_name} ${row.middle_name || ''} ${row.last_name}</td>
-                                                    <td>${row.location}</td>
-                                                    <td>${row.total_hours}</td>
-                                                </tr>
-                                            `).join('')}
-                                        </tbody>
-                                    </table>
-
-                                    <h2>Detailed Clock-In/Out Report</h2>
-                                    <table>
-                                        <thead>
-                                            <tr>
-                                                <th>Employee ID</th>
-                                                <th>Name</th>
-                                                <th>Location</th>
-                                                <th>Clock-In Time</th>
-                                                <th>Clock-Out Time</th>
-                                                <th>Hours Worked</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="detailTableBody">
-                                            ${detailResults.map(row => `
-                                                <tr data-month="${row.month_key}" 
-                                                    data-location="${row.location}" 
-                                                    data-employeeid="${row.employee_ID}">
-                                                    <td>${row.employee_ID}</td>
-                                                    <td>${row.full_name}</td>
-                                                    <td>${row.location}</td>
-                                                    <td>${formatTimestamp(row.clock_in_time)}</td>
-                                                    <td>${formatTimestamp(row.clock_out_time)}</td>
-                                                    <td>${row.hours_worked}</td>
-                                                </tr>
-                                            `).join('')}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </body>
-                            </html>
-                            `;
-
-                            res.writeHead(200, { 
-                                "Content-Type": "text/html",
-                                "Cache-Control": "no-store, no-cache, must-revalidate, private",
-                                "Pragma": "no-cache",
-                                "Expires": "0"
+                             <div class="filter-container">
+                                         <select id="monthSelect" onchange="filterTables()">
+                                             <option value="">All Months</option>
+                                             ${months.map(m => `
+                                                 <option value="${m.month_key}">
+                                                     ${m.month_name}
+                                                 </option>
+                                             `).join('')}
+                                         </select>
+                                         
+                                         <select id="locationSelect" onchange="filterTables()">
+                                             <option value="">All Locations</option>
+                                             ${locations.map(l => `
+                                                 <option value="${l.name}">
+                                                     ${l.name}
+                                                 </option>
+                                             `).join('')}
+                                         </select>
+ 
+                                         <select id="employeeSelect" onchange="filterTables()">
+                                             <option value="">All Employees</option>
+                                             ${employees.map(e => `
+                                                 <option value="${e.employee_ID}">
+                                                     ${e.full_name}
+                                                 </option>
+                                             `).join('')}
+                                         </select>
+                                     </div>
+                                     
+                                     <h2>Hours Summary Report</h2>
+                                     <table>
+                                         <thead>
+                                             <tr>
+                                                 <th>Employee ID</th>
+                                                 <th>Name</th>
+                                                 <th>Location</th>
+                                                 <th>Total Hours</th>
+                                             </tr>
+                                         </thead>
+                                         <tbody id="summaryTableBody">
+                                             ${summaryResults.map(row => `
+                                                 <tr data-month="${row.month_key}" 
+                                                     data-location="${row.location}" 
+                                                     data-employeeid="${row.employee_ID}">
+                                                     <td>${row.employee_ID}</td>
+                                                     <td>${row.first_name} ${row.middle_name || ''} ${row.last_name}</td>
+                                                     <td>${row.location}</td>
+                                                     <td>${row.total_hours}</td>
+                                                 </tr>
+                                             `).join('')}
+                                         </tbody>
+                                     </table>
+ 
+                                     <h2>Detailed Clock-In/Out Report</h2>
+                                     <table>
+                                         <thead>
+                                             <tr>
+                                                 <th>Employee ID</th>
+                                                 <th>Name</th>
+                                                 <th>Location</th>
+                                                 <th>Clock-In Time</th>
+                                                 <th>Clock-Out Time</th>
+                                                 <th>Hours Worked</th>
+                                             </tr>
+                                         </thead>
+                                         <tbody id="detailTableBody">
+                                             ${detailResults.map(row => `
+                                                 <tr data-month="${row.month_key}" 
+                                                     data-location="${row.location}" 
+                                                     data-employeeid="${row.employee_ID}">
+                                                     <td>${row.employee_ID}</td>
+                                                     <td>${row.full_name}</td>
+                                                     <td>${row.location}</td>
+                                                     <td>${formatTimestamp(row.clock_in_time)}</td>
+                                                     <td>${formatTimestamp(row.clock_out_time)}</td>
+                                                     <td>${row.hours_worked}</td>
+                                                 </tr>
+                                             `).join('')}
+                                         </tbody>
+                                     </table>
+                                 </div>
+                             </body>
+                             </html>
+                             `;
+ 
+                             res.writeHead(200, { 
+                                 "Content-Type": "text/html",
+                                 "Cache-Control": "no-store, no-cache, must-revalidate, private",
+                                 "Pragma": "no-cache",
+                                 "Expires": "0"
+                             });
+                          res.end(reportHtml); 
                             });
-                            res.end(reportHtml);
-                        });
-                    });
-                });
+                                     });
+                 });
             });
         });
     } catch (error) {

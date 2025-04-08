@@ -15,7 +15,13 @@ const clockRoutes = require("./clockRoutes");
 
 // Import the inventory API from the same folder
 const inventoryAPI = require("./inventory");
-
+const productsAPI = require("./products");
+const locationAPI = require("./locationAPI");
+const cartAPI = require("./cartAPi"); 
+const handleCheckout = require("./checkout"); // 👈 Add this
+const orderHistory = require("./orderHistory"); // 👈 Add this
+const restock = require("./restock");
+const salesReport = require("./salesReport");
 // API functions
 const EmployeeAPI = require("./API Endpoints/EmployeeAPI.js");
 
@@ -38,7 +44,7 @@ const server = http.createServer((req, res) => {
         res.setHeader("Access-Control-Allow-Origin", origin);
     }
 
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
     console.log(req.method);
@@ -56,10 +62,19 @@ const server = http.createServer((req, res) => {
     if (notificationRoutes(req, res, reqUrl)) return;
     if (reportRoutes(req, res, reqUrl)) return;
     if (employeeRoutes(req, res, reqUrl)) return;
-    if (inventoryAPI(req, res, reqUrl)) return; 
-    if (driverRoutes(req, res, reqUrl)) return; 
+    //if (inventoryAPI(req, res, reqUrl)) return; 
+    //if (driverRoutes(req, res, reqUrl)) return; 
     if (clockRoutes(req, res, reqUrl)) return; 
 
+    if (inventoryAPI(req, res, reqUrl)) return; // New Inventory route
+    if (driverRoutes(req, res, reqUrl)) return; // New Driver route
+    if (productsAPI(req, res, reqUrl)) return;
+    if (locationAPI(req, res, reqUrl)) return;
+    if (cartAPI(req, res, reqUrl)) return;
+    if (handleCheckout(req, res, reqUrl)) return;
+    if (orderHistory(req, res, reqUrl)) return;
+    if (restock(req, res, reqUrl)) return;
+    if (salesReport(req, res, reqUrl)) return;
     // Registration Route 
     if (req.method === "POST" && req.url === "/register") {
         let body = "";
