@@ -3,9 +3,6 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./Navbar.css";
 import { useCart } from "../pages/CartContext";
 
-
-
-
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -41,19 +38,21 @@ function Navbar() {
           ☰
         </button>
         <div className="nav-logo">Post Office</div>
-
       </div>
 
       <ul className={`nav-links ${isMobileMenuOpen ? "active" : ""}`}>
-        <li><Link to="/">Home</Link></li>
-        <li><Link to="/faq">FAQ</Link></li>
+        {(!token || role === "customer") && (
+          <li><Link to="/">Home</Link></li>
+        )}
+
+   
 
         {token && role === "customer" && (
           <>
             <li><Link to="/PackageMaker">PM</Link></li>
             <li><Link to="/trackpackage">Track a Package</Link></li>
             <li><Link to="/buyinventory">Buy Stamps/Inventory</Link></li>
-            <li><Link to="/order-history">Order History</Link></li> {/* NEW LINE HERE */}
+            <li><Link to="/order-history">Order History</Link></li>
             <li className="cart-link">
               <Link to="/cart">
                 Shopping Cart {cartCount > 0 && <span className="cart-count">({cartCount})</span>}
@@ -74,7 +73,7 @@ function Navbar() {
             <li><Link to="/admin/reports">Reports</Link></li>
             <li><Link to="/admin/employees">Employee List</Link></li>
             <li><Link to="/admin/create-post-office">Create Post Office</Link></li>
-
+            <li><Link to="/admin/sales-report">Sales Report</Link></li>
           </>
         )}
 
