@@ -121,7 +121,7 @@ function WarehouseAssignPackages() {
         const packageId = assigningPackage;
 
         try {
-            const response = await fetch("http://localhost:5001/warehouseassignpackages?employeeID=${employeeID}", {
+            const response = await fetch(`${BASE_URL}/warehouseassignpackages?employeeID=${employeeID}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ nextDestination, assignedVehicle, packageId })
