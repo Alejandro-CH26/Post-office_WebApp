@@ -11,6 +11,7 @@ const notificationRoutes = require("./notificationRoutes");
 const reportRoutes = require("./reportRoutes");
 const employeeRoutes = require("./employeeRoutes");
 const driverRoutes = require("./driverRoutes");
+const clockRoutes = require("./clockRoutes");
 
 // Import the inventory API from the same folder
 const inventoryAPI = require("./inventory");
@@ -55,8 +56,9 @@ const server = http.createServer((req, res) => {
     if (notificationRoutes(req, res, reqUrl)) return;
     if (reportRoutes(req, res, reqUrl)) return;
     if (employeeRoutes(req, res, reqUrl)) return;
-    if (inventoryAPI(req, res, reqUrl)) return; // New Inventory route
-    if (driverRoutes(req, res, reqUrl)) return; // New Driver route
+    if (inventoryAPI(req, res, reqUrl)) return; 
+    if (driverRoutes(req, res, reqUrl)) return; 
+    if (clockRoutes(req, res, reqUrl)) return; 
 
     // Registration Route 
     if (req.method === "POST" && req.url === "/register") {

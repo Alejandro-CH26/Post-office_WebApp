@@ -44,8 +44,14 @@ function Navbar() {
         {token && role === "employee" && (
           <>
             <li><Link to="/onboard">Onboard Employee</Link></li>
+            <li><Link to="/employee/clock">Clock in/out</Link></li>
           </>
         )}
+
+        {/* Driver */}
+          {token && role === "driver" && (
+            <li><Link to="/driver/clock">Clock in/out</Link></li>
+          )}
 
         {/* Admin-only */}
         {token && role === "admin" && (
@@ -56,6 +62,7 @@ function Navbar() {
             <li><Link to="/admin/reports">Reports</Link></li>
             <li><Link to="/admin/employees">Employee List</Link></li>
             <li><Link to="/admin/create-post-office">Create Post Office</Link></li>
+            {/*<li><Link to="/admin/clock">Clock in/out</Link></li>*/}
 
           </>
         )}
@@ -63,6 +70,7 @@ function Navbar() {
         {token && role === "warehouse" && (
           <>
             <li><Link to="/warehouse-dashboard">Warehouse Dashboard</Link></li>
+            <li><Link to="/warehouse/clock">Clock in/out</Link></li>
           </>
         )}
 
