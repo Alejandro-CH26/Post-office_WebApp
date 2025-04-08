@@ -475,7 +475,7 @@ const server = http.createServer((req, res) => {
     else if (req.method === "POST" && req.url === "/employee-login") {
         EmployeeAPI.employeeLogIn(req, res);
     }
-    else if (reqUrl.pathname === "/warehouseassignpackages" && req.method === "GET") {
+    else if (reqUrl.pathname === "/warehouseassignpackages") {
         EmployeeAPI.warehouseAssignPackages(req, res);
     }
     // Admin Login Route

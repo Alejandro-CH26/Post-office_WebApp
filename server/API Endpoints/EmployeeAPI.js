@@ -38,20 +38,12 @@ async function employeeLogIn(req, res) {
             connection.query(sql, [employee_Username], async (err, results) => {
                 if (err) {
                     console.error(" DB Error:", err);
-<<<<<<< HEAD
-                    res.writeHead(500, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "http://localhost:3000"});
-=======
                     res.writeHead(500, { "Content-Type": "application/json" });
->>>>>>> main
                     return res.end(JSON.stringify({ error: "Server error" }));
                 }
 
                 if (results.length === 0) {
-<<<<<<< HEAD
-                    res.writeHead(401, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "http://localhost:3000", });
-=======
                     res.writeHead(401, { "Content-Type": "application/json" });
->>>>>>> main
                     return res.end(JSON.stringify({ error: "Invalid username or password" }));
                 }
 
@@ -59,11 +51,7 @@ async function employeeLogIn(req, res) {
                 const isMatch = await bcrypt.compare(employee_Password, employee.employee_Password);
 
                 if (!isMatch) {
-<<<<<<< HEAD
-                    res.writeHead(401, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "http://localhost:3000", });
-=======
                     res.writeHead(401, { "Content-Type": "application/json" });
->>>>>>> main
                     return res.end(JSON.stringify({ error: "Invalid username or password" }));
                 }
 
@@ -80,11 +68,7 @@ async function employeeLogIn(req, res) {
                 );
 
                 //  Send token + role info to frontend
-<<<<<<< HEAD
-                res.writeHead(200, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "http://localhost:3000",});
-=======
                 res.writeHead(200, { "Content-Type": "application/json" });
->>>>>>> main
                 res.end(JSON.stringify({
                     token,
                     role: employee.Role.toLowerCase(),
@@ -94,11 +78,7 @@ async function employeeLogIn(req, res) {
             });
         } catch (err) {
             console.error(" Error parsing employee login:", err);
-<<<<<<< HEAD
-            res.writeHead(500, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "http://localhost:3000" });
-=======
             res.writeHead(500, { "Content-Type": "application/json" });
->>>>>>> main
             res.end(JSON.stringify({ error: "Internal server error" }));
         }
     });
@@ -118,63 +98,25 @@ async function warehouseDashboard(req, res) {
                 (err, results) => {
                     if (err) {
                         console.error('Error accessing database', err);
-<<<<<<< HEAD
-                        res.writeHead(500, { 
-                            'Content-Type': 'application/json',
-                            "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
-                            "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
-                        });
-=======
                         setCORSHeaders(req, res, true);
                         res.writeHead(500, { "Content-Type": "application/json" });
->>>>>>> main
                         res.end(JSON.stringify({ error: 'Database Query Error' }));
                         return;
                     }
 
                     if (results.length > 0) {
-<<<<<<< HEAD
-                        res.writeHead(200, { 
-                            'Content-Type': 'application/json',
-                            "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
-                            "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
-                        });
-                        res.end(JSON.stringify({ name: results[0].First_Name }));
-                    } else {
-                        res.writeHead(404, { 
-                            'Content-Type': 'application/json',
-                            "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
-                            "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
-                        });
-=======
                         setCORSHeaders(req, res, true);
                         res.writeHead(200, { "Content-Type": "application/json" });
                         res.end(JSON.stringify({ name: results[0].First_Name }));
                     } else {
                         setCORSHeaders(req, res, true);
                         res.writeHead(404, { "Content-Type": "application/json" });
->>>>>>> main
                         res.end(JSON.stringify({ error: 'Employee not found' }));
                     }
                 
                 }
             );
         } else {
-<<<<<<< HEAD
-            res.writeHead(401, { 
-                'Content-Type': 'application/json',
-                "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
-                "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
-             });
-            res.end(JSON.stringify({ error: 'Unauthorized, incorrect employee ID' }));
-        }
-    } else {
-        res.writeHead(401, { 
-            'Content-Type': 'application/json',
-            "Access-Control-Allow-Origin": "http://localhost:3000", // Allow the React app origin
-            "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
-         });
-=======
             setCORSHeaders(req, res, true);
             res.writeHead(401, { "Content-Type": "application/json" });
             res.end(JSON.stringify({ error: 'Unauthorized, incorrect employee ID' }));
@@ -182,7 +124,6 @@ async function warehouseDashboard(req, res) {
     } else {
         setCORSHeaders(req, res, true);
         res.writeHead(401, { "Content-Type": "application/json" });
->>>>>>> main
         res.end(JSON.stringify({ error: 'Unauthorized, no cookies' }));
     }
 }
@@ -233,10 +174,9 @@ async function warehouseAssignPackages(req, res) {
                 connection.query(packageQuery, [employeeID], (err, packageResults) => {
                     if (err) {
                         console.error("Error accessing database:", err);
+                        setCORSHeaders(req, res, true);
                         res.writeHead(500, { 
                             "Content-Type": "application/json",
-                            "Access-Control-Allow-Origin": "http://localhost:3000",
-                            "Access-Control-Allow-Credentials": "true", 
                         });
                         res.end(JSON.stringify({ error: "Database Query Error" }));
                         return;
@@ -268,10 +208,9 @@ async function warehouseAssignPackages(req, res) {
                     connection.query(postOfficeQuery, [employeeID], (err, postOfficeResults) => {
                         if (err) {
                             console.error("Error accessing database:", err);
+                            setCORSHeaders(req, res, true);
                             res.writeHead(500, { 
                                 "Content-Type": "application/json",
-                                "Access-Control-Allow-Origin": "http://localhost:3000",
-                                "Access-Control-Allow-Credentials": "true",
                             });
                             res.end(JSON.stringify({ error: "Database Query Error" }));
                             return;
@@ -297,10 +236,9 @@ async function warehouseAssignPackages(req, res) {
                             (err, residentialBusinessResults) => {
                                 if (err) {
                                     console.error("Error accessing database:", err);
+                                    setCORSHeaders(req, res, true);
                                     res.writeHead(500, { 
                                         "Content-Type": "application/json",
-                                        "Access-Control-Allow-Origin": "http://localhost:3000",
-                                        "Access-Control-Allow-Credentials": "true",
                                     });
                                     res.end(JSON.stringify({ error: "Database Query Error" }));
                                     return;
@@ -330,10 +268,9 @@ async function warehouseAssignPackages(req, res) {
                                     (err, deliveryVehicleResults) => {
                                         if (err) {
                                             console.error("Error accessing database:", err);
+                                            setCORSHeaders(req, res, true);
                                             res.writeHead(500, { 
                                                 "Content-Type": "application/json",
-                                                "Access-Control-Allow-Origin": "http://localhost:3000",
-                                                "Access-Control-Allow-Credentials": "true",
                                             });
                                             res.end(JSON.stringify({ error: "Database Query Error" }));
                                             return;
@@ -348,10 +285,9 @@ async function warehouseAssignPackages(req, res) {
                                         );
 
                                         // Send the final combined response
+                                        setCORSHeaders(req, res, true);
                                         res.writeHead(200, { 
                                             "Content-Type": "application/json",
-                                            "Access-Control-Allow-Origin": "http://localhost:3000",
-                                            "Access-Control-Allow-Credentials": "true",
                                         });
                                         res.end(JSON.stringify(responseData));
                                         console.log(responseData);
@@ -450,18 +386,16 @@ async function warehouseAssignPackages(req, res) {
 
             }
         } else {
+            setCORSHeaders(req, res, true);
             res.writeHead(401, { 
-                'Content-Type': 'application/json',
-                "Access-Control-Allow-Origin": "http://localhost:3000/", // Allow the React app origin
-                "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
+                'Content-Type': 'application/json', 
              });
             res.end(JSON.stringify({ error: 'Unauthorized, incorrect employee ID' }));
         }
     } else {
+        setCORSHeaders(req, res, true);
         res.writeHead(401, { 
             'Content-Type': 'application/json',
-            "Access-Control-Allow-Origin": "http://localhost:3000/", // Allow the React app origin
-            "Access-Control-Allow-Credentials": "true", // Include if you're using cookies 
          });
         res.end(JSON.stringify({ error: 'Unauthorized, no cookies' }));
     }
