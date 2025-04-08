@@ -39,16 +39,19 @@ export const CartProvider = ({ children }) => {
       const existingIndex = prevCart.findIndex(
         (item) => item.productId === newItem.productId && item.format === newItem.format
       );
-
+  
       if (existingIndex !== -1) {
+        // If item exists, update the quantity
         const updatedCart = [...prevCart];
         updatedCart[existingIndex].quantity += newItem.quantity;
         return updatedCart;
       }
-
+  
+      // If it's a new item, add it to the cart
       return [...prevCart, newItem];
     });
   };
+  
 
   const removeFromCart = async (itemToRemove) => {
     try {
@@ -70,7 +73,7 @@ export const CartProvider = ({ children }) => {
         body: JSON.stringify({ cart_id: match.cart_id }),
       });
 
-      // Refresh cart
+      // Refresh cart from backend
       const refreshed = await fetch(`http://localhost:5001/cart?customer_ID=${customer_ID}`);
       const updatedCart = await refreshed.json();
 
@@ -104,14 +107,14 @@ export const CartProvider = ({ children }) => {
 
       if (!match || !match.cart_id) return;
 
-      // Delete the old item
+      // Delete the old item first
       await fetch("http://localhost:5001/cart", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cart_id: match.cart_id }),
       });
 
-      // Re-insert with updated quantity
+      // Reinsert with updated quantity
       await fetch("http://localhost:5001/cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -123,7 +126,7 @@ export const CartProvider = ({ children }) => {
         }),
       });
 
-      // Refresh cart
+      // Refresh cart again
       const refreshed = await fetch(`http://localhost:5001/cart?customer_ID=${customer_ID}`);
       const updatedCart = await refreshed.json();
 
@@ -134,7 +137,7 @@ export const CartProvider = ({ children }) => {
         quantity: item.quantity,
         format: item.format,
         price: item.item_price,
-        description: item.description,
+        description: item.description, 
       }));
 
       setCart(transformed);
