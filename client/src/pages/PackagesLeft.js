@@ -128,41 +128,61 @@ function PackagesLeft({ employeeID }) {
     if (loading) return <div>Loading packages...</div>;
     if (error) return <div className="error-message">{error}</div>;
 
+    // Button styles
+    const buttonStyle = (isDisabled, type) => ({
+        padding: "6px 16px",
+        borderRadius: "4px",
+        fontSize: "12px",
+        fontWeight: "500",
+        marginLeft: "15px", // Added spacing between buttons
+        transition: "background-color 0.2s",
+        cursor: isDisabled ? "not-allowed" : "pointer",
+        backgroundColor: isDisabled 
+            ? "#D1D5DB" 
+            : type === "left" ? "#F59E0B" : "#10B981", // Yellow for Left, Green for Arrived
+        color: isDisabled ? "#6B7280" : "white"
+    });
+
+    // Status badge style
+    const statusBadgeStyle = {
+        display: "inline-block",
+        padding: "4px 8px",
+        borderRadius: "4px",
+        fontSize: "12px",
+        marginTop: "4px",
+        backgroundColor: vehicleStatus === "In Transit" ? "#FEF3C7" : "#D1FAE5",
+        color: vehicleStatus === "In Transit" ? "#92400E" : "#065F46"
+    };
+
     return (
         <div className="packages-container max-w-4xl mx-auto">
             {/* Vehicle Status Control Panel */}
-            <div className="bg-gray-100 p-4 mb-4 rounded-lg border border-gray-300">
-                <div className="flex justify-between items-center">
+            <div style={{
+                backgroundColor: "#F3F4F6",
+                padding: "16px",
+                marginBottom: "16px",
+                borderRadius: "8px",
+                border: "1px solid #E5E7EB"
+            }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div>
-                        <h3 className="font-semibold">Vehicle Status</h3>
-                        <div className={`inline-block px-2 py-1 rounded text-xs ${
-                            vehicleStatus === "In Transit" 
-                                ? "bg-yellow-100 text-yellow-800" 
-                                : "bg-green-100 text-green-800"
-                        }`}>
+                        <h3 style={{ fontWeight: "600", marginBottom: "4px" }}>Vehicle Status</h3>
+                        <div style={statusBadgeStyle}>
                             {vehicleStatus || "Unknown"}
                         </div>
                     </div>
-                    <div className="space-x-2">
+                    <div>
                         <button
                             onClick={() => updateVehicleStatus("In Transit")}
                             disabled={updatingStatus || vehicleStatus === "In Transit"}
-                            className={`py-1.5 px-3 rounded text-xs font-medium transition-colors ${
-                                updatingStatus || vehicleStatus === "In Transit"
-                                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                                    : "bg-yellow-500 hover:bg-yellow-600 text-white"
-                            }`}
+                            style={buttonStyle(updatingStatus || vehicleStatus === "In Transit", "left")}
                         >
                             Left Office
                         </button>
                         <button
                             onClick={() => updateVehicleStatus("Available")}
                             disabled={updatingStatus || vehicleStatus === "Available"}
-                            className={`py-1.5 px-3 rounded text-xs font-medium transition-colors ${
-                                updatingStatus || vehicleStatus === "Available"
-                                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                                    : "bg-green-500 hover:bg-green-600 text-white"
-                            }`}
+                            style={buttonStyle(updatingStatus || vehicleStatus === "Available", "arrived")}
                         >
                             Arrived at Office
                         </button>
