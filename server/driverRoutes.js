@@ -49,7 +49,8 @@ function driverRoutes(req, res) {
                 A.address_State,
                 SE.first_name AS sender_first_name,
                 SE.last_name AS sender_last_name,
-                P.Recipient_Customer_Name
+                P.Recipient_Customer_Name,
+                D.Status AS vehicle_status
             FROM employees AS E
             JOIN delivery_vehicle AS D ON E.employee_ID = D.Driver_ID
             JOIN Package AS P ON D.Vehicle_ID = P.Assigned_vehicle
@@ -76,12 +77,86 @@ function driverRoutes(req, res) {
                 addressState: row.address_State,
                 senderFirstName: row.sender_first_name,
                 senderLastName: row.sender_last_name,
-                recipientName: row.Recipient_Customer_Name
+                recipientName: row.Recipient_Customer_Name,
+                vehicleStatus: row.vehicle_status
             }));
 
             setCorsHeaders(req, res);
             res.writeHead(200, { "Content-Type": "application/json" });
             res.end(JSON.stringify(packages));
+        });
+        
+        return true;
+    }
+
+    // Handle vehicle status update endpoint - NEW ENDPOINT
+    if (req.method === "POST" && reqUrl.pathname === "/driver/update-status") {
+        let body = "";
+
+        req.on("data", chunk => {
+            body += chunk.toString();
+        });
+
+        req.on("end", () => {
+            try {
+                const { employeeID, status } = JSON.parse(body);
+
+                if (!employeeID || !status) {
+                    setCorsHeaders(req, res);
+                    res.writeHead(400, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify({ error: "Employee ID and status are required" }));
+                    return;
+                }
+
+                // Validate status value
+                const validStatuses = ["Available", "In Transit"];
+                if (!validStatuses.includes(status)) {
+                    setCorsHeaders(req, res);
+                    res.writeHead(400, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify({ error: "Invalid status. Must be 'Available' or 'In Transit'" }));
+                    return;
+                }
+
+                // Update vehicle status query
+                const updateQuery = `
+                    UPDATE delivery_vehicle 
+                    SET Status = ?
+                    WHERE Driver_ID = ?;
+                `;
+
+                connection.query(updateQuery, [status, employeeID], (err, result) => {
+                    if (err) {
+                        console.error("❌ Error updating vehicle status:", err);
+                        setCorsHeaders(req, res);
+                        res.writeHead(500, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({ 
+                            error: "Failed to update vehicle status",
+                            details: err.sqlMessage 
+                        }));
+                        return;
+                    }
+
+                    if (result.affectedRows === 0) {
+                        setCorsHeaders(req, res);
+                        res.writeHead(404, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({ error: "No vehicle found for this driver" }));
+                        return;
+                    }
+
+                    // Success!
+                    setCorsHeaders(req, res);
+                    res.writeHead(200, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify({ 
+                        success: true, 
+                        message: `Vehicle status updated to ${status}` 
+                    }));
+                });
+            } catch (error) {
+                console.error("❌ Error processing request:", error);
+                setCorsHeaders(req, res);
+                res.writeHead(400, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ error: "Invalid request format" }));
+            }
         });
         
         return true;

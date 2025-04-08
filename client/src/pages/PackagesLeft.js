@@ -5,6 +5,8 @@ function PackagesLeft({ employeeID }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [deliveryStatus, setDeliveryStatus] = useState({});
+    const [vehicleStatus, setVehicleStatus] = useState("Available");
+    const [updatingStatus, setUpdatingStatus] = useState(false);
    
     // Updated to use REACT_APP_API_BASE_URL as per Render configuration
     const getApiUrl = () => {
@@ -36,6 +38,11 @@ function PackagesLeft({ employeeID }) {
             
             const data = await response.json();
             setPackages(data);
+            
+            // Set vehicle status from first package (assuming all packages share the same vehicle status)
+            if (data && data.length > 0 && data[0].vehicleStatus) {
+                setVehicleStatus(data[0].vehicleStatus);
+            }
         } catch (err) {
             console.error("Failed to load packages:", err);
             setError(err.message || "Failed to fetch packages");
@@ -47,6 +54,39 @@ function PackagesLeft({ employeeID }) {
     useEffect(() => {
         loadPackages();
     }, [loadPackages]);
+
+    const updateVehicleStatus = async (newStatus) => {
+        if (!employeeID) return;
+        
+        try {
+            setUpdatingStatus(true);
+            const API_URL = getApiUrl();
+            
+            const response = await fetch(`${API_URL}/driver/update-status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    employeeID, 
+                    status: newStatus 
+                }),
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `Server responded with ${response.status}`);
+            }
+            
+            // Update local state and refetch packages to get fresh data
+            setVehicleStatus(newStatus);
+            await loadPackages();
+            
+        } catch (err) {
+            console.error("Failed to update vehicle status:", err);
+            setError(`Failed to update status: ${err.message}`);
+        } finally {
+            setUpdatingStatus(false);
+        }
+    };
 
     const markAsDelivered = async (packageID) => {
         const API_URL = getApiUrl();
@@ -90,6 +130,46 @@ function PackagesLeft({ employeeID }) {
 
     return (
         <div className="packages-container max-w-4xl mx-auto">
+            {/* Vehicle Status Control Panel */}
+            <div className="bg-gray-100 p-4 mb-4 rounded-lg border border-gray-300">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h3 className="font-semibold">Vehicle Status</h3>
+                        <div className={`inline-block px-2 py-1 rounded text-xs ${
+                            vehicleStatus === "In Transit" 
+                                ? "bg-yellow-100 text-yellow-800" 
+                                : "bg-green-100 text-green-800"
+                        }`}>
+                            {vehicleStatus || "Unknown"}
+                        </div>
+                    </div>
+                    <div className="space-x-2">
+                        <button
+                            onClick={() => updateVehicleStatus("In Transit")}
+                            disabled={updatingStatus || vehicleStatus === "In Transit"}
+                            className={`py-1.5 px-3 rounded text-xs font-medium transition-colors ${
+                                updatingStatus || vehicleStatus === "In Transit"
+                                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                                    : "bg-yellow-500 hover:bg-yellow-600 text-white"
+                            }`}
+                        >
+                            Left Office
+                        </button>
+                        <button
+                            onClick={() => updateVehicleStatus("Available")}
+                            disabled={updatingStatus || vehicleStatus === "Available"}
+                            className={`py-1.5 px-3 rounded text-xs font-medium transition-colors ${
+                                updatingStatus || vehicleStatus === "Available"
+                                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                                    : "bg-green-500 hover:bg-green-600 text-white"
+                            }`}
+                        >
+                            Arrived at Office
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <h2 className="text-lg font-bold mb-3">Packages to Deliver</h2>
             {packages.length === 0 ? (
                 <p className="text-gray-500 text-sm">No pending packages to deliver.</p>
@@ -150,17 +230,19 @@ function PackagesLeft({ employeeID }) {
                                
                                 <button
                                     onClick={() => markAsDelivered(packageID)}
-                                    disabled={status === 'loading'}
+                                    disabled={status === 'loading' || vehicleStatus !== 'In Transit'}
                                     className={`w-full py-1 px-2 rounded text-xs transition-colors ${
                                         status === 'loading' ? 'bg-gray-400 cursor-not-allowed' :
                                         status === 'success' ? 'bg-green-600 text-white' :
                                         status === 'error' ? 'bg-red-500 text-white' :
+                                        vehicleStatus !== 'In Transit' ? 'bg-gray-400 cursor-not-allowed' :
                                         'bg-green-500 hover:bg-green-600 text-white'
                                     }`}
                                 >
                                     {status === 'loading' ? 'Processing...' :
                                     status === 'success' ? 'Delivered! ✓' :
                                     status === 'error' ? 'Failed! Try Again' :
+                                    vehicleStatus !== 'In Transit' ? 'Must be In Transit' :
                                     'Mark Delivered'}
                                 </button>
                             </div>
