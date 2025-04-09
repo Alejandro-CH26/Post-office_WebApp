@@ -7,7 +7,7 @@ module.exports = function cartAPI(req, res, reqUrl) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") {
-    res.writeHead(204); // No Content
+    res.writeHead(204);
     return res.end();
   }
 
@@ -72,11 +72,11 @@ module.exports = function cartAPI(req, res, reqUrl) {
     }
 
     const query = `
-  SELECT c.cart_id, c.quantity, c.format, p.product_name, p.item_price, c.product_id, p.description
-  FROM cart c
-  JOIN products p ON c.product_id = p.product_ID
-  WHERE c.customer_id = ?
-`;
+      SELECT c.cart_id, c.quantity, c.format, p.product_name, p.item_price, c.product_id, p.description
+      FROM cart c
+      JOIN products p ON c.product_id = p.product_ID
+      WHERE c.customer_id = ?
+    `;
 
     db.query(query, [customer_ID], (err, results) => {
       if (err) {
@@ -91,7 +91,7 @@ module.exports = function cartAPI(req, res, reqUrl) {
     return true;
   }
 
-  // REMOVE FROM CART
+  // REMOVE FROM CART (single item)
   if (req.method === "DELETE" && reqUrl.pathname === "/cart") {
     let body = "";
     req.on("data", chunk => (body += chunk.toString()));
@@ -114,6 +114,40 @@ module.exports = function cartAPI(req, res, reqUrl) {
 
           res.writeHead(200, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ message: "Cart item removed" }));
+        });
+      } catch (err) {
+        console.error("Invalid JSON:", err);
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Invalid JSON" }));
+      }
+    });
+
+    return true;
+  }
+
+  // CLEAR ENTIRE CART (after checkout)
+  if (req.method === "DELETE" && reqUrl.pathname === "/cart/clear") {
+    let body = "";
+    req.on("data", chunk => (body += chunk.toString()));
+    req.on("end", () => {
+      try {
+        const { customer_ID } = JSON.parse(body);
+
+        if (!customer_ID || isNaN(customer_ID)) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          return res.end(JSON.stringify({ error: "Invalid or missing customer_ID" }));
+        }
+
+        const clearSQL = "DELETE FROM cart WHERE customer_id = ?";
+        db.query(clearSQL, [Number(customer_ID)], (err, result) => {
+          if (err) {
+            console.error("Clear Cart Error:", err);
+            res.writeHead(500, { "Content-Type": "application/json" });
+            return res.end(JSON.stringify({ error: "Failed to clear cart" }));
+          }
+
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ message: "Cart cleared", affected: result.affectedRows }));
         });
       } catch (err) {
         console.error("Invalid JSON:", err);
