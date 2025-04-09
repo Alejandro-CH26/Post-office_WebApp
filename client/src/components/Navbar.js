@@ -71,7 +71,10 @@ function Navbar() {
 
         {/* Driver */}
           {token && role === "driver" && (
-            <li><Link to="/driver/clock">Clock in/out</Link></li>
+            <>
+              <li><Link to="/driver/clock">Clock in/out</Link></li>
+              <li><Link to="/driver-dashboard">Deliveries</Link></li>
+            </>
           )}
 
 

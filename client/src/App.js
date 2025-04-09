@@ -32,6 +32,7 @@ import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderHistory from "./pages/orderHistory";
 import SalesReport from "./pages/salesReport";
+import PackagesLeft from "./pages/PackagesLeft";
 import EditEmployees from "./pages/EditEmployees";
 import PostOffices from "./pages/PostOffices";
 import EditPostOffices from "./pages/EditPostOffices";
@@ -127,6 +128,7 @@ function App() {
         <Route path="/inventoryreport" element={<PrivateRoute element={<InventoryReport />} requiredRole="warehouse" />} />
         <Route path="/products/:productId" element={<ProductDetails />} />
 
+        {/*<Route path="/driver/packagespage" element={<PrivateRoute element={<PackagesLeft />} requiredRole="driver" />} />*/}
 
 
         {/* Catch-all redirect */}
