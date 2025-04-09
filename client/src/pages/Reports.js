@@ -9,7 +9,7 @@ const Reports = () => {
     const [endDate, setEndDate] = useState('');
     const [drivers, setDrivers] = useState([]);
     const [vehicles, setVehicles] = useState([]);
-    const [viewMode, setViewMode] = useState('driver'); // NEW
+    const [viewMode, setViewMode] = useState('driver'); 
     const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
     useEffect(() => {

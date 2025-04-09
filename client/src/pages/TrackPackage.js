@@ -34,7 +34,7 @@ const TrackPackage = () => {
         })
         .catch(err => console.error("Error fetching sent packages:", err));
     }
-  }, [view]);
+  }, [view, isLoggedIn, role, customerId, BASE_URL]);
 
   const handleTrack = async (overrideId = null) => {
     const packageId = overrideId || trackingNumber;
@@ -76,13 +76,9 @@ const TrackPackage = () => {
     }
   };
 
-  const toggleHistory = () => {
-    setShowFullHistory(prev => !prev);
-  };
+  const toggleHistory = () => setShowFullHistory(prev => !prev);
 
-  const visibleUpdates = showFullHistory
-    ? trackingResults
-    : trackingResults.slice(-1);
+  const visibleUpdates = showFullHistory ? trackingResults : trackingResults.slice(-1);
 
   const sortedPackages = [...sentPackages]
     .filter(pkg => pkg.Package_ID.toString().includes(searchQuery))
@@ -191,9 +187,13 @@ const TrackPackage = () => {
             {visibleUpdates.map((update, index) => (
               <li key={index} className="notification-item">
                 <strong>Package #{update.package_ID}</strong>{" "}
-                {update.status === "Delivered" && update.address_City
-                  ? `Delivered (${update.address_City}, ${update.address_State} ${update.address_Zipcode})`
-                  : update.status}
+                {(update.status === "Delivered" || update.status === "At Warehouse") ? (
+                  update.location_name
+                    ? `${update.status} (${update.location_name})`
+                    : update.address_City
+                      ? `${update.status} (${update.address_City}, ${update.address_State} ${update.address_Zipcode})`
+                      : update.status
+                ) : update.status}
                 <br />
                 <small>{new Date(update.timestamp).toLocaleString()}</small>
               </li>
