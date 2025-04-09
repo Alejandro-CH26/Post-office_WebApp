@@ -9,6 +9,7 @@ import medBoxImage from "../images/medbox.webp";
 import largeBoxImage from "../images/largebox.webp";
 import packagingTapeImage from "../images/packagetape.webp";
 import { useCart } from "./CartContext";
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 function ProductDetails() {
   const { productId } = useParams();
@@ -71,7 +72,7 @@ function ProductDetails() {
     };
 
     try {
-      const response = await fetch("http://localhost:5001/cart", {
+      const response = await fetch(`${BASE_URL}/cart`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
