@@ -1,227 +1,213 @@
-import React, { useEffect, useState, useRef } from "react";
-import "./salesReport.css";
-const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const db = require("./db");
 
-const SalesReport = () => {
-  const [sales, setSales] = useState([]);
-  const [locations, setLocations] = useState([]);
-  const [types, setTypes] = useState([]);
-  const [totalRevenue, setTotalRevenue] = useState(0);
-  const [totalTransactions, setTotalTransactions] = useState(0);
-  const [newCustomers, setNewCustomers] = useState(0);
-  const [topProduct, setTopProduct] = useState("N/A");
-  const [packagesCreated, setPackagesCreated] = useState(0);
-  const [sortColumn, setSortColumn] = useState(null);
-  const [sortDirection, setSortDirection] = useState("asc");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const abortRef = useRef(null);
+function routeHandler(req, res, reqUrl) {
+  // SALES REPORT - Detailed Transactions
+  if (req.method === "GET" && reqUrl.pathname === "/sales-report") {
+    (async () => {
+      let connection;
+      try {
+        connection = await db.promise().getConnection();
 
-  const [filters, setFilters] = useState({
-    location: "all",
-    type: "all",
-    from: "",
-    to: "",
-  });
+        const locationFilter = reqUrl.query.location_ID;
+        const typeFilter = reqUrl.query.type;
+        const from = reqUrl.query.from;
+        const to = reqUrl.query.to;
 
-  useEffect(() => {
-    fetchLocations();
-    fetchData(filters);
-    return () => {
-      if (abortRef.current) abortRef.current.abort();
-    };
-  }, []);
+        let sql = `
+          SELECT 
+            t.Transaction_ID,
+            CONCAT(c.First_Name, ' ', c.Last_Name) AS customer_name,
+            t.Item_name,
+            t.Quantity,
+            t.Date,
+            t.product_ID,
+            CASE 
+              WHEN t.Item_name = 'Package' THEN pk.Shipping_Cost
+              ELSE p.item_price
+            END AS item_price,
+            l.name AS Location
+          FROM transaction t
+          LEFT JOIN customers c ON t.Customer_ID = c.Customer_ID
+          LEFT JOIN products p ON t.product_ID = p.product_ID
+          LEFT JOIN package pk ON t.Transaction_ID = pk.Transaction_ID
+          LEFT JOIN orders o ON t.Order_ID = o.Order_ID
+          LEFT JOIN post_office_location l ON o.address_ID = l.location_ID
+          WHERE t.Status = 'Completed'
+        `;
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      fetchData(filters);
-    }, 300);
-    return () => clearTimeout(timeout);
-  }, [filters]);
+        const params = [];
 
-  const fetchLocations = async () => {
-    try {
-      setError(null);
-      const res = await fetch(`${BASE_URL}/active-locations`);
-      const data = await res.json();
-      setLocations(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error("Failed to fetch locations:", err);
-      setError("Failed to load locations. Please check server connection.");
-    }
-  };
+        if (locationFilter && locationFilter !== "all") {
+          sql += " AND o.address_ID = ?";
+          params.push(locationFilter);
+        }
+        if (typeFilter && typeFilter !== "all") {
+          sql += " AND t.Item_name = ?";
+          params.push(typeFilter);
+        }
+        if (from) {
+          sql += " AND DATE(t.Date) >= ?";
+          params.push(from);
+        }
+        if (to) {
+          sql += " AND DATE(t.Date) <= ?";
+          params.push(to);
+        }
 
-  const fetchData = async (filterObj) => {
-    if (abortRef.current) abortRef.current.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
-    setLoading(true);
-    setError(null);
+        sql += " ORDER BY t.Date DESC";
 
-    const params = new URLSearchParams();
-    if (filterObj.location !== "all") params.append("location_ID", filterObj.location);
-    if (filterObj.type !== "all") params.append("type", filterObj.type);
-    if (filterObj.from) params.append("from", filterObj.from);
-    if (filterObj.to) params.append("to", filterObj.to);
+        const [rows] = await connection.execute(sql, params);
 
-    try {
-      const [salesRes, summaryRes] = await Promise.all([
-        fetch(`${BASE_URL}/sales-report?${params.toString()}`, { signal: controller.signal }),
-        fetch(`${BASE_URL}/sales-summary?${params.toString()}`, { signal: controller.signal }),
-      ]);
-
-      const salesData = await salesRes.json();
-      const summaryData = await summaryRes.json();
-
-      const transactions = Array.isArray(salesData.data) ? salesData.data : [];
-      const uniqueTypes = [...new Set(transactions.map((t) => t.Item_name).filter(Boolean))];
-
-      if (abortRef.current === controller) {
-        setSales(transactions);
-        setTypes(uniqueTypes);
-        setTotalRevenue(summaryData.totalRevenue || "0.00");
-        setTotalTransactions(summaryData.totalTransactions || 0);
-        setNewCustomers(summaryData.newCustomers || 0);
-        setTopProduct(summaryData.topProduct || "N/A");
-        setPackagesCreated(summaryData.packagesCreated || 0); // ✅ NEW
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ status: "success", data: rows }));
+      } catch (error) {
+        console.error("❌ Sales Report Error:", error);
+        if (!res.headersSent) {
+          res.writeHead(500, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ status: "error", message: error.message }));
+        }
+      } finally {
+        if (connection) connection.release();
       }
-    } catch (err) {
-      if (err.name !== "AbortError") {
-        console.error("❌ Failed to fetch data:", err);
-        setError(`Failed to load data: ${err.message}`);
+    })();
+    return true;
+  }
+
+  // SALES SUMMARY - Revenue, Total Sales, New Customers, Top Product, Packages Created
+  if (req.method === "GET" && reqUrl.pathname === "/sales-summary") {
+    (async () => {
+      let connection;
+      try {
+        connection = await db.promise().getConnection();
+
+        const locationFilter = reqUrl.query.location_ID;
+        const typeFilter = reqUrl.query.type;
+        const from = reqUrl.query.from;
+        const to = reqUrl.query.to;
+
+        let baseWhere = `WHERE t.Status = 'Completed'`;
+        const params = [];
+
+        if (locationFilter && locationFilter !== "all") {
+          baseWhere += " AND o.address_ID = ?";
+          params.push(locationFilter);
+        }
+        if (typeFilter && typeFilter !== "all") {
+          baseWhere += " AND t.Item_name = ?";
+          params.push(typeFilter);
+        }
+        if (from) {
+          baseWhere += " AND DATE(t.Date) >= ?";
+          params.push(from);
+        }
+        if (to) {
+          baseWhere += " AND DATE(t.Date) <= ?";
+          params.push(to);
+        }
+
+        // Revenue & Total Sales
+        const sqlMain = `
+          SELECT 
+            SUM(CASE 
+                  WHEN t.Item_name = 'Package' THEN pk.Shipping_Cost 
+                  ELSE p.item_price * t.Quantity 
+                END) AS totalRevenue,
+            COUNT(*) AS totalTransactions
+          FROM transaction t
+          LEFT JOIN products p ON t.product_ID = p.product_ID
+          LEFT JOIN package pk ON t.Transaction_ID = pk.Transaction_ID
+          LEFT JOIN orders o ON t.Order_ID = o.Order_ID
+          ${baseWhere};
+        `;
+        const [summary] = await connection.execute(sqlMain, params);
+
+        // New Customers
+        const sqlNewCustomers = `
+          SELECT COUNT(*) AS newCustomers FROM (
+            SELECT t.Customer_ID
+            FROM transaction t
+            LEFT JOIN orders o ON t.Order_ID = o.Order_ID
+            ${baseWhere}
+            GROUP BY t.Customer_ID
+          ) AS subquery;
+        `;
+        const [newCustomerResult] = await connection.execute(sqlNewCustomers, params);
+
+        // Top Product
+        const sqlTopProduct = `
+          SELECT t.Item_name, SUM(t.Quantity) AS totalQty
+          FROM transaction t
+          LEFT JOIN orders o ON t.Order_ID = o.Order_ID
+          ${baseWhere}
+          GROUP BY t.Item_name
+          ORDER BY totalQty DESC
+          LIMIT 1;
+        `;
+        const [topProductResult] = await connection.execute(sqlTopProduct, params);
+
+        // Packages Created
+        let packagesQuery = `
+          SELECT COUNT(*) AS packagesCreated
+          FROM package p
+          LEFT JOIN transaction t ON p.Transaction_ID = t.Transaction_ID
+          LEFT JOIN orders o ON t.Order_ID = o.Order_ID
+          WHERE t.Status = 'Completed'
+        `;
+        const packagesParams = [];
+
+        if (locationFilter && locationFilter !== "all") {
+          packagesQuery += " AND o.address_ID = ?";
+          packagesParams.push(locationFilter);
+        }
+        if (from) {
+          packagesQuery += " AND DATE(t.Date) >= ?";
+          packagesParams.push(from);
+        }
+        if (to) {
+          packagesQuery += " AND DATE(t.Date) <= ?";
+          packagesParams.push(to);
+        }
+
+        // If a non-"Package" type is selected, packagesCreated should be 0
+        if (typeFilter && typeFilter !== "all" && typeFilter !== "Package") {
+          packagesParams.length = 0;
+          packagesQuery = `SELECT 0 AS packagesCreated`;
+        }
+
+        const [packagesResult] = await connection.execute(packagesQuery, packagesParams);
+
+        // Final result
+        const totalRevenue = Number(summary[0].totalRevenue || 0).toFixed(2);
+        const totalTransactions = Number(summary[0].totalTransactions || 0);
+        const newCustomers = Number(newCustomerResult[0].newCustomers || 0);
+        const topProduct = topProductResult[0]?.Item_name || "N/A";
+        const packagesCreated = Number(packagesResult[0].packagesCreated || 0);
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            status: "success",
+            totalRevenue,
+            totalTransactions,
+            newCustomers,
+            topProduct,
+            packagesCreated
+          })
+        );
+      } catch (error) {
+        console.error("❌ Sales Summary Error:", error);
+        if (!res.headersSent) {
+          res.writeHead(500, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ status: "error", message: error.message }));
+        }
+      } finally {
+        if (connection) connection.release();
       }
-    } finally {
-      if (abortRef.current === controller) {
-        abortRef.current = null;
-        setLoading(false);
-      }
-    }
-  };
+    })();
+    return true;
+  }
 
-  const handleSort = (column) => {
-    if (sortColumn === column) {
-      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
-    } else {
-      setSortColumn(column);
-      setSortDirection("asc");
-    }
-  };
+  return false;
+}
 
-  const getSortedSales = () => {
-    if (!sortColumn) return sales;
-    return [...sales].sort((a, b) => {
-      const aVal = a[sortColumn];
-      const bVal = b[sortColumn];
-      if (aVal == null && bVal == null) return 0;
-      if (aVal == null) return sortDirection === "asc" ? -1 : 1;
-      if (bVal == null) return sortDirection === "asc" ? 1 : -1;
-      return typeof aVal === "string"
-        ? (sortDirection === "asc" ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal))
-        : (sortDirection === "asc" ? aVal - bVal : bVal - aVal);
-    });
-  };
-
-  const sortArrow = (col) => {
-    if (sortColumn !== col) return "";
-    return sortDirection === "asc" ? " ↑" : " ↓";
-  };
-
-  const handleRetry = () => {
-    fetchLocations();
-    fetchData(filters);
-  };
-
-  return (
-    <div className="sales-report-wrapper">
-      <h1>Sales Report</h1>
-
-      {error && (
-        <div className="error-message">
-          <p>{error}</p>
-          <button onClick={handleRetry}>Retry</button>
-        </div>
-      )}
-
-      <div className="filters">
-        <select value={filters.location} onChange={(e) => setFilters((prev) => ({ ...prev, location: e.target.value }))}>
-          <option value="all">All Locations</option>
-          {locations.map((loc) => (
-            <option key={loc.location_ID} value={loc.location_ID}>{loc.name}</option>
-          ))}
-        </select>
-
-        <select value={filters.type} onChange={(e) => setFilters((prev) => ({ ...prev, type: e.target.value }))}>
-          <option value="all">All Types</option>
-          {types.map((type) => (
-            <option key={type} value={type}>{type}</option>
-          ))}
-        </select>
-
-        <input type="date" value={filters.from} onChange={(e) => setFilters((prev) => ({ ...prev, from: e.target.value }))} />
-        <input type="date" value={filters.to} onChange={(e) => setFilters((prev) => ({ ...prev, to: e.target.value }))} />
-      </div>
-
-      <div className="report-summary-combined">
-        <div className="summary-combined-box">
-          <div>
-            <p>Total Revenue</p>
-            <h2>${totalRevenue}</h2>
-          </div>
-          <div>
-            <p>Total Sales</p>
-            <h2>{totalTransactions}</h2>
-          </div>
-          <div>
-            <p>New Customers</p>
-            <h2>{newCustomers}</h2>
-          </div>
-          <div>
-            <p className="top-product-label">Top Product</p>
-            <h2 className="top-product-value">{topProduct}</h2>
-          </div>
-          <div>
-            <p>Packages Created</p>
-            <h2>{packagesCreated}</h2> {/* ✅ New Stat Display */}
-          </div>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="loading-indicator"><p>Loading...</p></div>
-      ) : sales.length > 0 ? (
-        <div className="report-table-wrapper">
-          <table className="sales-report-table">
-            <thead>
-              <tr>
-                <th onClick={() => handleSort("Transaction_ID")}>Sale ID{sortArrow("Transaction_ID")}</th>
-                <th onClick={() => handleSort("Date")}>Date{sortArrow("Date")}</th>
-                <th onClick={() => handleSort("customer_name")}>Customer Name{sortArrow("customer_name")}</th>
-                <th onClick={() => handleSort("Item_name")}>Type{sortArrow("Item_name")}</th>
-                <th onClick={() => handleSort("Quantity")}>Quantity{sortArrow("Quantity")}</th>
-                <th onClick={() => handleSort("item_price")}>Amount{sortArrow("item_price")}</th>
-                <th onClick={() => handleSort("Location")}>Location{sortArrow("Location")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {getSortedSales().map((sale) => (
-                <tr key={sale.Transaction_ID}>
-                  <td>{sale.Transaction_ID}</td>
-                  <td>{new Date(sale.Date).toLocaleDateString()}</td>
-                  <td>{sale.customer_name}</td>
-                  <td>{sale.Item_name}</td>
-                  <td>{sale.Quantity}</td>
-                  <td>${((sale.item_price ?? 0) * sale.Quantity).toFixed(2)}</td>
-                  <td>{sale.Location}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="no-data-message">No sales data found matching the selected filters.</p>
-      )}
-    </div>
-  );
-};
-
-export default SalesReport;
+module.exports = routeHandler;
