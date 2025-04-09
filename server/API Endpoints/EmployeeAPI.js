@@ -6,11 +6,11 @@ const allowedOrigins = [
     "http://localhost:3000",
     "https://post-office-web-app.vercel.app",
     "https://post-office-webapp.onrender.com"
-  ];
+];
 
 function getCORSOrigin(req) {
-  const origin = req.headers.origin;
-  return allowedOrigins.includes(origin) ? origin : "http://localhost:3000";
+    const origin = req.headers.origin;
+    return allowedOrigins.includes(origin) ? origin : "http://localhost:3000";
 }
 
 function setCORSHeaders(req, res, allowCredentials = false) {
@@ -19,9 +19,9 @@ function setCORSHeaders(req, res, allowCredentials = false) {
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     if (allowCredentials) {
-      res.setHeader("Access-Control-Allow-Credentials", "true");
+        res.setHeader("Access-Control-Allow-Credentials", "true");
     }
-  }
+}
 
 async function employeeLogIn(req, res) {
     let body = "";
@@ -113,7 +113,7 @@ async function warehouseDashboard(req, res) {
                         res.writeHead(404, { "Content-Type": "application/json" });
                         res.end(JSON.stringify({ error: 'Employee not found' }));
                     }
-                
+
                 }
             );
         } else {
@@ -139,7 +139,7 @@ receive a message telling him or her that the package cannot be assigned to that
 */
 
 async function warehouseAssignPackages(req, res) {
-       // var cookies = req.headers?.cookie;
+    // var cookies = req.headers?.cookie;
     // console.log("Cookies", cookies);
     const queryString = req.url.split('?')[1];
     const urlParams = new URLSearchParams(queryString);
@@ -149,10 +149,10 @@ async function warehouseAssignPackages(req, res) {
         //var employeeID = cookies.split('; ').find(row => row.startsWith('employeeID='))?.split('=')[1];
         var employeeID = urlParams.get('employeeID');
         console.log(employeeID);
-        if (employeeID) {    
+        if (employeeID) {
             if (req.method === "GET") { // If the request is GET (employee is attempting to view packages)
                 var responseData = {};
-                
+
                 // GET the Package_ID, address_City, and address_State of every package needing to be processed at
                 // the employee's location.
                 var packageQuery = `
@@ -175,13 +175,13 @@ async function warehouseAssignPackages(req, res) {
                     if (err) {
                         console.error("Error accessing database:", err);
                         setCORSHeaders(req, res, true);
-                        res.writeHead(500, { 
+                        res.writeHead(500, {
                             "Content-Type": "application/json",
                         });
                         res.end(JSON.stringify({ error: "Database Query Error" }));
                         return;
                     }
-    
+
                     responseData.packages = packageResults.map(row => ({
                         packageID: row.Package_ID,
                         packagePriority: row.Priority,
@@ -209,7 +209,7 @@ async function warehouseAssignPackages(req, res) {
                         if (err) {
                             console.error("Error accessing database:", err);
                             setCORSHeaders(req, res, true);
-                            res.writeHead(500, { 
+                            res.writeHead(500, {
                                 "Content-Type": "application/json",
                             });
                             res.end(JSON.stringify({ error: "Database Query Error" }));
@@ -237,7 +237,7 @@ async function warehouseAssignPackages(req, res) {
                                 if (err) {
                                     console.error("Error accessing database:", err);
                                     setCORSHeaders(req, res, true);
-                                    res.writeHead(500, { 
+                                    res.writeHead(500, {
                                         "Content-Type": "application/json",
                                     });
                                     res.end(JSON.stringify({ error: "Database Query Error" }));
@@ -259,17 +259,16 @@ async function warehouseAssignPackages(req, res) {
                                 var deliveryVehicleQuery = `
                                 select Vehicle_ID, ROUND(Volume_Capacity - SUM((Length/12) * (Width/12) * (Height/12)), 1) as Remaining_Volume, ROUND(Payload_Capacity - SUM(Weight), 1) as Remaining_Payload
                                 from db1.delivery_vehicle, db1.employees, db1.package
-                                where delivery_vehicle.Location_ID = employees.Location_ID and package.Assigned_Vehicle = delivery_vehicle.Vehicle_ID and delivery_vehicle.At_Capacity = false
-                                and delivery_vehicle.Status = "Available" and employees.Employee_ID = 104
-                                GROUP BY Vehicle_ID, Volume_Capacity, Payload_Capacity;
-                                `;
+                                where delivery_vehicle.Location_ID = employees.Location_ID and delivery_vehicle.At_Capacity = false
+                                and delivery_vehicle.Status = "Available" and employees.Employee_ID = ?
+                                GROUP BY Vehicle_ID, Volume_Capacity, Payload_Capacity;`;
 
-                                connection.query(deliveryVehicleQuery, 
+                                connection.query(deliveryVehicleQuery, [employeeID],
                                     (err, deliveryVehicleResults) => {
                                         if (err) {
                                             console.error("Error accessing database:", err);
                                             setCORSHeaders(req, res, true);
-                                            res.writeHead(500, { 
+                                            res.writeHead(500, {
                                                 "Content-Type": "application/json",
                                             });
                                             res.end(JSON.stringify({ error: "Database Query Error" }));
@@ -286,7 +285,7 @@ async function warehouseAssignPackages(req, res) {
 
                                         // Send the final combined response
                                         setCORSHeaders(req, res, true);
-                                        res.writeHead(200, { 
+                                        res.writeHead(200, {
                                             "Content-Type": "application/json",
                                         });
                                         res.end(JSON.stringify(responseData));
@@ -295,14 +294,14 @@ async function warehouseAssignPackages(req, res) {
                                     }
                                 );
 
-                                
+
 
                             }
                         );
 
-                        
+
                     });
-                
+
                 });
 
 
@@ -326,7 +325,7 @@ async function warehouseAssignPackages(req, res) {
                 // and volume capacity) from the query. This might be a complex query, but I really do think that it's doable. And it
                 // reduces the amount of triggers that need to be created if so, as well as gets rid of an attribute that must constantly
                 // change back-and-forth in the database. The data is already in there, after all.
-                
+
                 // Notes for things to add:
                 /*
                 * Make the Warehouse Dashboard better. Also consolidate the address dropdown so that it only shows the post office
@@ -387,16 +386,16 @@ async function warehouseAssignPackages(req, res) {
             }
         } else {
             setCORSHeaders(req, res, true);
-            res.writeHead(401, { 
-                'Content-Type': 'application/json', 
-             });
+            res.writeHead(401, {
+                'Content-Type': 'application/json',
+            });
             res.end(JSON.stringify({ error: 'Unauthorized, incorrect employee ID' }));
         }
     } else {
         setCORSHeaders(req, res, true);
-        res.writeHead(401, { 
+        res.writeHead(401, {
             'Content-Type': 'application/json',
-         });
+        });
         res.end(JSON.stringify({ error: 'Unauthorized, no cookies' }));
     }
 }
@@ -405,4 +404,4 @@ module.exports = {
     employeeLogIn,
     warehouseDashboard,
     warehouseAssignPackages
-  };
+};
