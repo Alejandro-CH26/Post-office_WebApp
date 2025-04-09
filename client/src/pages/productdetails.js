@@ -28,7 +28,7 @@ function ProductDetails() {
   const [stock, setStock] = useState(null);
 
   useEffect(() => {
-    fetch(`/api/products/${productId}`)
+    fetch(`${BASE_URL}/api/products/${productId}`)
       .then((res) => res.json())
       .then((data) => {
         setProduct(data);
@@ -42,8 +42,8 @@ function ProductDetails() {
 
   useEffect(() => {
     if (!locationId || !productId) return;
-
-    fetch(`/api/location?location_id=${locationId}`)
+  
+    fetch(`${BASE_URL}/api/location?location_id=${locationId}`)
       .then((res) => res.json())
       .then((data) => {
         const match = data.find((p) => String(p.product_ID) === String(productId));
@@ -54,6 +54,7 @@ function ProductDetails() {
         setStock(0);
       });
   }, [productId, locationId]);
+  
 
   const handleBackToStore = () => {
     navigate("/buyinventory");

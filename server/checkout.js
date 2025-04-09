@@ -94,8 +94,10 @@ function handleCheckout(req, res, reqUrl) {
               const width = parseFloat(product.width) || 1;
               const height = parseFloat(product.height) || 1;
 
-              const shippingCost = parseFloat((weight * 1.5 + (6 - priority) * 0.5).toFixed(2));
-
+              const shippingCost = parseFloat(
+                (weight * (1 + (priority / 5)) + (fragile ? 10 : 0)).toFixed(2)
+              );
+              
               // Insert into package table
               const [packageResult] = await connection.execute(
                 `INSERT INTO package (
