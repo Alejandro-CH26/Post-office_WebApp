@@ -45,7 +45,7 @@ function Navbar() {
           <li><Link to="/">Home</Link></li>
         )}
 
-   
+
 
         {token && role === "customer" && (
           <>
@@ -61,15 +61,16 @@ function Navbar() {
           </>
         )}
 
-{token && role === "employee" && (
-  <>
-    <li><Link to="/onboard">Onboard Employee</Link></li>
-    <li><Link to="/employee/clock">Clock in/out</Link></li>
-  </>
-)}
+        {token && role === "employee" && (
+          <>
+            <li><Link to="/onboard">Onboard Employee</Link></li>
+            <li><Link to="/employee/clock">Clock in/out</Link></li>
+          </>
+        )}
 
 
         {/* Driver */}
+
           {token && role === "driver" && (
             <>
               <li><Link to="/driver/clock">Clock in/out</Link></li>
@@ -86,7 +87,8 @@ function Navbar() {
             <li><Link to="/admin/employees">Employee List</Link></li>
             <li><Link to="/admin/postoffices">Post Office List</Link></li>
             <li><Link to="/admin/create-post-office">Create Post Office</Link></li>
-            <li><Link to="/sales-report">Sales Report</Link></li>
+            <li><Link to="/admin/create-delivery-vehicle">Create Delivery Vehicle</Link></li>
+            <li><Link to="/admin/sales-report">Sales Report</Link></li>
           </>
         )}
 
