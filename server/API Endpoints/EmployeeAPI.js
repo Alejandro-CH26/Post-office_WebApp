@@ -1,6 +1,8 @@
 const connection = require("../db");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 const allowedOrigins = [
     "http://localhost:3000",
@@ -22,6 +24,10 @@ function setCORSHeaders(req, res, allowCredentials = false) {
       res.setHeader("Access-Control-Allow-Credentials", "true");
     }
   }
+
+function generateTrackingNumber(packageID) {
+    return crypto.createHash('sha256').update(packageID.toString()).digest('hex').slice(0, 12); 
+}
 
 async function employeeLogIn(req, res) {
     let body = "";
@@ -169,7 +175,7 @@ async function warehouseAssignPackages(req, res) {
                     LIMIT 1
                 )
                 and employees.Employee_ID = ?
-                ORDER BY package.Priority ASC;
+                ORDER BY package.Priority DESC;
                 `;
                 connection.query(packageQuery, [employeeID], (err, packageResults) => {
                     if (err) {
@@ -259,12 +265,12 @@ async function warehouseAssignPackages(req, res) {
                                 var deliveryVehicleQuery = `
                                 select Vehicle_ID, ROUND(Volume_Capacity - SUM((Length/12) * (Width/12) * (Height/12)), 1) as Remaining_Volume, ROUND(Payload_Capacity - SUM(Weight), 1) as Remaining_Payload
                                 from db1.delivery_vehicle, db1.employees, db1.package
-                                where delivery_vehicle.Location_ID = employees.Location_ID and package.Assigned_Vehicle = delivery_vehicle.Vehicle_ID and delivery_vehicle.At_Capacity = false
-                                and delivery_vehicle.Status = "Available" and employees.Employee_ID = 104
+                                where delivery_vehicle.Location_ID = employees.Location_ID and delivery_vehicle.At_Capacity = false
+                                and delivery_vehicle.Status = "Available" and employees.Employee_ID = ?
                                 GROUP BY Vehicle_ID, Volume_Capacity, Payload_Capacity;
                                 `;
 
-                                connection.query(deliveryVehicleQuery, 
+                                connection.query(deliveryVehicleQuery, [employeeID], 
                                     (err, deliveryVehicleResults) => {
                                         if (err) {
                                             console.error("Error accessing database:", err);
@@ -401,8 +407,257 @@ async function warehouseAssignPackages(req, res) {
     }
 }
 
+async function warehouseRegisterPackage(req, res) {
+    /*
+    This endpoint needs to do the following:
+    * The front-end page should allow the customer/employee to enter in all of the package data. Once done, there should be a button
+    to checkout. Validation should ensure that all fields are filled in before the customer can proceed to checkout.
+    * The checkout page should display all of the package information as a summary in a box at the top of the page. The checkout page
+    should calculate the total shipping cost and ask for the user's payment information to checkout with. There should also be a
+    button to cancel and return to the previous page, as well as a button to checkout once all the user's payment information is entered.
+    * When the checkout button is pressed, it should make a call using the Fetch API to the warehouseRegisterPackage route, with
+    all of the data necessary to create a new transaction instance and a new package instance.
+    * The transaction instance will require the following attributes, 
+    * Create a new package instance with the correct Weight, Sender_Customer_ID, Origin_ID, Destination_ID, Shipping_Cost, Priority,
+    Fragile, Transaction_ID, Length, Width, Height, Next_Destination, Assigned_Vehicle, and Recipient_Customer_Name.
+    * There also needs to be a customer look-up page, where the Warehouse Employee enters in the name of the customer, and it
+    retrieves a list of all customers with matching names, as well as the address (and birthdate?) of each customer for differentiation
+    purposes.
+    * The very first thing we need to do is check if the recipient address matches any address currently in the addresses table.
+    If there is not a match, then we need to create a new instance of an address.
+    * We also need to automatically update the At_Capacity attribute when a truck becomes full.
+    */
+    const queryString = req.url.split('?')[1];
+    const urlParams = new URLSearchParams(queryString);
+
+    if (urlParams) {
+        var employeeID = urlParams.get('employeeID');
+        console.log(employeeID);
+        if (employeeID) {
+            if (req.method === "POST") {
+                var body = "";
+
+                req.on("data", chunk => {
+                    body += chunk.toString();
+                });
+
+                req.on("end", async () => {
+                    const asyncconnection = await connection.promise().getConnection();
+                    try {
+                        // Parse request body as JSON
+                        const { weight, senderCustomerID, recipientCustomerName, destinationStreet, 
+                            destinationCity, destinationState, destinationZipcode, priority, fragile,
+                            length, width, height, paymentMethod, shippingCost, destinationUnit
+                         } = JSON.parse(body);
+
+                        console.log(weight, senderCustomerID, recipientCustomerName, destinationStreet, 
+                            destinationCity, destinationState, destinationZipcode, priority, fragile,
+                            length, width, height, paymentMethod, shippingCost, destinationUnit);
+
+                        // First things first, create an order instance.
+                        // In order to do this, we need to get the employee's location
+                        
+                        const [employeeAddressResult] = await asyncconnection.execute(
+                            `select Address_ID
+                            from employees, post_office_location
+                            where employees.Location_ID = post_office_location.location_ID and employees.employee_ID = ?
+                            `, [employeeID]
+                        );
+                        const employeeAddress = employeeAddressResult[0].Address_ID;
+                        console.log("Employee Address", employeeAddress);
+
+                        const [employeeLocationResult] = await asyncconnection.execute(
+                            `select Location_ID
+                            from employees
+                            where employees.Employee_ID = ?
+                            `, [employeeID]
+                        );
+
+                        const employeeLocation = employeeLocationResult[0].Location_ID;
+                        console.log("Employee Location", employeeLocation);
+
+                        // Next, we need to get the shipping address ID. 
+                        // First, if there is no address for the shipping address, we create one.
+                        if (destinationUnit != undefined) {
+                            console.log("HERE")
+                            var [existingAddress] = await asyncconnection.execute(
+                                `SELECT address_ID FROM addresses 
+                                 WHERE address_Street = ? AND unit_number <=> ? AND address_City = ? AND address_State = ? AND address_Zipcode = ? AND Office_Location = 0`,
+                                [destinationStreet, destinationUnit || null, destinationCity, destinationState, destinationZipcode]
+                              );
+                        } else {
+                            console.log("here")
+                            var [existingAddress] = await asyncconnection.execute(
+                                `SELECT address_ID FROM addresses 
+                                 WHERE address_Street = ? AND unit_number <=> ? AND address_City = ? AND address_State = ? AND address_Zipcode = ? AND Office_Location = 0`,
+                                [destinationStreet, null, destinationCity, destinationState, destinationZipcode]
+                              );
+                        }
+                        
+                        //console.log("Hello");
+                        console.log("Existing Address", existingAddress);
+                        
+                          var shippingAddressID;
+                          if (existingAddress.length > 0) {
+                            console.log("Here")
+                            shippingAddressID = existingAddress[0].address_ID;
+                          } else {
+                            console.log("ereh")
+                            if (destinationUnit != undefined) {
+                                console.log("X")
+                                const [newAddress] = await asyncconnection.execute(
+                                    `INSERT INTO addresses 
+                                     (address_Street, unit_number, address_City, address_State, address_Zipcode, Office_Location) 
+                                     VALUES (?, ?, ?, ?, ?, 0)`,
+                                    [destinationStreet, destinationUnit || null, destinationCity, destinationState, destinationZipcode]
+                                  );
+                                  shippingAddressID = newAddress.insertId;
+                            } else {
+                                console.log("Y")
+                                try {
+                                    const [newAddress1] = await asyncconnection.execute(
+                                        `INSERT INTO addresses 
+                                         (address_Street, unit_number, address_City, address_State, address_Zipcode, Office_Location) 
+                                         VALUES (?, ?, ?, ?, ?, 0)`,
+                                        [destinationStreet, null, destinationCity, destinationState, destinationZipcode]
+                                      );
+                                      shippingAddressID = newAddress1.insertId;
+                                } catch (error) {
+                                    console.error(error.message);
+                                }
+                                
+                            }
+                            
+                              
+                          }
+
+                           console.log("Shipping Address", shippingAddressID);
+
+                        const [orderResult] = await asyncconnection.execute(
+                            `INSERT INTO orders (
+                               Customer_ID, address_id, shipping_address_id, Total_Amount, status, Payment_Method
+                             ) VALUES (?, ?, ?, ?, ?, ?)`,
+                              [senderCustomerID, employeeLocation, shippingAddressID, shippingCost, "Completed", paymentMethod]
+                          );
+                        
+                        const order_ID = orderResult.insertId;
+
+                        console.log("Order ID:", order_ID);
+
+                        // Next is the transaction query
+                        // const [transactionResult] = await asyncconnection.execute(
+                        //     `INSERT INTO db1.transaction (Order_ID, Customer_ID, Payment_method, Item_name, Quantity)
+                        //     VALUES (1000, 2, "Credit Card", "Flat Box", 4)`
+                        // );
+                        const [transactionResult] = await asyncconnection.execute(
+                            `INSERT INTO transaction (Order_ID, Customer_ID, Payment_method, Item_name, Quantity) 
+                             VALUES (?, ?, ?, ?, ?)`,
+                            [order_ID, senderCustomerID, paymentMethod, "Package", 1]
+                          );            
+                        
+                        //console.log(transactionResult);
+                        const transaction_ID = transactionResult.insertId;
+                        console.log("Transaction ID", transaction_ID)
+
+                        // Finally is the package query
+                        const [packageResult] = await asyncconnection.execute(
+                            `INSERT INTO package (
+                              Weight, Sender_Customer_ID, Origin_ID, Destination_ID, Shipping_Cost,
+                              Priority, Fragile, Transaction_ID, Length, Width, Height,
+                              Next_Destination, Assigned_Vehicle, Processed, Recipient_Customer_Name
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 0, ?)`,
+                            [
+                              weight,
+                              senderCustomerID,
+                              employeeAddress,
+                              shippingAddressID,
+                              shippingCost,
+                              priority,
+                              fragile,
+                              transaction_ID,
+                              length,
+                              width,
+                              height,
+                              employeeAddress,
+                              recipientCustomerName
+                            ]
+                          );
+            
+                          const package_ID = packageResult.insertId;
+                          console.log("Package ID", package_ID);
+
+                          const [trackingHistoryResult] = await asyncconnection.execute(
+                            `INSERT INTO tracking_history (package_ID, location_ID, status)
+                             VALUES (?, ?, ?)`,
+                            [package_ID, employeeAddress, 'Package Created']
+                          );
+
+                          const trackingHistoryID = trackingHistoryResult.insertId;
+                          console.log("Tracking History ID", trackingHistoryID);
+
+
+
+                          await asyncconnection.commit();
+                          res.writeHead(200, { "Content-Type": "application/json" });
+                          res.end(JSON.stringify({ 
+                                message: "Order placed and package(s) created successfully.", 
+                                trackingNumber: package_ID
+                           }));
+
+                        
+                        // We also need to get the financial information for the transaction data.
+
+                        // SQL query to update the package
+                        // const query = `
+                        //     UPDATE package 
+                        //     SET Next_Destination = ?, Assigned_Vehicle = ?
+                        //     WHERE Package_ID = ?`;
+
+                        // connection.query(query, [nextDestination, assignedVehicle, packageId], (error, results) => {
+                        //     if (error) {
+                        //         console.error("Error updating package:", error);
+                        //         res.writeHead(500, { "Content-Type": "application/json" });
+                        //         res.end(JSON.stringify({ message: error.message }));
+                        //         console.log("Error updating package");
+                        //         return;
+                        //     }
+
+                        //     if (results.affectedRows > 0) {
+                        //         res.writeHead(200, { "Content-Type": "application/json" });
+                        //         res.end(JSON.stringify({ message: "Package updated successfully!", updatedPackageId: packageId }));
+                        //         console.log("Package successfully updated.");
+                        //     } else {
+                        //         res.writeHead(404, { "Content-Type": "application/json" });
+                        //         res.end(JSON.stringify({ message: "Package not found or no changes made." }));
+                        //         console.log("Package not modified.");
+                        //     }
+                        // });
+                    
+                    } catch (err) {
+                        // console.error("Error parsing request body:", err);
+                        // res.writeHead(400, { "Content-Type": "application/json" });
+                        // res.end(JSON.stringify({ message: "Invalid JSON format in request body." }));
+                        await asyncconnection.rollback();
+                        console.error("Registration transaction failed:", error);
+                        res.writeHead(500, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({ error: error.sqlMessage || error.message }));
+                    } finally {
+                        asyncconnection.release();
+                    }
+                });
+
+
+            }
+        }
+    }
+}
+
 module.exports = {
     employeeLogIn,
     warehouseDashboard,
-    warehouseAssignPackages
+    warehouseAssignPackages,
+    warehouseRegisterPackage
   };
+
+
+// Trigger: A package cannot be assigned to a vehicle if it would cause that vehicle to exceed its capacity limits.
