@@ -30,7 +30,7 @@ const OrderHistory = () => {
 
   useEffect(() => {
     if (!customerId) return;
-   
+
     fetch(`${BASE_URL}/order-history?customer_ID=${customerId}`)
       .then((res) => res.json())
       .then((data) => setOrders(data.data || []))
@@ -44,12 +44,11 @@ const OrderHistory = () => {
   const filteredOrders = orders.filter((order) => {
     const query = searchQuery.toLowerCase();
     const orderDate = new Date(order.Order_Date);
-    const matchesQuery = (
+    const matchesQuery =
       order.Order_ID.toString().includes(query) ||
       order.Item_name?.toLowerCase().includes(query) ||
       new Date(order.Order_Date).toLocaleDateString().includes(query) ||
-      order.Location_Name?.toLowerCase().includes(query)
-    );
+      order.Location_Name?.toLowerCase().includes(query);
 
     const isAfterStart = !startDate || orderDate >= new Date(startDate);
     const isBeforeEnd = !endDate || orderDate <= new Date(endDate);
@@ -57,7 +56,7 @@ const OrderHistory = () => {
     return matchesQuery && isAfterStart && isBeforeEnd;
   });
 
-  // Group by Order_ID
+  // Group and aggregate
   const groupedOrders = Object.entries(
     filteredOrders.reduce((acc, order) => {
       if (!acc[order.Order_ID]) {
@@ -74,6 +73,12 @@ const OrderHistory = () => {
       return acc;
     }, {})
   );
+
+  // Sort orders: In Transit first, then Delivered
+  groupedOrders.sort(([, a], [, b]) => {
+    const isDelivered = (status) => status?.toLowerCase() === "delivered";
+    return isDelivered(a.Latest_Tracking_Status) - isDelivered(b.Latest_Tracking_Status);
+  });
 
   return (
     <div className="order-history-wrapper">
@@ -108,47 +113,55 @@ const OrderHistory = () => {
       {groupedOrders.length === 0 ? (
         <p>No orders found.</p>
       ) : (
-        groupedOrders.map(([orderId, order]) => (
-          <div key={orderId} className="order-box">
-            <div className="order-header">
-              <p className="delivered-status"><strong>Delivered</strong></p>
-              <div className="order-meta">
-                <span>Order date: {new Date(order.Order_Date).toLocaleDateString()}</span>
-                <span>Order total: <strong>US ${Number(order.Total_Amount).toFixed(2)}</strong></span>
-                <span>Order number: {orderId}</span>
-                <span>Total items: {order.totalItems}</span>
+        groupedOrders.map(([orderId, order]) => {
+          const statusText = order.Latest_Tracking_Status?.toLowerCase() === "delivered"
+            ? "Delivered"
+            : "In Transit";
+
+          return (
+            <div key={orderId} className="order-box">
+              <div className="order-header">
+                <p className={`delivered-status ${statusText === "Delivered" ? "delivered" : "in-transit"}`}>
+                  <strong>{statusText}</strong>
+                </p>
+                <div className="order-meta">
+                  <span>Order date: {new Date(order.Order_Date).toLocaleDateString()}</span>
+                  <span>Order total: <strong>US ${Number(order.Total_Amount).toFixed(2)}</strong></span>
+                  <span>Order number: {orderId}</span>
+                  <span>Total items: {order.totalItems}</span>
+                  <span>Tracking number: #{order.Package_ID}</span>
+                </div>
               </div>
+
+              {order.items.map((item, idx) => (
+                <div key={idx} className="order-content">
+                  <div className="order-img">
+                    <img
+                      src={productImages[item.product_ID] || packageBox}
+                      alt={item.Item_name}
+                    />
+                  </div>
+
+                  <div className="order-details">
+                    <p className="item-name">{item.Item_name}</p>
+                    <p>
+                      US ${(item.item_price * item.Quantity).toFixed(2)} — Quantity: {item.Quantity}
+                    </p>
+                    <p className="sold-by">Brought from: {item.Location_Name}</p>
+                    <p>Payment method: {item.Payment_Method}</p>
+                    <p>
+                      Shipping to: {
+                        (item.package_Street || item.order_Street)
+                          ? `${item.package_Street || item.order_Street}, ${item.package_City || item.order_City}, ${item.package_State || item.order_State} ${item.package_Zip || item.order_Zip}`
+                          : "N/A"
+                      }
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
-
-            {order.items.map((item, idx) => (
-              <div key={idx} className="order-content">
-                <div className="order-img">
-                  <img
-                    src={productImages[item.product_ID] || packageBox}
-                    alt={item.Item_name}
-                  />
-                </div>
-
-                <div className="order-details">
-                  <p className="item-name">{item.Item_name}</p>
-                  <p>
-  US ${(item.item_price * item.Quantity).toFixed(2)} — Quantity: {item.Quantity}
-</p>
-
-                  <p className="sold-by">Brought from: {item.Location_Name}</p>
-                  <p>Payment method: {item.Payment_Method}</p>
-                  <p>
-                    Shipping to: {
-                      (item.package_Street || item.order_Street)
-                        ? `${item.package_Street || item.order_Street}, ${item.package_City || item.order_City}, ${item.package_State || item.order_State} ${item.package_Zip || item.order_Zip}`
-                        : "N/A"
-                    }
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        ))
+          );
+        })
       )}
     </div>
   );

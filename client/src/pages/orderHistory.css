@@ -154,3 +154,12 @@ h1 {
 .order-history-wrapper {
   padding-bottom: 100px; /* or more if needed */
 }
+.delivered-status.delivered {
+  color: green;
+  font-weight: bold;
+}
+
+.delivered-status.in-transit {
+  color: orange;
+  font-weight: bold;
+}
