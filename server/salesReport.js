@@ -21,11 +21,15 @@ function routeHandler(req, res, reqUrl) {
             t.Quantity,
             t.Date,
             t.product_ID,
-            p.item_price,
+            CASE 
+              WHEN t.Item_name = 'Package' THEN pk.Shipping_Cost
+              ELSE p.item_price
+            END AS item_price,
             l.name AS Location
           FROM transaction t
           LEFT JOIN customers c ON t.Customer_ID = c.Customer_ID
           LEFT JOIN products p ON t.product_ID = p.product_ID
+          LEFT JOIN package pk ON t.Transaction_ID = pk.Transaction_ID
           LEFT JOIN orders o ON t.Order_ID = o.Order_ID
           LEFT JOIN post_office_location l ON o.address_ID = l.location_ID
           WHERE t.Status = 'Completed'
@@ -50,7 +54,7 @@ function routeHandler(req, res, reqUrl) {
           params.push(to);
         }
 
-        sql += " ORDER BY t.Date DESC;";
+        sql += " ORDER BY t.Date DESC";
 
         const [rows] = await connection.execute(sql, params);
 
@@ -69,7 +73,7 @@ function routeHandler(req, res, reqUrl) {
     return true;
   }
 
-  // SALES SUMMARY - Revenue, Total Sales, New Customers, Top Product
+  // SALES SUMMARY - Revenue, Total Sales, New Customers, Top Product, Packages Created
   if (req.method === "GET" && reqUrl.pathname === "/sales-summary") {
     (async () => {
       let connection;
@@ -101,13 +105,17 @@ function routeHandler(req, res, reqUrl) {
           params.push(to);
         }
 
-        // Revenue & Total Transactions
+        // Revenue & Total Sales
         const sqlMain = `
           SELECT 
-            SUM(p.item_price * t.Quantity) AS totalRevenue,
+            SUM(CASE 
+                  WHEN t.Item_name = 'Package' THEN pk.Shipping_Cost 
+                  ELSE p.item_price * t.Quantity 
+                END) AS totalRevenue,
             COUNT(*) AS totalTransactions
           FROM transaction t
           LEFT JOIN products p ON t.product_ID = p.product_ID
+          LEFT JOIN package pk ON t.Transaction_ID = pk.Transaction_ID
           LEFT JOIN orders o ON t.Order_ID = o.Order_ID
           ${baseWhere};
         `;
@@ -137,10 +145,43 @@ function routeHandler(req, res, reqUrl) {
         `;
         const [topProductResult] = await connection.execute(sqlTopProduct, params);
 
+        // Packages Created
+        let packagesQuery = `
+          SELECT COUNT(*) AS packagesCreated
+          FROM package p
+          LEFT JOIN transaction t ON p.Transaction_ID = t.Transaction_ID
+          LEFT JOIN orders o ON t.Order_ID = o.Order_ID
+          WHERE t.Status = 'Completed'
+        `;
+        const packagesParams = [];
+
+        if (locationFilter && locationFilter !== "all") {
+          packagesQuery += " AND o.address_ID = ?";
+          packagesParams.push(locationFilter);
+        }
+        if (from) {
+          packagesQuery += " AND DATE(t.Date) >= ?";
+          packagesParams.push(from);
+        }
+        if (to) {
+          packagesQuery += " AND DATE(t.Date) <= ?";
+          packagesParams.push(to);
+        }
+
+        // If a non-"Package" type is selected, packagesCreated should be 0
+        if (typeFilter && typeFilter !== "all" && typeFilter !== "Package") {
+          packagesParams.length = 0;
+          packagesQuery = `SELECT 0 AS packagesCreated`;
+        }
+
+        const [packagesResult] = await connection.execute(packagesQuery, packagesParams);
+
+        // Final result
         const totalRevenue = Number(summary[0].totalRevenue || 0).toFixed(2);
         const totalTransactions = Number(summary[0].totalTransactions || 0);
         const newCustomers = Number(newCustomerResult[0].newCustomers || 0);
         const topProduct = topProductResult[0]?.Item_name || "N/A";
+        const packagesCreated = Number(packagesResult[0].packagesCreated || 0);
 
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(
@@ -149,41 +190,12 @@ function routeHandler(req, res, reqUrl) {
             totalRevenue,
             totalTransactions,
             newCustomers,
-            topProduct
+            topProduct,
+            packagesCreated
           })
         );
       } catch (error) {
         console.error("❌ Sales Summary Error:", error);
-        if (!res.headersSent) {
-          res.writeHead(500, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ status: "error", message: error.message }));
-        }
-      } finally {
-        if (connection) connection.release();
-      }
-    })();
-    return true;
-  }
-
-  // ACTIVE LOCATIONS - Get all post office locations
-  if (req.method === "GET" && reqUrl.pathname === "/active-locations") {
-    (async () => {
-      let connection;
-      try {
-        connection = await db.promise().getConnection();
-
-        const sql = `
-          SELECT location_ID, name
-          FROM post_office_location
-          ORDER BY name;
-        `;
-
-        const [rows] = await connection.execute(sql);
-
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(rows));
-      } catch (error) {
-        console.error("❌ Active Locations Error:", error);
         if (!res.headersSent) {
           res.writeHead(500, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ status: "error", message: error.message }));
