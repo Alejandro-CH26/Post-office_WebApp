@@ -163,3 +163,9 @@ h1 {
   color: orange;
   font-weight: bold;
 }
+.tracking-id {
+  font-size: 0.9rem;
+  margin-top: 0.4rem;
+  color: #030304;
+  white-space: nowrap;
+}

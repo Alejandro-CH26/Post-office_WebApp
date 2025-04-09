@@ -8,7 +8,8 @@ import smallbox from "../images/smallbox.webp";
 import medbox from "../images/medbox.webp";
 import largebox from "../images/largebox.webp";
 import packagetape from "../images/packagetape.webp";
-import packageBox from "../images/package.jpg.webp"; // Default image
+import packageBox from "../images/package.jpg.webp";
+
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const productImages = {
@@ -56,7 +57,6 @@ const OrderHistory = () => {
     return matchesQuery && isAfterStart && isBeforeEnd;
   });
 
-  // Group and aggregate
   const groupedOrders = Object.entries(
     filteredOrders.reduce((acc, order) => {
       if (!acc[order.Order_ID]) {
@@ -74,7 +74,6 @@ const OrderHistory = () => {
     }, {})
   );
 
-  // Sort orders: In Transit first, then Delivered
   groupedOrders.sort(([, a], [, b]) => {
     const isDelivered = (status) => status?.toLowerCase() === "delivered";
     return isDelivered(a.Latest_Tracking_Status) - isDelivered(b.Latest_Tracking_Status);
@@ -125,12 +124,13 @@ const OrderHistory = () => {
                   <strong>{statusText}</strong>
                 </p>
                 <div className="order-meta">
-                  <span>Order date: {new Date(order.Order_Date).toLocaleDateString()}</span>
-                  <span>Order total: <strong>US ${Number(order.Total_Amount).toFixed(2)}</strong></span>
-                  <span>Order number: {orderId}</span>
-                  <span>Total items: {order.totalItems}</span>
-                  <span>Tracking number: #{order.Package_ID}</span>
-                </div>
+  <span>Order date: {new Date(order.Order_Date).toLocaleDateString()}</span>
+  <span>Order total: <strong>US ${Number(order.Total_Amount).toFixed(2)}</strong></span>
+  <span>Order number: {orderId}</span>
+  <span>Total items: {order.totalItems}</span>
+  <span>Customer ID: {order.Customer_ID}</span>
+</div>
+
               </div>
 
               {order.items.map((item, idx) => (
@@ -143,7 +143,11 @@ const OrderHistory = () => {
                   </div>
 
                   <div className="order-details">
-                    <p className="item-name">{item.Item_name}</p>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+  <p className="item-name">{item.Item_name}</p>
+  <span className="tracking-id">Tracking #: <strong>#{item.Package_ID}</strong></span>
+</div>
+
                     <p>
                       US ${(item.item_price * item.Quantity).toFixed(2)} — Quantity: {item.Quantity}
                     </p>

@@ -16,6 +16,7 @@ function orderHistory(req, res, reqUrl) {
 
         const [results] = await connection.execute(`
 SELECT 
+o.Customer_ID,
   o.Order_ID,
   o.Order_Date,
   o.Total_Amount,
