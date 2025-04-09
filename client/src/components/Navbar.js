@@ -79,7 +79,7 @@ function Navbar() {
           <>
             <li><Link to="/admin-dashboard">Admin Dashboard</Link></li>
             <li><Link to="/employeehours">Employee Hours</Link></li>
-            <li><Link to="/admin/reports">Reports</Link></li>
+            <li><Link to="/admin/reports">Driver Report</Link></li>
             <li><Link to="/admin/employees">Employee List</Link></li>
             <li><Link to="/admin/postoffices">Post Office List</Link></li>
             <li><Link to="/admin/create-post-office">Create Post Office</Link></li>

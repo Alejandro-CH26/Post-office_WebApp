@@ -3,33 +3,8 @@ const connection = require("./db");
 function notificationRoutes(req, res) {
   const reqUrl = new URL(req.url, `http://${req.headers.host}`);
 
-  // 1) Tracking Updates (GET: /tracking-updates)
-  if (req.method === "GET" && reqUrl.pathname === "/tracking-updates") {
-    const sinceId = parseInt(reqUrl.searchParams.get("sinceId")) || 0;
-    const customerId = reqUrl.searchParams.get("customerId");
 
-    connection.query(
-      `SELECT t.tracking_history_ID, p.Package_ID, p.Recipient_Customer_ID, t.status, t.timestamp 
-       FROM tracking_history t 
-       JOIN package p ON t.package_ID = p.Package_ID
-       WHERE t.tracking_history_ID > ? AND p.Recipient_Customer_ID = ?
-       ORDER BY t.tracking_history_ID ASC`,
-      [sinceId, customerId],
-      (err, results) => {
-        if (err) {
-          console.error("❌ Error fetching tracking updates:", err);
-          res.writeHead(500);
-          res.end(JSON.stringify({ error: "Database query failed" }));
-          return;
-        }
-        res.writeHead(200);
-        res.end(JSON.stringify(results));
-      }
-    );
-    return true;
-  }
-
-  // 2) Tracking History (GET: /tracking-history)
+  // 1) Tracking History (GET: /tracking-history)
   if (req.method === "GET" && reqUrl.pathname === "/tracking-history") {
     const packageId = reqUrl.searchParams.get("packageId");
 
@@ -71,7 +46,7 @@ ORDER BY t.timestamp ASC;
     return true;
   }
 
-// 3) Sent Packages with tracking only (GET: /customer-sent-packages)
+// 2) Sent Packages with tracking only (GET: /customer-sent-packages)
 if (req.method === "GET" && reqUrl.pathname === "/customer-sent-packages") {
   const customerId = reqUrl.searchParams.get("customerId");
 

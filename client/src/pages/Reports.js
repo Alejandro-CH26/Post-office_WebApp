@@ -76,7 +76,7 @@ const Reports = () => {
 
     return (
         <div className="reports-container">
-            <h2>Post Office Reports</h2>
+            <h2>Driver Report</h2>
 
             {/* Toggle View Mode */}
             <div class="view-buttons">
