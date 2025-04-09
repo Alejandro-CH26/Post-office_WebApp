@@ -45,7 +45,7 @@ function Navbar() {
           <li><Link to="/">Home</Link></li>
         )}
 
-   
+
 
         {token && role === "customer" && (
           <>
@@ -69,9 +69,9 @@ function Navbar() {
         )}
 
         {/* Driver */}
-          {token && role === "driver" && (
-            <li><Link to="/driver/clock">Clock in/out</Link></li>
-          )}
+        {token && role === "driver" && (
+          <li><Link to="/driver/clock">Clock in/out</Link></li>
+        )}
 
         {token && role === "admin" && (
           <>
@@ -81,6 +81,7 @@ function Navbar() {
             <li><Link to="/admin/reports">Reports</Link></li>
             <li><Link to="/admin/employees">Employee List</Link></li>
             <li><Link to="/admin/create-post-office">Create Post Office</Link></li>
+            <li><Link to="/admin/create-delivery-vehicle">Create Delivery Vehicle</Link></li>
             <li><Link to="/admin/sales-report">Sales Report</Link></li>
           </>
         )}

@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import CreatePostOffice from "./pages/CreatePostOffice";
+import CreateDeliveryVehicle from "./pages/CreateVehicle";
 
 import HeroSection from "./components/HeroSection";
 import SearchPackage from "./components/SearchPackage";
@@ -28,7 +29,7 @@ import ClockInOut from "./pages/ClockInOut";
 import EmployeeHours from "./pages/EmployeeHours";
 import InventoryReport from "./pages/inventoryreport";
 import ProductDetails from "./pages/productdetails";
-import CartPage from "./pages/CartPage"; 
+import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderHistory from "./pages/orderHistory";
 import SalesReport from "./pages/salesReport";
@@ -81,6 +82,10 @@ function App() {
           path="/admin/create-post-office"
           element={<PrivateRoute element={<CreatePostOffice />} requiredRole="admin" />}
         />
+        <Route
+          path="/admin/create-delivery-vehicle"
+          element={<PrivateRoute element={<CreateDeliveryVehicle />} requiredRole="admin" />}
+        />
 
         <Route path="/faq" element={<Faq />} />
         <Route path="/trackpackage" element={<PrivateRoute element={<TrackPackage />} requiredRole="customer" />} />
@@ -103,9 +108,9 @@ function App() {
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/order-history" element={<PrivateRoute element={<OrderHistory />} requiredRole="customer" />} />
         <Route
-  path="/sales-report"
-  element={<PrivateRoute element={<SalesReport />} requiredRole="admin" />}
-/>
+          path="/sales-report"
+          element={<PrivateRoute element={<SalesReport />} requiredRole="admin" />}
+        />
 
         {/* Dashboards */}
         <Route path="/customer-dashboard" element={<PrivateRoute element={<CustomerDashboard />} requiredRole="customer" />} />
