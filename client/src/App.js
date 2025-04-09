@@ -32,6 +32,7 @@ import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderHistory from "./pages/orderHistory";
 import SalesReport from "./pages/salesReport";
+import PackagesLeft from "./pages/PackagesLeft";
 
 // Restrict access based on token & role
 // hi
@@ -119,6 +120,7 @@ function App() {
         <Route path="/inventoryreport" element={<PrivateRoute element={<InventoryReport />} requiredRole="warehouse" />} />
         <Route path="/products/:productId" element={<ProductDetails />} />
 
+        {/*<Route path="/driver/packagespage" element={<PrivateRoute element={<PackagesLeft />} requiredRole="driver" />} />*/}
 
 
         {/* Catch-all redirect */}
