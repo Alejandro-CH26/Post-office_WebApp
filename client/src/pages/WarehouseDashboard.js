@@ -43,6 +43,12 @@ function WarehouseDashboard() {
           <Link to ="/WarehouseClockInOut"style={{ textDecoration: 'none' }}>
           <button style={buttonStyle}>Clock In/Out</button>
           </Link>
+
+          <Link to ="/WarehouseRegisterPackage"style={{ textDecoration: 'none' }}>
+          <button style={buttonStyle}>Register A Package</button>
+          </Link>
+
+          
           
         </div>
       );
