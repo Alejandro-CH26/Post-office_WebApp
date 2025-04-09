@@ -34,7 +34,9 @@ async function employeeLogIn(req, res) {
         try {
             const { employee_Username, employee_Password } = JSON.parse(body);
 
-            const sql = "SELECT * FROM employees WHERE employee_Username = ?";
+            // const sql = "SELECT * FROM employees WHERE employee_Username = ?";
+            const sql = "SELECT * FROM employees WHERE employee_Username = ? AND is_fired = 0";
+
             connection.query(sql, [employee_Username], async (err, results) => {
                 if (err) {
                     console.error(" DB Error:", err);
