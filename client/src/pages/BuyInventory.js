@@ -11,68 +11,72 @@ import medbox from "../images/medbox.webp";
 import largebox from "../images/largebox.webp";
 import packagetape from "../images/packagetape.webp";
 
+const BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5001";
+
 const BuyInventory = () => {
   const productRef = useRef(null);
-
   const scrollToProducts = () => {
     productRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const storeLocations = [
-    { id: 1, name: "Downtown Post Office", lat: 40.7128, lng: -74.006 },
-    { id: 2, name: "Uptown Post Office", lat: 34.0522, lng: -118.2437 },
-    { id: 3, name: "Houston Central Post Office", lat: 29.7604, lng: -95.3698 },
-    { id: 4, name: "Austin Post Office", lat: 30.2672, lng: -97.7431 },
-  ];
-
+  const [storeLocations, setStoreLocations] = useState([]);
   const [selectedLocationId, setSelectedLocationId] = useState("");
   const [nearbyStore, setNearbyStore] = useState("");
   const [inventory, setInventory] = useState({});
 
+  // Fetch all store locations dynamically
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const userLat = position.coords.latitude;
-        const userLng = position.coords.longitude;
-  
-        const closest = storeLocations.reduce((closestStore, currentStore) => {
-          const distance = Math.sqrt(
-            Math.pow(userLat - currentStore.lat, 2) +
-            Math.pow(userLng - currentStore.lng, 2)
-          );
-          return distance < closestStore.distance
-            ? { ...currentStore, distance }
-            : closestStore;
-        }, { ...storeLocations[0], distance: Infinity });
-  
-        setNearbyStore(closest.name);
-        setSelectedLocationId(closest.id.toString());
-  
-        // ✅ Save to localStorage
-        localStorage.setItem("location_ID", closest.id.toString());
-      },
-      (err) => {
-        console.log("Geolocation permission denied or failed.", err);
-      }
-    );
+    fetch(`${BASE_URL}/locations`)
+      .then((res) => res.json())
+      .then((locations) => {
+        setStoreLocations(locations);
+
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+
+            const withFallbackCoords = locations.map((loc) => ({
+              ...loc,
+              lat: parseFloat(loc.lat || 0),
+              lng: parseFloat(loc.lng || 0),
+            }));
+
+            const closest = withFallbackCoords.reduce((closestStore, currentStore) => {
+              const distance = Math.sqrt(
+                Math.pow(userLat - currentStore.lat, 2) +
+                Math.pow(userLng - currentStore.lng, 2)
+              );
+              return distance < closestStore.distance
+                ? { ...currentStore, distance }
+                : closestStore;
+            }, { ...withFallbackCoords[0], distance: Infinity });
+
+            setNearbyStore(closest.name);
+            setSelectedLocationId(closest.location_ID.toString());
+            localStorage.setItem("location_ID", closest.location_ID.toString());
+          },
+          (err) => {
+            console.log("Geolocation failed:", err);
+          }
+        );
+      })
+      .catch((err) => {
+        console.error("Failed to load locations:", err);
+      });
   }, []);
-  
-  
 
   useEffect(() => {
     if (!selectedLocationId) return;
 
-    fetch(`/api/location?location_id=${selectedLocationId}`)
+    fetch(`${BASE_URL}/api/location?location_id=${selectedLocationId}`)
       .then((res) => res.json())
       .then((data) => {
         const invMap = {};
         data.forEach((item) => {
-          // Log to check product ID and quantity
-          console.log("Item from API:", item);
-          const id = item.product_ID || item.product_id; // ensure compatibility
+          const id = item.product_ID || item.product_id;
           invMap[id] = item.quantity;
         });
-        console.log("Inventory map:", invMap);
         setInventory(invMap);
       })
       .catch((err) => {
@@ -99,13 +103,14 @@ const BuyInventory = () => {
           value={selectedLocationId}
           onChange={(e) => {
             setSelectedLocationId(e.target.value);
-            localStorage.setItem("location_ID", e.target.value); // ✅ Keep in sync
+            localStorage.setItem("location_ID", e.target.value);
           }}
-          
         >
           <option value="">-- Choose a store --</option>
           {storeLocations.map((store) => (
-            <option key={store.id} value={store.id}>{store.name}</option>
+            <option key={store.location_ID} value={store.location_ID}>
+              {store.name}
+            </option>
           ))}
         </select>
         {nearbyStore && (
@@ -141,9 +146,8 @@ const BuyInventory = () => {
                 <p className="stock-info">{inventory[product.product_ID] ?? 0} in stock</p>
               )}
               <Link to={`/products/${product.product_ID}?location_id=${selectedLocationId}`} className="view-btn">
-  View Details
-</Link>
-
+                View Details
+              </Link>
             </div>
           ))}
         </div>
