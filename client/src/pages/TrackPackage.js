@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import './TrackPackage.css';
 
 const TrackPackage = () => {
@@ -16,6 +17,7 @@ const TrackPackage = () => {
   const isLoggedIn = !!localStorage.getItem("token");
   const role = localStorage.getItem("role");
   const customerId = localStorage.getItem("customer_ID");
+  const location = useLocation();
 
   useEffect(() => {
     if (view === 'sending' && isLoggedIn && role === "customer" && customerId) {
@@ -35,6 +37,17 @@ const TrackPackage = () => {
         .catch(err => console.error("Error fetching sent packages:", err));
     }
   }, [view, isLoggedIn, role, customerId, BASE_URL]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const fromURL = params.get("number");
+
+    if (fromURL) {
+      setTrackingNumber(fromURL);
+      handleTrack(fromURL);
+      setView("receiving");
+    }
+  }, [location.search]);
 
   const handleTrack = async (overrideId = null) => {
     const packageId = overrideId || trackingNumber;
