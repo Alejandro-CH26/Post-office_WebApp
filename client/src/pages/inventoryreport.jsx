@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./inventoryreport.css";
+
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const InventoryReport = () => {
@@ -10,15 +11,14 @@ const InventoryReport = () => {
   const [productFilter, setProductFilter] = useState("all");
   const [currentSortColumn, setCurrentSortColumn] = useState(null);
   const [currentSortDirection, setCurrentSortDirection] = useState("asc");
+  const [showReorderForm, setShowReorderForm] = useState(false);
+  const [restockAmount, setRestockAmount] = useState("");
+  const [feedback, setFeedback] = useState("");
 
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date().toISOString().split("T")[0];
     return today;
   });
-
-  const [showReorderForm, setShowReorderForm] = useState(false);
-  const [restockAmount, setRestockAmount] = useState("");
-  const [feedback, setFeedback] = useState("");
 
   useEffect(() => {
     getInventory(selectedDate);
@@ -27,7 +27,7 @@ const InventoryReport = () => {
   const getInventory = async (dateParam = selectedDate) => {
     setStatusMessage("");
     try {
-      const response = await fetch(`${BASE_URL}/inventory`);
+      const response = await fetch(`${BASE_URL}/inventory?date=${dateParam}`);
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       const data = await response.json();
       if (!data || data.length === 0) {
@@ -62,8 +62,8 @@ const InventoryReport = () => {
         let valA, valB;
 
         if (sortColumn === "restock_needed") {
-          valA = a.starting_quantity - a.adjusted_quantity;
-          valB = b.starting_quantity - b.adjusted_quantity;
+          valA = a.starting_quantity - getDisplayQuantity(a);
+          valB = b.starting_quantity - getDisplayQuantity(b);
         } else {
           valA = a[sortColumn];
           valB = b[sortColumn];
@@ -83,6 +83,13 @@ const InventoryReport = () => {
     }
 
     setFilteredData(filtered);
+  };
+
+  const getDisplayQuantity = (item) => {
+    const today = new Date().toISOString().split("T")[0];
+    return selectedDate === today
+      ? item.adjusted_quantity
+      : item.snapshot_quantity ?? item.adjusted_quantity;
   };
 
   const handleLocationChange = (e) => {
@@ -207,8 +214,9 @@ const InventoryReport = () => {
           {filteredData.length > 0 ? (
             filteredData.map((item, index) => {
               const price = parseFloat(String(item.item_price)) || 0;
-              const restockNeeded = item.starting_quantity - item.adjusted_quantity;
-              const stockRatio = item.adjusted_quantity / item.starting_quantity;
+              const quantity = getDisplayQuantity(item);
+              const restockNeeded = item.starting_quantity - quantity;
+              const stockRatio = quantity / item.starting_quantity;
               const status = stockRatio < 0.5 ? "Low" : "Good";
 
               return (
@@ -217,7 +225,7 @@ const InventoryReport = () => {
                   <td>{item.product_name.trim()}</td>
                   <td>${price.toFixed(2)}</td>
                   <td>{item.starting_quantity}</td>
-                  <td>{item.adjusted_quantity}</td>
+                  <td>{quantity}</td>
                   <td>{restockNeeded}</td>
                   <td className={status === "Low" ? "low-stock" : "good-stock"}>{status}</td>
                 </tr>
