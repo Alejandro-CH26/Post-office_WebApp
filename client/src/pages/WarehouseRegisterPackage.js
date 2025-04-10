@@ -77,7 +77,7 @@ function WarehouseRegisterPackage() {
                     <input type="text" placeholder="Destination City" required value={destinationCity} onChange={(e) => setDestinationCity(e.target.value)} />
 
                     {/* State Dropdown */}
-                    <select required value={destinationState} onChange={(e) => setDestinationState(e.target.value)}>
+                    <select className="select-input" required value={destinationState} onChange={(e) => setDestinationState(e.target.value)}>
                         <option value="">Select Destination State</option>
                         {states.map((state) => (
                             <option key={state} value={state}>{state}</option>
@@ -87,7 +87,7 @@ function WarehouseRegisterPackage() {
                     <input type="text" placeholder="Destination Zipcode" required value={destinationZipcode} onChange={(e) => setDestinationZipcode(e.target.value)} />
 
                     {/* Priority Dropdown (Now an Integer) */}
-                    <select required value={priority} onChange={(e) => setPriority(e.target.value)}>
+                    <select className="select-input" required value={priority} onChange={(e) => setPriority(e.target.value)}>
                         <option value="">Select Priority Level</option>
                         {priorities.map((level) => (
                             <option key={level} value={level}>{level}</option>
