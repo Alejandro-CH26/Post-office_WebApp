@@ -13,11 +13,11 @@ function WarehouseAssignPackages() {
     const [error, setError] = useState(""); // Error handling
 
     const priorityLabels = {
-        1: "Express",
-        2: "Priority",
+        5: "Express",
+        4: "Priority",
         3: "First-Class",
-        4: "Standard",
-        5: "Economy"
+        2: "Standard",
+        1: "Economy"
     };
     const BASE_URL = process.env.REACT_APP_API_BASE_URL;
     const employeeID = localStorage.getItem("employee_ID");
@@ -170,7 +170,7 @@ function WarehouseAssignPackages() {
                     }}>
                         <h3>ID: {pkg.packageID}</h3>
                         <h3>{priorityLabels[pkg.packagePriority] || "Unknown"}</h3>
-                        <p>Destination City: {pkg.addressCity}, {pkg.addressState}</p>
+                        <p>Destination City: {pkg.destination?.addressCity}, {pkg.destination?.addressState}</p>
                         <p>{pkg.packageWeight} lbs, {pkg.packageVolume} cu ft</p>
                         <button
                             onClick={() => startAssigning(pkg)}

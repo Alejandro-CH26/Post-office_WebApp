@@ -33,6 +33,9 @@ import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderHistory from "./pages/orderHistory";
 import SalesReport from "./pages/salesReport";
+import WarehouseRegisterPackage from "./pages/WarehouseRegisterPackage";
+import WarehousePackageCheckout from "./pages/WarehousePackageCheckout";
+import WarehousePackageSuccess from "./pages/WarehousePackageSuccess";
 import PackagesLeft from "./pages/PackagesLeft";
 import EditEmployees from "./pages/EditEmployees";
 import PostOffices from "./pages/PostOffices";
@@ -132,6 +135,9 @@ function App() {
         <Route path="/warehouseclockinout" element={<PrivateRoute element={<ClockInOut />} requiredRole="warehouse" />} />
         <Route path="/inventoryreport" element={<PrivateRoute element={<InventoryReport />} requiredRole="warehouse" />} />
         <Route path="/products/:productId" element={<ProductDetails />} />
+        <Route path="/warehouseregisterpackage" element={<PrivateRoute element={<WarehouseRegisterPackage />} requiredRole="warehouse" />} />
+        <Route path="/warehousepackagecheckout" element={<PrivateRoute element={<WarehousePackageCheckout />} requiredRole="warehouse" />} />
+        <Route path="/warehousepackagesuccess" element={<PrivateRoute element={<WarehousePackageSuccess />} requiredRole="warehouse" />} />
 
         {/*<Route path="/driver/packagespage" element={<PrivateRoute element={<PackagesLeft />} requiredRole="driver" />} />*/}
 
