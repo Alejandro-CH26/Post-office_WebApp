@@ -38,7 +38,6 @@ const CheckoutPage = () => {
     }
 
     try {
-      // Step 1: Place the order
       const response = await fetch(`${BASE_URL}/checkout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -55,22 +54,14 @@ const CheckoutPage = () => {
       const result = await response.json();
 
       if (response.ok) {
-        // Step 2: Clear cart in backend
-        const clearRes = await fetch(`${BASE_URL}/cart/clear`, {
+        await fetch(`${BASE_URL}/cart/clear`, {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ customer_ID: Number(customerId) }), // ensure it's a number
+          body: JSON.stringify({ customer_ID: Number(customerId) }),
         });
 
-        const clearResult = await clearRes.json();
-  
-
-        // Step 3: Clear cart in frontend
         clearCart();
-
-        // Step 4: Alert success
         alert("Order placed successfully!");
-        // You can also navigate to an order success page here if needed
       } else {
         alert("Order failed: " + (result.error || result.message || "Unknown error."));
       }
@@ -82,97 +73,95 @@ const CheckoutPage = () => {
 
   return (
     <div className="checkout-wrapper">
-      <form className="checkout-box" onSubmit={handleSubmit}>
-        <h2>Shipping Address</h2>
+      <div className="checkout-container">
+        <form className="checkout-box" onSubmit={handleSubmit}>
+          <h2>Shipping Address</h2>
 
-        <input
-          type="text"
-          name="street"
-          placeholder="Street Address"
-          value={form.street}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="unit"
-          placeholder="Apt, Suite (optional)"
-          value={form.unit}
-          onChange={handleChange}
-        />
-        <div className="row">
           <input
             type="text"
-            name="city"
-            placeholder="City"
-            value={form.city}
+            name="street"
+            placeholder="Street Address"
+            value={form.street}
             onChange={handleChange}
             required
           />
           <input
             type="text"
-            name="state"
-            placeholder="State"
-            value={form.state}
+            name="unit"
+            placeholder="Apt, Suite (optional)"
+            value={form.unit}
             onChange={handleChange}
-            required
           />
-          <input
-            type="text"
-            name="zipcode"
-            placeholder="ZIP"
-            value={form.zipcode}
-            onChange={handleChange}
-            required
-          />
+          <div className="row">
+            <input
+              type="text"
+              name="city"
+              placeholder="City"
+              value={form.city}
+              onChange={handleChange}
+              required
+            />
+            <input
+              type="text"
+              name="state"
+              placeholder="State"
+              value={form.state}
+              onChange={handleChange}
+              required
+            />
+            <input
+              type="text"
+              name="zipcode"
+              placeholder="ZIP"
+              value={form.zipcode}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="checkbox-row">
+            <input
+              type="checkbox"
+              id="saveAddress"
+              checked={saveAddress}
+              onChange={() => setSaveAddress((prev) => !prev)}
+            />
+            <label htmlFor="saveAddress">Save this address</label>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="paymentMethod">Payment Method</label>
+            <select
+              id="paymentMethod"
+              className="select-input"
+              value={paymentMethod}
+              onChange={(e) => setPaymentMethod(e.target.value)}
+              required
+            >
+              <option value="Credit Card">Credit Card</option>
+              <option value="Debit Card">Debit Card</option>
+            </select>
+          </div>
+
+          <button type="submit" className="submit-btn">
+            Place Order
+          </button>
+        </form>
+
+        <div className="checkout-summary">
+          <h2>Order Summary</h2>
+          <p><strong>Subtotal ({cart.length} items):</strong></p>
+          <ul>
+            {cart.map((item, index) => (
+              <li key={index} style={{ display: "flex", justifyContent: "space-between" }}>
+                <span>{item.name} (x{item.quantity})</span>
+                <span>${(item.price * item.quantity).toFixed(2)}</span>
+              </li>
+            ))}
+          </ul>
+          <hr />
+          <p style={{ fontWeight: "bold" }}>Total: ${getTotal()}</p>
         </div>
-
-        <div className="checkbox-row">
-          <input
-            type="checkbox"
-            id="saveAddress"
-            checked={saveAddress}
-            onChange={() => setSaveAddress((prev) => !prev)}
-          />
-          <label htmlFor="saveAddress">Save this address</label>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="paymentMethod">Payment Method</label>
-          <select
-            id="paymentMethod"
-            className="select-input"
-            value={paymentMethod}
-            onChange={(e) => setPaymentMethod(e.target.value)}
-            required
-          >
-            <option value="Credit Card">Credit Card</option>
-            <option value="Debit Card">Debit Card</option>
-          </select>
-        </div>
-
-        <button type="submit" className="submit-btn">
-          Place Order
-        </button>
-      </form>
-
-      <div className="checkout-summary">
-        <h2>Order Summary</h2>
-        <p><strong>Subtotal ({cart.length} items):</strong></p>
-
-        <ul>
-          {cart.map((item, index) => (
-            <li key={index} style={{ display: "flex", justifyContent: "space-between" }}>
-              <span>{item.name} (x{item.quantity})</span>
-              <span>${(item.price * item.quantity).toFixed(2)}</span>
-            </li>
-          ))}
-        </ul>
-
-        <hr />
-        <p style={{ fontWeight: "bold" }}>
-          Total: ${getTotal()}
-        </p>
       </div>
     </div>
   );

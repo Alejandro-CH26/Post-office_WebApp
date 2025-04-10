@@ -50,7 +50,6 @@ function Navbar() {
         {token && role === "customer" && (
           <>
             <li><Link to="/trackpackage">Track a Package</Link></li>
-            <li><Link to="/PackageMaker">Package Maker</Link></li>
             <li><Link to="/buyinventory">Buy Stamps/Inventory</Link></li>
             <li><Link to="/order-history">Order History</Link></li>
             <li className="cart-link">
