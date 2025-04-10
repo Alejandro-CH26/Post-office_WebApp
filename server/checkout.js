@@ -61,6 +61,9 @@ function handleCheckout(req, res, reqUrl) {
               [customer_ID]
             );
 
+            // ✅ Declare array to collect package info for email
+            const packageInfoArray = [];
+
             for (const item of cart) {
               const { productId, quantity, name } = item;
 
@@ -97,7 +100,7 @@ function handleCheckout(req, res, reqUrl) {
               const shippingCost = parseFloat(
                 (weight * (1 + (priority / 5)) + (fragile ? 10 : 0)).toFixed(2)
               );
-              
+
               // Insert into package table
               const [packageResult] = await connection.execute(
                 `INSERT INTO package (
@@ -124,6 +127,14 @@ function handleCheckout(req, res, reqUrl) {
 
               const package_ID = packageResult.insertId;
 
+              // Save for email
+              packageInfoArray.push({
+                name,
+                quantity,
+                price: item.price,
+                package_ID
+              });
+
               // Insert into tracking_history table
               await connection.execute(
                 `INSERT INTO tracking_history (package_ID, location_ID, status)
@@ -147,8 +158,12 @@ function handleCheckout(req, res, reqUrl) {
                 },
               });
 
-              const itemsHTML = cart.map(item =>
-                `<li>${item.name} — ${item.quantity} × $${Number(item.price).toFixed(2)} = <strong>$${(item.quantity * Number(item.price)).toFixed(2)}</strong></li>`
+              const itemsHTML = packageInfoArray.map(item =>
+                `<li>
+                  ${item.name} — ${item.quantity} × $${Number(item.price).toFixed(2)} 
+                  = <strong>$${(item.quantity * Number(item.price)).toFixed(2)}</strong><br/>
+                  Tracking number: <strong>${item.package_ID}</strong>
+                </li>`
               ).join("");
 
               await transporter.sendMail({
@@ -157,9 +172,8 @@ function handleCheckout(req, res, reqUrl) {
                 subject: "Your Order Receipt",
                 html: `
                   <h2>Thank you for your order!</h2>
-                  <p>Here is your receipt:</p>
                   <ul>${itemsHTML}</ul>
-                  <p><strong>Total:</strong> $${totalAmount.toFixed(2)}</p>
+                  <p><strong>Total Paid:</strong> $${totalAmount.toFixed(2)}</p>
                 `,
               });
             }

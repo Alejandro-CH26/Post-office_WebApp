@@ -83,6 +83,7 @@ const OrderHistory = () => {
     <div className="order-history-wrapper">
       <div className="order-header-bar">
         <h1>Orders</h1>
+        <span className="customer-id-display">Customer ID: {customerId}</span> 
         <form className="order-search-form" onSubmit={handleSearch}>
           <input
             type="text"
@@ -128,7 +129,6 @@ const OrderHistory = () => {
   <span>Order total: <strong>US ${Number(order.Total_Amount).toFixed(2)}</strong></span>
   <span>Order number: {orderId}</span>
   <span>Total items: {order.totalItems}</span>
-  <span>Customer ID: {order.Customer_ID}</span>
 </div>
 
               </div>
