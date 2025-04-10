@@ -145,13 +145,12 @@ function routeHandler(req, res, reqUrl) {
         `;
         const [topProductResult] = await connection.execute(sqlTopProduct, params);
 
-        // Packages Created
+        // Packages Created - from transaction table instead of package table
         let packagesQuery = `
           SELECT COUNT(*) AS packagesCreated
-          FROM package p
-          LEFT JOIN transaction t ON p.Transaction_ID = t.Transaction_ID
+          FROM transaction t
           LEFT JOIN orders o ON t.Order_ID = o.Order_ID
-          WHERE t.Status = 'Completed'
+          WHERE t.Status = 'Completed' AND t.Item_name = 'Package'
         `;
         const packagesParams = [];
 
@@ -168,10 +167,9 @@ function routeHandler(req, res, reqUrl) {
           packagesParams.push(to);
         }
 
-        // If a non-"Package" type is selected, packagesCreated should be 0
         if (typeFilter && typeFilter !== "all" && typeFilter !== "Package") {
-          packagesParams.length = 0;
           packagesQuery = `SELECT 0 AS packagesCreated`;
+          packagesParams.length = 0;
         }
 
         const [packagesResult] = await connection.execute(packagesQuery, packagesParams);
