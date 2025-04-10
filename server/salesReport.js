@@ -1,17 +1,21 @@
 const db = require("./db");
+const { URL } = require("url");
 
 function routeHandler(req, res, reqUrl) {
+  const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
+  const query = parsedUrl.searchParams;
+
   // SALES REPORT - Detailed Transactions
-  if (req.method === "GET" && reqUrl.pathname === "/sales-report") {
+  if (req.method === "GET" && parsedUrl.pathname === "/sales-report") {
     (async () => {
       let connection;
       try {
         connection = await db.promise().getConnection();
 
-        const locationFilter = reqUrl.query.location_ID;
-        const typeFilter = reqUrl.query.type;
-        const from = reqUrl.query.from;
-        const to = reqUrl.query.to;
+        const locationFilter = query.get("location_ID");
+        const typeFilter = query.get("type");
+        const from = query.get("from");
+        const to = query.get("to");
 
         let sql = `
           SELECT 
@@ -74,16 +78,16 @@ function routeHandler(req, res, reqUrl) {
   }
 
   // SALES SUMMARY - Revenue, Total Sales, New Customers, Top Product, Packages Created
-  if (req.method === "GET" && reqUrl.pathname === "/sales-summary") {
+  if (req.method === "GET" && parsedUrl.pathname === "/sales-summary") {
     (async () => {
       let connection;
       try {
         connection = await db.promise().getConnection();
 
-        const locationFilter = reqUrl.query.location_ID;
-        const typeFilter = reqUrl.query.type;
-        const from = reqUrl.query.from;
-        const to = reqUrl.query.to;
+        const locationFilter = query.get("location_ID");
+        const typeFilter = query.get("type");
+        const from = query.get("from");
+        const to = query.get("to");
 
         let baseWhere = `WHERE t.Status = 'Completed'`;
         const params = [];
@@ -145,7 +149,7 @@ function routeHandler(req, res, reqUrl) {
         `;
         const [topProductResult] = await connection.execute(sqlTopProduct, params);
 
-        // Packages Created - from transaction table instead of package table
+        // Packages Created
         let packagesQuery = `
           SELECT COUNT(*) AS packagesCreated
           FROM transaction t
@@ -174,7 +178,6 @@ function routeHandler(req, res, reqUrl) {
 
         const [packagesResult] = await connection.execute(packagesQuery, packagesParams);
 
-        // Final result
         const totalRevenue = Number(summary[0].totalRevenue || 0).toFixed(2);
         const totalTransactions = Number(summary[0].totalTransactions || 0);
         const newCustomers = Number(newCustomerResult[0].newCustomers || 0);
@@ -189,7 +192,7 @@ function routeHandler(req, res, reqUrl) {
             totalTransactions,
             newCustomers,
             topProduct,
-            packagesCreated
+            packagesCreated,
           })
         );
       } catch (error) {

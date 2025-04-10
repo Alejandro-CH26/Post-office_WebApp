@@ -42,7 +42,7 @@ const SalesReport = () => {
   const fetchLocations = async () => {
     try {
       setError(null);
-      const res = await fetch(`${BASE_URL}/active-locations`);
+      const res = await fetch(`${BASE_URL}/locations`);
       const data = await res.json();
       setLocations(Array.isArray(data) ? data : []);
     } catch (err) {
