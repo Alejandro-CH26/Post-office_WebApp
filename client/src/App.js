@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import CreatePostOffice from "./pages/CreatePostOffice";
+import CreateDeliveryVehicle from "./pages/CreateVehicle";
 
 import HeroSection from "./components/HeroSection";
 import SearchPackage from "./components/SearchPackage";
@@ -28,16 +29,22 @@ import ClockInOut from "./pages/ClockInOut";
 import EmployeeHours from "./pages/EmployeeHours";
 import InventoryReport from "./pages/inventoryreport";
 import ProductDetails from "./pages/productdetails";
-import CartPage from "./pages/CartPage"; 
+import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderHistory from "./pages/orderHistory";
 import SalesReport from "./pages/salesReport";
 import WarehouseRegisterPackage from "./pages/WarehouseRegisterPackage";
 import WarehousePackageCheckout from "./pages/WarehousePackageCheckout";
 import WarehousePackageSuccess from "./pages/WarehousePackageSuccess";
+import PackagesLeft from "./pages/PackagesLeft";
+import EditEmployees from "./pages/EditEmployees";
+import PostOffices from "./pages/PostOffices";
+import EditPostOffices from "./pages/EditPostOffices";
+
 
 // Restrict access based on token & role
 // hi
+// hello
 const PrivateRoute = ({ element, requiredRole }) => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
@@ -84,9 +91,13 @@ function App() {
           path="/admin/create-post-office"
           element={<PrivateRoute element={<CreatePostOffice />} requiredRole="admin" />}
         />
+        <Route
+          path="/admin/create-delivery-vehicle"
+          element={<PrivateRoute element={<CreateDeliveryVehicle />} requiredRole="admin" />}
+        />
 
         <Route path="/faq" element={<Faq />} />
-        <Route path="/trackpackage" element={<PrivateRoute element={<TrackPackage />} requiredRole="customer" />} />
+        <Route path="/trackpackage" element={<TrackPackage />} />
         <Route
           path="/packagemaker"
           element={<PrivateRoute element={<PackageMaker />} requiredRole="customer" />}
@@ -101,14 +112,17 @@ function App() {
         <Route path="/employeehours" element={<PrivateRoute element={<EmployeeHours />} requiredRole="admin" />} />
         <Route path="/admin/reports" element={<PrivateRoute element={<Reports />} requiredRole="admin" />} />
         <Route path="/admin/employees" element={<PrivateRoute element={<Employees />} requiredRole="admin" />} />
+        <Route path="/admin/editemployees/:id" element={<PrivateRoute element={<EditEmployees />} requiredRole="admin" />} />
+        <Route path="/admin/postoffices" element={<PrivateRoute element={<PostOffices />} requiredRole="admin" />} />
+        <Route path="/admin/editpostoffices/:id" element={<PrivateRoute element={<EditPostOffices />} requiredRole="admin" />} />
         <Route path="/inventory" element={<InventoryReport />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/order-history" element={<PrivateRoute element={<OrderHistory />} requiredRole="customer" />} />
         <Route
-  path="/sales-report"
-  element={<PrivateRoute element={<SalesReport />} requiredRole="admin" />}
-/>
+          path="/sales-report"
+          element={<PrivateRoute element={<SalesReport />} requiredRole="admin" />}
+        />
 
         {/* Dashboards */}
         <Route path="/customer-dashboard" element={<PrivateRoute element={<CustomerDashboard />} requiredRole="customer" />} />
@@ -125,15 +139,17 @@ function App() {
         <Route path="/warehousepackagecheckout" element={<PrivateRoute element={<WarehousePackageCheckout />} requiredRole="warehouse" />} />
         <Route path="/warehousepackagesuccess" element={<PrivateRoute element={<WarehousePackageSuccess />} requiredRole="warehouse" />} />
 
+        {/*<Route path="/driver/packagespage" element={<PrivateRoute element={<PackagesLeft />} requiredRole="driver" />} />*/}
+
 
         {/* Catch-all redirect */}
         <Route path="*" element={<Navigate to="/" />} />
-
         <Route path="/employee/clock" element={<PrivateRoute element={<ClockInOut />} requiredRole="employee" />} />
         <Route path="/driver/clock" element={<PrivateRoute element={<ClockInOut />} requiredRole="driver" />} />
         <Route path="/warehouse/clock" element={<PrivateRoute element={<ClockInOut />} requiredRole="warehouse" />} />
         {/*<Route path="/admin/clock" element={<PrivateRoute element={<ClockInOut />} requiredRole="admin" />} />*/}
         <Route path="/clock" element={<Navigate to={`/${localStorage.getItem("role")}/clock`} />} />
+
 
 
       </Routes>

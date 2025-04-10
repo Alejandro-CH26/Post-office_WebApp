@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import "./CheckoutPage.css";
 import { useCart } from "./CartContext";
 
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 const CheckoutPage = () => {
   const { cart, clearCart } = useCart();
 
@@ -36,7 +38,8 @@ const CheckoutPage = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:5001/checkout", {
+      // Step 1: Place the order
+      const response = await fetch(`${BASE_URL}/checkout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -52,13 +55,27 @@ const CheckoutPage = () => {
       const result = await response.json();
 
       if (response.ok) {
-        alert("Order placed successfully!");
+        // Step 2: Clear cart in backend
+        const clearRes = await fetch(`${BASE_URL}/cart/clear`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ customer_ID: Number(customerId) }), // ensure it's a number
+        });
+
+        const clearResult = await clearRes.json();
+  
+
+        // Step 3: Clear cart in frontend
         clearCart();
+
+        // Step 4: Alert success
+        alert("Order placed successfully!");
+        // You can also navigate to an order success page here if needed
       } else {
         alert("Order failed: " + (result.error || result.message || "Unknown error."));
       }
     } catch (error) {
-      console.error("Error placing order:", error);
+      console.error("❌ Error placing order:", error);
       alert("An error occurred. Try again later.");
     }
   };
@@ -121,19 +138,18 @@ const CheckoutPage = () => {
         </div>
 
         <div className="form-group">
-  <label htmlFor="paymentMethod">Payment Method</label>
-  <select
-    id="paymentMethod"
-    className="select-input"
-    value={paymentMethod}
-    onChange={(e) => setPaymentMethod(e.target.value)}
-    required
-  >
-    <option value="Credit Card">Credit Card</option>
-    <option value="Debit Card">Debit Card</option>
-  </select>
-</div>
-
+          <label htmlFor="paymentMethod">Payment Method</label>
+          <select
+            id="paymentMethod"
+            className="select-input"
+            value={paymentMethod}
+            onChange={(e) => setPaymentMethod(e.target.value)}
+            required
+          >
+            <option value="Credit Card">Credit Card</option>
+            <option value="Debit Card">Debit Card</option>
+          </select>
+        </div>
 
         <button type="submit" className="submit-btn">
           Place Order

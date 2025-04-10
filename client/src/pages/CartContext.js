@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const CartContext = createContext();
 
@@ -12,7 +13,7 @@ export const CartProvider = ({ children }) => {
       if (!customer_ID) return;
 
       try {
-        const res = await fetch(`http://localhost:5001/cart?customer_ID=${customer_ID}`);
+        const res = await fetch(`${BASE_URL}/cart?customer_ID=${customer_ID}`);
         const backendCart = await res.json();
 
         const transformed = backendCart.map((item) => ({
@@ -56,7 +57,7 @@ export const CartProvider = ({ children }) => {
   const removeFromCart = async (itemToRemove) => {
     try {
       const customer_ID = localStorage.getItem("customer_ID");
-      const res = await fetch(`http://localhost:5001/cart?customer_ID=${customer_ID}`);
+      const res = await fetch(`${BASE_URL}/cart?customer_ID=${customer_ID}`);
       const backendCart = await res.json();
 
       const match = backendCart.find(
@@ -67,14 +68,14 @@ export const CartProvider = ({ children }) => {
 
       if (!match || !match.cart_id) return;
 
-      await fetch("http://localhost:5001/cart", {
+      await fetch(`${BASE_URL}/cart`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cart_id: match.cart_id }),
       });
 
       // Refresh cart from backend
-      const refreshed = await fetch(`http://localhost:5001/cart?customer_ID=${customer_ID}`);
+      const refreshed = await fetch(`${BASE_URL}/cart?customer_ID=${customer_ID}`);
       const updatedCart = await refreshed.json();
 
       const transformed = updatedCart.map((item) => ({
@@ -96,7 +97,7 @@ export const CartProvider = ({ children }) => {
   const updateCartQuantity = async (itemToUpdate, newQuantity) => {
     try {
       const customer_ID = localStorage.getItem("customer_ID");
-      const res = await fetch(`http://localhost:5001/cart?customer_ID=${customer_ID}`);
+      const res = await fetch(`${BASE_URL}/cart?customer_ID=${customer_ID}`);
       const backendCart = await res.json();
 
       const match = backendCart.find(
@@ -108,14 +109,14 @@ export const CartProvider = ({ children }) => {
       if (!match || !match.cart_id) return;
 
       // Delete the old item first
-      await fetch("http://localhost:5001/cart", {
+      await fetch(`${BASE_URL}/cart`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cart_id: match.cart_id }),
       });
 
       // Reinsert with updated quantity
-      await fetch("http://localhost:5001/cart", {
+      await fetch(`${BASE_URL}/cart`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -127,7 +128,7 @@ export const CartProvider = ({ children }) => {
       });
 
       // Refresh cart again
-      const refreshed = await fetch(`http://localhost:5001/cart?customer_ID=${customer_ID}`);
+      const refreshed = fetch(`${BASE_URL}/cart?customer_ID=${customer_ID}`);
       const updatedCart = await refreshed.json();
 
       const transformed = updatedCart.map((item) => ({

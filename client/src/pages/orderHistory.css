@@ -154,3 +154,18 @@ h1 {
 .order-history-wrapper {
   padding-bottom: 100px; /* or more if needed */
 }
+.delivered-status.delivered {
+  color: green;
+  font-weight: bold;
+}
+
+.delivered-status.in-transit {
+  color: orange;
+  font-weight: bold;
+}
+.tracking-id {
+  font-size: 0.9rem;
+  margin-top: 0.4rem;
+  color: #030304;
+  white-space: nowrap;
+}

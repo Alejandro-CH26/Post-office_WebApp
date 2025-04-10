@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./inventoryreport.css";
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const InventoryReport = () => {
   const [allInventoryData, setAllInventoryData] = useState([]);
@@ -9,11 +10,9 @@ const InventoryReport = () => {
   const [productFilter, setProductFilter] = useState("all");
   const [currentSortColumn, setCurrentSortColumn] = useState(null);
   const [currentSortDirection, setCurrentSortDirection] = useState("asc");
-  const BASE_URL = process.env.REACT_APP_API_BASE_URL;
-
 
   const [selectedDate, setSelectedDate] = useState(() => {
-    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    const today = new Date().toISOString().split("T")[0];
     return today;
   });
 
@@ -29,9 +28,7 @@ const InventoryReport = () => {
     setStatusMessage("");
     try {
       const response = await fetch(`${BASE_URL}/inventory`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       const data = await response.json();
       if (!data || data.length === 0) {
         setStatusMessage("⚠️ No inventory found.");
@@ -60,17 +57,25 @@ const InventoryReport = () => {
     });
 
     if (sortColumn) {
-      const numericColumns = ["item_price", "starting_quantity", "total_sold", "adjusted_quantity"];
+      const numericColumns = ["item_price", "starting_quantity", "adjusted_quantity"];
       filtered.sort((a, b) => {
-        let valA = a[sortColumn];
-        let valB = b[sortColumn];
-        if (numericColumns.includes(sortColumn)) {
-          valA = parseFloat(String(valA)) || 0;
-          valB = parseFloat(String(valB)) || 0;
+        let valA, valB;
+
+        if (sortColumn === "restock_needed") {
+          valA = a.starting_quantity - a.adjusted_quantity;
+          valB = b.starting_quantity - b.adjusted_quantity;
         } else {
-          valA = String(valA).trim();
-          valB = String(valB).trim();
+          valA = a[sortColumn];
+          valB = b[sortColumn];
+          if (numericColumns.includes(sortColumn)) {
+            valA = parseFloat(String(valA)) || 0;
+            valB = parseFloat(String(valB)) || 0;
+          } else {
+            valA = String(valA).trim();
+            valB = String(valB).trim();
+          }
         }
+
         if (valA < valB) return sortDirection === "asc" ? -1 : 1;
         if (valA > valB) return sortDirection === "asc" ? 1 : -1;
         return 0;
@@ -121,7 +126,7 @@ const InventoryReport = () => {
     const location_ID = match.location_ID;
 
     try {
-      const response = await fetch("http://localhost:5001/restock", {
+      const response = await fetch(`${BASE_URL}/restock`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -135,7 +140,7 @@ const InventoryReport = () => {
       if (response.ok) {
         setFeedback("Restock successful!");
         setRestockAmount("");
-        getInventory(); // Refresh with current date
+        getInventory();
       } else {
         throw new Error(data.error || "Restock failed.");
       }
@@ -159,16 +164,15 @@ const InventoryReport = () => {
       <p>{statusMessage}</p>
 
       <div className="filters">
-      <div className="date-filter-wrapper">
-  <label htmlFor="dateFilter"> View as of:</label>
-  <input
-    type="date"
-    id="dateFilter"
-    value={selectedDate}
-    onChange={(e) => setSelectedDate(e.target.value)}
-  />
-</div>
-
+        <div className="date-filter-wrapper">
+          <label htmlFor="dateFilter">View as of:</label>
+          <input
+            type="date"
+            id="dateFilter"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+          />
+        </div>
 
         <label htmlFor="locationFilter">Filter by Location:</label>
         <select id="locationFilter" value={locationFilter} onChange={handleLocationChange}>
@@ -195,16 +199,17 @@ const InventoryReport = () => {
             <th onClick={() => onHeaderClick("item_price")}>Price</th>
             <th onClick={() => onHeaderClick("starting_quantity")}>Full Stock</th>
             <th onClick={() => onHeaderClick("adjusted_quantity")}>Current Stock</th>
-            <th onClick={() => onHeaderClick("total_sold")}>Total Sold</th>
-            <th>Total Sales</th>
+            <th onClick={() => onHeaderClick("restock_needed")}>Restock Needed</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
           {filteredData.length > 0 ? (
             filteredData.map((item, index) => {
               const price = parseFloat(String(item.item_price)) || 0;
-              const totalSold = parseInt(item.total_sold) || 0;
-              const totalSales = (price * totalSold).toFixed(2);
+              const restockNeeded = item.starting_quantity - item.adjusted_quantity;
+              const stockRatio = item.adjusted_quantity / item.starting_quantity;
+              const status = stockRatio < 0.5 ? "Low" : "Good";
 
               return (
                 <tr key={index}>
@@ -213,8 +218,8 @@ const InventoryReport = () => {
                   <td>${price.toFixed(2)}</td>
                   <td>{item.starting_quantity}</td>
                   <td>{item.adjusted_quantity}</td>
-                  <td>{item.total_sold}</td>
-                  <td>${totalSales}</td>
+                  <td>{restockNeeded}</td>
+                  <td className={status === "Low" ? "low-stock" : "good-stock"}>{status}</td>
                 </tr>
               );
             })
@@ -259,7 +264,6 @@ const InventoryReport = () => {
               Submit Reorder
             </button>
           </form>
-
           {feedback && <p className="feedback">{feedback}</p>}
         </div>
       )}

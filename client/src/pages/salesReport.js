@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./salesReport.css";
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const SalesReport = () => {
   const [sales, setSales] = useState([]);
@@ -9,6 +10,7 @@ const SalesReport = () => {
   const [totalTransactions, setTotalTransactions] = useState(0);
   const [newCustomers, setNewCustomers] = useState(0);
   const [topProduct, setTopProduct] = useState("N/A");
+  const [packagesCreated, setPackagesCreated] = useState(0); // ✅ New
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
   const [loading, setLoading] = useState(false);
@@ -40,7 +42,7 @@ const SalesReport = () => {
   const fetchLocations = async () => {
     try {
       setError(null);
-      const res = await fetch("http://localhost:5001/active-locations");
+      const res = await fetch(`${BASE_URL}/active-locations`);
       const data = await res.json();
       setLocations(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -64,8 +66,8 @@ const SalesReport = () => {
 
     try {
       const [salesRes, summaryRes] = await Promise.all([
-        fetch(`http://localhost:5001/sales-report?${params.toString()}`, { signal: controller.signal }),
-        fetch(`http://localhost:5001/sales-summary?${params.toString()}`, { signal: controller.signal }),
+        fetch(`${BASE_URL}/sales-report?${params.toString()}`, { signal: controller.signal }),
+        fetch(`${BASE_URL}/sales-summary?${params.toString()}`, { signal: controller.signal }),
       ]);
 
       const salesData = await salesRes.json();
@@ -81,6 +83,7 @@ const SalesReport = () => {
         setTotalTransactions(summaryData.totalTransactions || 0);
         setNewCustomers(summaryData.newCustomers || 0);
         setTopProduct(summaryData.topProduct || "N/A");
+        setPackagesCreated(summaryData.packagesCreated || 0); // ✅ New
       }
     } catch (err) {
       if (err.name !== "AbortError") {
@@ -176,6 +179,10 @@ const SalesReport = () => {
             <p className="top-product-label">Top Product</p>
             <h2 className="top-product-value">{topProduct}</h2>
           </div>
+          <div>
+            <p>Packages Created</p>
+            <h2>{packagesCreated}</h2>
+          </div>
         </div>
       </div>
 
@@ -185,29 +192,27 @@ const SalesReport = () => {
         <div className="report-table-wrapper">
           <table className="sales-report-table">
             <thead>
-            <tr>
-  <th onClick={() => handleSort("Transaction_ID")}>Sale ID{sortArrow("Transaction_ID")}</th>
-  <th onClick={() => handleSort("Date")}>Date{sortArrow("Date")}</th>
-  <th onClick={() => handleSort("customer_name")}>Customer Name{sortArrow("customer_name")}</th>
-  <th onClick={() => handleSort("Item_name")}>Type{sortArrow("Item_name")}</th>
-  <th onClick={() => handleSort("Quantity")}>Quantity{sortArrow("Quantity")}</th>
-  <th onClick={() => handleSort("item_price")}>Amount{sortArrow("item_price")}</th>
-  <th onClick={() => handleSort("Location")}>Location{sortArrow("Location")}</th>
-</tr>
-
+              <tr>
+                <th onClick={() => handleSort("Transaction_ID")}>Sale ID{sortArrow("Transaction_ID")}</th>
+                <th onClick={() => handleSort("Date")}>Date{sortArrow("Date")}</th>
+                <th onClick={() => handleSort("customer_name")}>Customer Name{sortArrow("customer_name")}</th>
+                <th onClick={() => handleSort("Item_name")}>Type{sortArrow("Item_name")}</th>
+                <th onClick={() => handleSort("Quantity")}>Quantity{sortArrow("Quantity")}</th>
+                <th onClick={() => handleSort("item_price")}>Amount{sortArrow("item_price")}</th>
+                <th onClick={() => handleSort("Location")}>Location{sortArrow("Location")}</th>
+              </tr>
             </thead>
             <tbody>
               {getSortedSales().map((sale) => (
-               <tr key={sale.Transaction_ID}>
-               <td>{sale.Transaction_ID}</td>
-               <td>{new Date(sale.Date).toLocaleDateString()}</td>
-               <td>{sale.customer_name}</td>
-               <td>{sale.Item_name}</td>
-               <td>{sale.Quantity}</td>
-               <td>${(sale.item_price * sale.Quantity).toFixed(2)}</td>
-               <td>{sale.Location}</td>
-             </tr>
-             
+                <tr key={sale.Transaction_ID}>
+                  <td>{sale.Transaction_ID}</td>
+                  <td>{new Date(sale.Date).toLocaleDateString()}</td>
+                  <td>{sale.customer_name}</td>
+                  <td>{sale.Item_name}</td>
+                  <td>{sale.Quantity}</td>
+                  <td>${(sale.item_price * sale.Quantity).toFixed(2)}</td>
+                  <td>{sale.Location}</td>
+                </tr>
               ))}
             </tbody>
           </table>

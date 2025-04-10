@@ -5,6 +5,8 @@ function PackagesLeft({ employeeID }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [deliveryStatus, setDeliveryStatus] = useState({});
+    const [vehicleStatus, setVehicleStatus] = useState("Available");
+    const [updatingStatus, setUpdatingStatus] = useState(false);
    
     // Updated to use REACT_APP_API_BASE_URL as per Render configuration
     const getApiUrl = () => {
@@ -36,6 +38,11 @@ function PackagesLeft({ employeeID }) {
             
             const data = await response.json();
             setPackages(data);
+            
+            // Set vehicle status from first package (assuming all packages share the same vehicle status)
+            if (data && data.length > 0 && data[0].vehicleStatus) {
+                setVehicleStatus(data[0].vehicleStatus);
+            }
         } catch (err) {
             console.error("Failed to load packages:", err);
             setError(err.message || "Failed to fetch packages");
@@ -47,6 +54,39 @@ function PackagesLeft({ employeeID }) {
     useEffect(() => {
         loadPackages();
     }, [loadPackages]);
+
+    const updateVehicleStatus = async (newStatus) => {
+        if (!employeeID) return;
+        
+        try {
+            setUpdatingStatus(true);
+            const API_URL = getApiUrl();
+            
+            const response = await fetch(`${API_URL}/driver/update-status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    employeeID, 
+                    status: newStatus 
+                }),
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `Server responded with ${response.status}`);
+            }
+            
+            // Update local state and refetch packages to get fresh data
+            setVehicleStatus(newStatus);
+            await loadPackages();
+            
+        } catch (err) {
+            console.error("Failed to update vehicle status:", err);
+            setError(`Failed to update status: ${err.message}`);
+        } finally {
+            setUpdatingStatus(false);
+        }
+    };
 
     const markAsDelivered = async (packageID) => {
         const API_URL = getApiUrl();
@@ -88,8 +128,68 @@ function PackagesLeft({ employeeID }) {
     if (loading) return <div>Loading packages...</div>;
     if (error) return <div className="error-message">{error}</div>;
 
+    // Button styles
+    const buttonStyle = (isDisabled, type) => ({
+        padding: "6px 16px",
+        borderRadius: "4px",
+        fontSize: "12px",
+        fontWeight: "500",
+        marginLeft: "15px", // Added spacing between buttons
+        transition: "background-color 0.2s",
+        cursor: isDisabled ? "not-allowed" : "pointer",
+        backgroundColor: isDisabled 
+            ? "#D1D5DB" 
+            : type === "left" ? "#F59E0B" : "#10B981", // Yellow for Left, Green for Arrived
+        color: isDisabled ? "#6B7280" : "white"
+    });
+
+    // Status badge style
+    const statusBadgeStyle = {
+        display: "inline-block",
+        padding: "4px 8px",
+        borderRadius: "4px",
+        fontSize: "12px",
+        marginTop: "4px",
+        backgroundColor: vehicleStatus === "In Transit" ? "#FEF3C7" : "#D1FAE5",
+        color: vehicleStatus === "In Transit" ? "#92400E" : "#065F46"
+    };
+
     return (
         <div className="packages-container max-w-4xl mx-auto">
+            {/* Vehicle Status Control Panel */}
+            <div style={{
+                backgroundColor: "#F3F4F6",
+                padding: "16px",
+                marginBottom: "16px",
+                borderRadius: "8px",
+                border: "1px solid #E5E7EB"
+            }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div>
+                        <h3 style={{ fontWeight: "600", marginBottom: "4px" }}>Vehicle Status</h3>
+                        <div style={statusBadgeStyle}>
+                            {vehicleStatus || "Unknown"}
+                        </div>
+                    </div>
+                    <div>
+                        <button
+                            onClick={() => updateVehicleStatus("In Transit")}
+                            disabled={updatingStatus || vehicleStatus === "In Transit"}
+                            style={buttonStyle(updatingStatus || vehicleStatus === "In Transit", "left")}
+                        >
+                            Left Office
+                        </button>
+                        <button
+                            onClick={() => updateVehicleStatus("Available")}
+                            disabled={updatingStatus || vehicleStatus === "Available"}
+                            style={buttonStyle(updatingStatus || vehicleStatus === "Available", "arrived")}
+                        >
+                            Arrived at Office
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <h2 className="text-lg font-bold mb-3">Packages to Deliver</h2>
             {packages.length === 0 ? (
                 <p className="text-gray-500 text-sm">No pending packages to deliver.</p>
@@ -150,17 +250,19 @@ function PackagesLeft({ employeeID }) {
                                
                                 <button
                                     onClick={() => markAsDelivered(packageID)}
-                                    disabled={status === 'loading'}
+                                    disabled={status === 'loading' || vehicleStatus !== 'In Transit'}
                                     className={`w-full py-1 px-2 rounded text-xs transition-colors ${
                                         status === 'loading' ? 'bg-gray-400 cursor-not-allowed' :
                                         status === 'success' ? 'bg-green-600 text-white' :
                                         status === 'error' ? 'bg-red-500 text-white' :
+                                        vehicleStatus !== 'In Transit' ? 'bg-gray-400 cursor-not-allowed' :
                                         'bg-green-500 hover:bg-green-600 text-white'
                                     }`}
                                 >
                                     {status === 'loading' ? 'Processing...' :
                                     status === 'success' ? 'Delivered! ✓' :
                                     status === 'error' ? 'Failed! Try Again' :
+                                    vehicleStatus !== 'In Transit' ? 'Must be In Transit' :
                                     'Mark Delivered'}
                                 </button>
                             </div>

@@ -11,19 +11,22 @@ const notificationRoutes = require("./notificationRoutes");
 const reportRoutes = require("./reportRoutes");
 const employeeRoutes = require("./employeeRoutes");
 const driverRoutes = require("./driverRoutes");
+const postOfficeRoutes = require("./postofficesRoutes");
+
 const clockRoutes = require("./clockRoutes");
 
 // Import the inventory API from the same folder
 const inventoryAPI = require("./inventory");
 const productsAPI = require("./products");
 const locationAPI = require("./locationAPI");
-const cartAPI = require("./cartAPi"); 
+const cartAPI = require("./cartAPi");
 const handleCheckout = require("./checkout"); // 👈 Add this
 const orderHistory = require("./orderHistory"); // 👈 Add this
 const restock = require("./restock");
 const salesReport = require("./salesReport");
 // API functions
 const EmployeeAPI = require("./API Endpoints/EmployeeAPI.js");
+const postOfficeAPI = require("./postOffice");
 
 if (!process.env.JWT_SECRET) {
     console.error("JWT_SECRET is missing in .env file!");
@@ -47,8 +50,8 @@ const server = http.createServer((req, res) => {
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-  const reqUrl = url.parse(req.url, true);
-  const path = req.url.split('?')[0]; // Path without search parameters
+    const reqUrl = url.parse(req.url, true);
+    const path = req.url.split('?')[0]; // Path without search parameters
     console.log(req.method);
     console.log(req.url);
 
@@ -63,9 +66,10 @@ const server = http.createServer((req, res) => {
     if (notificationRoutes(req, res, reqUrl)) return;
     if (reportRoutes(req, res, reqUrl)) return;
     if (employeeRoutes(req, res, reqUrl)) return;
+    if (postOfficeRoutes(req, res, reqUrl)) return;
     //if (inventoryAPI(req, res, reqUrl)) return; 
     //if (driverRoutes(req, res, reqUrl)) return; 
-    if (clockRoutes(req, res, reqUrl)) return; 
+    if (clockRoutes(req, res, reqUrl)) return;
 
     if (inventoryAPI(req, res, reqUrl)) return; // New Inventory route
     if (driverRoutes(req, res, reqUrl)) return; // New Driver route
@@ -76,6 +80,8 @@ const server = http.createServer((req, res) => {
     if (orderHistory(req, res, reqUrl)) return;
     if (restock(req, res, reqUrl)) return;
     if (salesReport(req, res, reqUrl)) return;
+    if (postOfficeAPI(req, res, reqUrl)) return;
+
     // Registration Route 
     if (req.method === "POST" && req.url === "/register") {
         let body = "";
@@ -153,73 +159,6 @@ const server = http.createServer((req, res) => {
             res.writeHead(500, { "Content-Type": "application/json" });
             res.end(JSON.stringify({ error: "Internal Server Error" }));
         }
-    }
-
-
-    else if (req.method === "POST" && req.url === "/post-office") {
-        let body = "";
-        req.on("data", (chunk) => (body += chunk.toString()));
-
-        req.on("end", async () => {
-            try {
-                const data = JSON.parse(body);
-                const {
-                    name,
-                    street_address,
-                    city,
-                    state,
-                    zip,
-                    office_phone,
-                } = data;
-
-                if (!name || !street_address || !city || !state || !zip || !office_phone) {
-                    res.writeHead(400, { "Content-Type": "application/json" });
-                    res.end(JSON.stringify({ status: "error", message: "Missing required fields." }));
-                    return;
-                }
-
-                const [addressCheck] = await db.promise().query(
-                    `SELECT * FROM post_office_location
-           WHERE street_address = ? AND city = ? AND state = ? AND zip = ?`,
-                    [street_address, city, state, zip]
-                );
-
-                if (addressCheck.length > 0) {
-                    res.writeHead(409, { "Content-Type": "application/json" });
-                    res.end(JSON.stringify({ status: "error", message: "A post office at this address already exists." }));
-                    return;
-                }
-
-                const [phoneCheck] = await db.promise().query(
-                    `SELECT * FROM post_office_location WHERE office_phone = ?`,
-                    [office_phone]
-                );
-
-                if (phoneCheck.length > 0) {
-                    res.writeHead(409, { "Content-Type": "application/json" });
-                    res.end(JSON.stringify({ status: "error", message: "Office phone number is already in use." }));
-                    return;
-                }
-
-                const [result] = await db.promise().query(
-                    `INSERT INTO post_office_location
-           (name, street_address, city, state, zip, office_phone)
-           VALUES (?, ?, ?, ?, ?, ?)`,
-                    [name, street_address, city, state, zip, office_phone]
-                );
-
-                res.writeHead(201, { "Content-Type": "application/json" });
-                res.end(JSON.stringify({
-                    status: "success",
-                    message: "Post office created successfully.",
-                    postOfficeID: result.insertId,
-                }));
-            } catch (err) {
-                console.error("Post Office Creation Error:", err);
-                res.writeHead(500, { "Content-Type": "application/json" });
-                res.end(JSON.stringify({ status: "error", message: "Internal Server Error" }));
-            }
-        });
     }
 
     // Login Route (JWT Authentication)
@@ -472,6 +411,34 @@ const server = http.createServer((req, res) => {
         });
     }
 
+    else if (reqUrl.pathname === "/drivers" && req.method === "GET") {
+        const locationID = reqUrl.query.location_ID;
+        if (!locationID) {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ error: "Missing location_ID" }));
+            return;
+        }
+
+        db.query(
+            `SELECT employee_ID, First_Name, Last_Name 
+             FROM employees 
+             WHERE Role = 'driver' AND Location_ID = ?`,
+            [locationID],
+            (err, results) => {
+                if (err) {
+                    console.error("Error fetching drivers:", err);
+                    res.writeHead(500, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify({ error: "Database error" }));
+                    return;
+                }
+
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify(results));
+            }
+        );
+    }
+
+
     else if (req.method === "POST" && req.url === "/employee-login") {
         EmployeeAPI.employeeLogIn(req, res);
     }
@@ -538,6 +505,77 @@ const server = http.createServer((req, res) => {
             }
         });
     }
+
+    else if (req.method === "POST" && req.url === "/delivery-vehicle") {
+        let body = "";
+        req.on("data", (chunk) => (body += chunk.toString()));
+
+        req.on("end", async () => {
+            try {
+                const data = JSON.parse(body);
+                console.log("🚛 Received Vehicle Data:", data);
+
+                const {
+                    license_plate,
+                    fuel_type,
+                    Driver_ID,
+                    Location_ID
+                } = data;
+
+                // Check for missing required fields
+                const missingFields = [];
+                if (!license_plate) missingFields.push("license_plate");
+                if (!fuel_type) missingFields.push("fuel_type");
+                if (!Driver_ID) missingFields.push("Driver_ID");
+                if (!Location_ID) missingFields.push("Location_ID");
+
+                if (missingFields.length > 0) {
+                    res.writeHead(400, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify({
+                        status: "error",
+                        message: `Missing required fields: ${missingFields.join(", ")}`
+                    }));
+                    return;
+                }
+
+                const sql = `
+                    INSERT INTO delivery_vehicle
+                    (license_plate, fuel_type, Driver_ID, Mileage, Status, Location_ID, Volume_Capacity, Payload_Capacity, At_Capacity)
+                    VALUES (?, ?, ?, 0, 'available', ?, 121, 1000, false)
+                `;
+
+                const values = [
+                    license_plate,
+                    fuel_type,
+                    Driver_ID,
+                    Location_ID
+                ];
+
+                db.query(sql, values, (err, result) => {
+                    if (err) {
+                        console.error("❌ Delivery Vehicle Insert Error:", err);
+                        res.writeHead(500, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({ status: "error", message: "Database error" }));
+                        return;
+                    }
+
+                    console.log("✅ Delivery Vehicle Created:", result.insertId);
+                    res.writeHead(201, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify({
+                        status: "success",
+                        message: "Delivery vehicle created successfully!",
+                        vehicleID: result.insertId
+                    }));
+                });
+            } catch (error) {
+                console.error("❌ Parsing Error:", error);
+                res.writeHead(400, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ status: "error", message: "Invalid JSON format." }));
+            }
+        });
+    }
+
+
     else if (req.method === "GET" && req.url === "/report") {
         const allowedOrigins = [
             "http://localhost:3000",

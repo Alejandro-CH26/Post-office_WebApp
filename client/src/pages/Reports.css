@@ -1,42 +1,82 @@
+/* Outer container for the reports section */
 .reports-container {
-  padding: 2rem;
+  padding: 1.5rem 1rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
   padding-bottom: 100px;
 }
 
-.filter-container {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
+.reports-container h1 {
+  margin-bottom: 0.1rem;
+  font-size: 1.5rem; 
 }
 
+
+.view-buttons {
+  margin-top: 0;
+  margin-bottom: 0.75rem; 
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+/* Filter layout container */
+.filter-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+}
+
+/* Each filter group (label + input/select) */
+.filter-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+/* Input/select styling */
 .filter-container label {
   font-weight: bold;
 }
 
-.filter-container select {
-  padding: 0.4rem 0.6rem;
+.filter-container select,
+.filter-container input[type="date"] {
+  padding: 0.5rem 0.75rem;
   font-size: 1rem;
+  height: 34px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: auto;
+  max-width: 200px;
+  display: inline-block;
+  flex-shrink: 0;
 }
 
+/* Table styles */
 .excel-style-table {
-  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
   border-collapse: collapse;
-  margin-top: 1rem;
-  font-size: 0.95rem;
+  font-size: 1rem;
   background-color: #fff;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+  width: auto;
+  min-width: 1000px;
 }
 
 .excel-style-table th,
 .excel-style-table td {
   border: 1px solid #ccc;
-  padding: 0.75rem;
+  padding: 1rem 1.5rem;
   text-align: center;
+  white-space: nowrap;
 }
 
 .excel-style-table th {
@@ -48,8 +88,22 @@
   background-color: #fafafa;
 }
 
+/* Optional min widths for wider columns */
+.excel-style-table th:nth-child(2),
+.excel-style-table td:nth-child(2) {
+  min-width: 180px;
+}
+
+.excel-style-table th:nth-child(5),
+.excel-style-table td:nth-child(5) {
+  min-width: 220px;
+}
+
+/* Summary row styling */
 .summary-row {
   font-weight: bold;
   background-color: #f8f8f8;
   border-top: 2px solid #aaa;
 }
+
+
