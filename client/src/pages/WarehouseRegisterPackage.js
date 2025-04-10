@@ -5,7 +5,7 @@ import "./PackageMaker.css"; // Ensure styling is applied
 function WarehouseRegisterPackage() {
     const navigate = useNavigate();
     const [weight, setWeight] = useState("");
-    const [senderID, setSenderID] = useState("");
+    const [senderEmail, setSenderEmail] = useState("");
     const [recipientName, setRecipientName] = useState("");
     const [destinationStreet, setDestinationStreet] = useState("");
     const [destinationCity, setDestinationCity] = useState("");
@@ -24,34 +24,59 @@ function WarehouseRegisterPackage() {
         return parseFloat(weight) * (1 + (parseInt(priority, 10) / 5)) + (fragile ? 10 : 0);
     };
     
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
     
         // Validation: Ensure all fields are filled before proceeding
-        if (!weight || !senderID || !recipientName || !destinationStreet || !destinationCity ||
+        if (!weight || !senderEmail || !recipientName || !destinationStreet || !destinationCity ||
             !destinationState || !destinationZipcode || !priority || !length || !width || !height) {
             alert("Please fill in all fields before proceeding.");
             return;
         }
     
-        const newPackage = {
-            weight: parseFloat(weight),
-            senderCustomerID: parseInt(senderID, 10),
-            recipientCustomerName: recipientName.trim(),
-            destinationStreet: destinationStreet,
-            destinationCity: destinationCity.trim(),
-            destinationState: destinationState.trim(),
-            destinationZipcode: destinationZipcode.trim(),
-            shippingCost: calculateShippingCost(),
-            priority: parseInt(priority, 10), // Ensure priority is stored as an integer
-            fragile: fragile ? 1 : 0,
-            length: parseFloat(length),
-            width: parseFloat(width),
-            height: parseFloat(height),
-        };
+        try {
+            // Make a POST request to check the sender email and retrieve customer_ID
+            const employeeID = localStorage.getItem("employee_ID");
+            const response = await fetch(`${BASE_URL}/warehousecheckemail?employeeID=${employeeID}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ senderCustomerEmail: senderEmail }),
+            });
     
-        navigate("/warehousepackagecheckout", { state: { packageData: newPackage } });
+            const data = await response.json();
+            console.log("✅ Server Response:", data);
+    
+            if (!response.ok) {
+                alert(`Error: ${data.message}`);
+                return;
+            }
+    
+            // Create package object with retrieved customer_ID
+            const newPackage = {
+                weight: parseFloat(weight),
+                senderCustomerID: data.customer_ID, // Store retrieved customer_ID
+                recipientCustomerName: recipientName.trim(),
+                destinationStreet: destinationStreet,
+                destinationCity: destinationCity.trim(),
+                destinationState: destinationState.trim(),
+                destinationZipcode: destinationZipcode.trim(),
+                shippingCost: calculateShippingCost(),
+                priority: parseInt(priority, 10),
+                fragile: fragile ? 1 : 0,
+                length: parseFloat(length),
+                width: parseFloat(width),
+                height: parseFloat(height),
+            };
+    
+            // Navigate to checkout with package data
+            navigate("/warehousepackagecheckout", { state: { packageData: newPackage } });
+    
+        } catch (error) {
+            console.error("❌ Network Error:", error);
+            alert("❌ Failed to connect to the server. Please try again.");
+        }
     };
+    
 
     // Dropdown options
     const states = [
@@ -70,7 +95,7 @@ function WarehouseRegisterPackage() {
                 <h1 className="package-title">Create a Package</h1>
                 <form className="package-form" onSubmit={handleSubmit}>
                     <input type="number" placeholder="Weight" required value={weight} onChange={(e) => setWeight(e.target.value)} />
-                    <input type="number" placeholder="Sender ID" required value={senderID} onChange={(e) => setSenderID(e.target.value)} />
+                    <input type="text" placeholder="Sender Email" required value={senderEmail} onChange={(e) => setSenderEmail(e.target.value)} />
                     <input type="text" placeholder="Recipient Name" required value={recipientName} onChange={(e) => setRecipientName(e.target.value)} />
                     <input type="text" placeholder="Destination Street" required value={destinationStreet} onChange={(e) => setDestinationStreet(e.target.value)} />
                     <input type="text" placeholder="Destination Unit (Leave blank if none)" value={destinationUnit} onChange={(e) => setDestinationUnit(e.target.value)} />
