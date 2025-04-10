@@ -24,7 +24,7 @@ function SearchPackage() {
         <div className="search-bar">
           <input
             type="text"
-            placeholder="Search USPS.com or Enter Tracking Number(s)"
+            placeholder="Enter Tracking Number(s)"
             value={trackingNumber}
             onChange={(e) => setTrackingNumber(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -33,15 +33,15 @@ function SearchPackage() {
         </div>
 
         <div className="features">
-          <a href="https://www.usps.com/ship/" className="feature-button">
+          <a href="" className="feature-button">
             <span className="icon">📦</span>
             <p><strong>Click-N-Ship®</strong><br />Pay for and print shipping labels.</p>
           </a>
-          <a href="https://www.usps.com/shop/" className="feature-button">
+          <a href="" className="feature-button">
             <span className="icon">📬</span>
             <p><strong>Stamps & Supplies</strong><br />Forever® Stamps: $0.73</p>
           </a>
-          <a href="https://informeddelivery.usps.com" className="feature-button">
+          <a href="" className="feature-button">
             <span className="icon">📨</span>
             <p><strong>Informed Delivery®</strong><br />Digitally preview your incoming mail.</p>
           </a>
