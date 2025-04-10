@@ -5,6 +5,8 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { handleReportRequest } = require("./report");
 const url = require("url");
+require("./notificationSender"); // Runs the delivery notification trigger.
+
 
 // Handle route files
 const notificationRoutes = require("./notificationRoutes");
