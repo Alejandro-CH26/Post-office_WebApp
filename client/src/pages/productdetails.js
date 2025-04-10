@@ -62,16 +62,22 @@ function ProductDetails() {
 
   const handleAddToCart = async () => {
     if (!product) return;
-
+  
+    const customer_ID = localStorage.getItem("customer_ID");
+    if (!customer_ID) {
+      alert("Please go back and log in!");
+      return;
+    }
+  
     const format = selectedFormat || formatOptions[0].label;
-
+  
     const cartItem = {
-      customer_ID: localStorage.getItem("customer_ID"),
+      customer_ID,
       product_ID: product.product_ID,
       quantity,
       format,
     };
-
+  
     try {
       const response = await fetch(`${BASE_URL}/cart`, {
         method: "POST",
@@ -80,11 +86,11 @@ function ProductDetails() {
         },
         body: JSON.stringify(cartItem),
       });
-
+  
       const result = await response.json();
-
+  
       if (!response.ok) throw new Error(result.error || "Failed to add to cart");
-
+  
       addToCart({
         productId: product.product_ID,
         name: product.product_name,
@@ -93,13 +99,14 @@ function ProductDetails() {
         price: Number(chosenFormat.price),
         locationId,
       });
-
+  
       alert("Added to cart!");
     } catch (err) {
       console.error("Add to cart error:", err);
       alert("Failed to add item to cart.");
     }
   };
+  
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
