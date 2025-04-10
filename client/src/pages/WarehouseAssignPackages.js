@@ -134,7 +134,7 @@ function WarehouseAssignPackages() {
                 alert(`Package ${data.updatedPackageId} was successfully updated!`);
                 fetchPackages(); // Refresh package list
             } else {
-                alert(`Error: ${data.message}`);
+                alert(`${data.message}`);
             }
         } catch (error) {
             console.error("Network error:", error);
