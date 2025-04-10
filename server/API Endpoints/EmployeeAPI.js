@@ -455,7 +455,7 @@ async function warehouseRegisterPackage(req, res) {
                         console.log(weight, senderCustomerID, recipientCustomerName, destinationStreet, 
                             destinationCity, destinationState, destinationZipcode, priority, fragile,
                             length, width, height, paymentMethod, shippingCost, destinationUnit);
-
+                        
                         // First things first, create an order instance.
                         // In order to do this, we need to get the employee's location
                         
@@ -654,11 +654,59 @@ async function warehouseRegisterPackage(req, res) {
     }
 }
 
+async function warehouseCheckEmail(req, res) {
+    const queryString = req.url.split('?')[1];
+    const urlParams = new URLSearchParams(queryString);
+
+    if (urlParams && req.method === "POST") {
+        let body = "";
+
+        req.on("data", chunk => {
+            body += chunk.toString();
+        });
+
+        req.on("end", async () => {
+            try {
+                const { senderCustomerEmail } = JSON.parse(body);
+                const customerQuery = `SELECT customer_ID FROM customers WHERE customer_Email = ?`;
+
+                connection.query(customerQuery, [senderCustomerEmail], (error, results) => {
+                    if (error) {
+                        console.error("Database Error:", error);
+                        res.writeHead(500, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({ message: "Customer Email Not Registered" }));
+                        return;
+                    }
+
+                    // Ensure query returns a result
+                    if (!results.length) {
+                        res.writeHead(404, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({ message: "Email not registered." }));
+                        return;
+                    }
+
+                    const customer_ID = results[0].customer_ID; // Extract customer_ID
+                    console.log("Customer ID:", customer_ID);
+
+                    res.writeHead(200, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify({ message: "Customer found.", customer_ID }));
+                });
+            } catch (err) {
+                console.error("JSON Parsing Error:", err);
+                res.writeHead(400, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ message: "Invalid JSON input." }));
+            }
+        });
+    }
+}
+
+
 module.exports = {
     employeeLogIn,
     warehouseDashboard,
     warehouseAssignPackages,
-    warehouseRegisterPackage
+    warehouseRegisterPackage,
+    warehouseCheckEmail
   };
 
 
