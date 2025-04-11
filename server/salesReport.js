@@ -11,17 +11,21 @@ function routeHandler(req, res, reqUrl) {
       let connection;
       try {
         connection = await db.promise().getConnection();
-
+  
         const locationFilter = query.get("location_ID");
         const typeFilter = query.get("type");
         const from = query.get("from");
         const to = query.get("to");
-
+  
         let sql = `
           SELECT 
             t.Transaction_ID,
             CONCAT(c.First_Name, ' ', c.Last_Name) AS customer_name,
-            t.Item_name,
+            CASE 
+              WHEN t.Item_name = 'Package' THEN CONCAT('Package #', pk.package_ID)
+              ELSE t.Item_name 
+            END AS Item_name,
+            t.Item_name AS raw_type, 
             t.Quantity,
             t.Date,
             t.product_ID,
@@ -38,9 +42,9 @@ function routeHandler(req, res, reqUrl) {
           LEFT JOIN post_office_location l ON o.address_ID = l.location_ID
           WHERE t.Status = 'Completed'
         `;
-
+  
         const params = [];
-
+  
         if (locationFilter && locationFilter !== "all") {
           sql += " AND o.address_ID = ?";
           params.push(locationFilter);
@@ -57,11 +61,11 @@ function routeHandler(req, res, reqUrl) {
           sql += " AND DATE(t.Date) <= ?";
           params.push(to);
         }
-
+  
         sql += " ORDER BY t.Date DESC";
-
+  
         const [rows] = await connection.execute(sql, params);
-
+  
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ status: "success", data: rows }));
       } catch (error) {
@@ -76,7 +80,7 @@ function routeHandler(req, res, reqUrl) {
     })();
     return true;
   }
-
+  
   // SALES SUMMARY - Revenue, Total Sales, New Customers, Top Product, Packages Created
   if (req.method === "GET" && parsedUrl.pathname === "/sales-summary") {
     (async () => {
