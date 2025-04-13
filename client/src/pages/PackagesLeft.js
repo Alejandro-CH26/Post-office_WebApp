@@ -88,16 +88,22 @@ function PackagesLeft({ employeeID }) {
         }
     };
 
-    const markAsDelivered = async (packageID) => {
+    const updatePackageStatus = async (packageID, status) => {
         const API_URL = getApiUrl();
         
         try {
             setDeliveryStatus(prev => ({ ...prev, [packageID]: 'loading' }));
             
-            const response = await fetch(`${API_URL}/driver/deliver-package`, {
+            const endpoint = status === 'Delivered' ? 'deliver-package' : 'update-package-status';
+            
+            const response = await fetch(`${API_URL}/driver/${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ employeeID, packageID }),
+                body: JSON.stringify({ 
+                    employeeID, 
+                    packageID,
+                    status: status !== 'Delivered' ? status : undefined
+                }),
             });
             
             if (!response.ok) {
@@ -120,9 +126,17 @@ function PackagesLeft({ employeeID }) {
             }, 1000);
             
         } catch (err) {
-            console.error("Delivery error:", err);
+            console.error(`${status} update error:`, err);
             setDeliveryStatus(prev => ({ ...prev, [packageID]: 'error' }));
         }
+    };
+
+    const markAsDelivered = (packageID) => {
+        updatePackageStatus(packageID, 'Delivered');
+    };
+
+    const markAsLost = (packageID) => {
+        updatePackageStatus(packageID, 'Lost');
     };
 
     if (loading) return <div>Loading packages...</div>;
@@ -130,11 +144,11 @@ function PackagesLeft({ employeeID }) {
 
     // Button styles
     const buttonStyle = (isDisabled, type) => ({
-        padding: "6px 16px",
+        padding: "8px 24px", // Increased padding for wider buttons
         borderRadius: "4px",
-        fontSize: "12px",
+        fontSize: "14px",
         fontWeight: "500",
-        marginLeft: "15px", // Added spacing between buttons
+        marginLeft: "8px", // Reduced space between buttons
         transition: "background-color 0.2s",
         cursor: isDisabled ? "not-allowed" : "pointer",
         backgroundColor: isDisabled 
@@ -248,23 +262,65 @@ function PackagesLeft({ employeeID }) {
                                     </div>
                                 </div>
                                
-                                <button
-                                    onClick={() => markAsDelivered(packageID)}
-                                    disabled={status === 'loading' || vehicleStatus !== 'In Transit'}
-                                    className={`w-full py-1 px-2 rounded text-xs transition-colors ${
-                                        status === 'loading' ? 'bg-gray-400 cursor-not-allowed' :
-                                        status === 'success' ? 'bg-green-600 text-white' :
-                                        status === 'error' ? 'bg-red-500 text-white' :
-                                        vehicleStatus !== 'In Transit' ? 'bg-gray-400 cursor-not-allowed' :
-                                        'bg-green-500 hover:bg-green-600 text-white'
-                                    }`}
-                                >
-                                    {status === 'loading' ? 'Processing...' :
-                                    status === 'success' ? 'Delivered! ✓' :
-                                    status === 'error' ? 'Failed! Try Again' :
-                                    vehicleStatus !== 'In Transit' ? 'Must be In Transit' :
-                                    'Mark Delivered'}
-                                </button>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', gap: '8px' }}> {/* Added gap property */}
+                                    {/* Delivered Button */}
+                                    <button
+                                        onClick={() => markAsDelivered(packageID)}
+                                        disabled={status === 'loading' || vehicleStatus !== 'In Transit'}
+                                        style={{
+                                            flex: 1, // Make buttons take equal space
+                                            height: '36px',
+                                            fontSize: '12px',
+                                            borderRadius: '4px',
+                                            transition: 'background-color 0.2s',
+                                            cursor: (status === 'loading' || vehicleStatus !== 'In Transit') ? 'not-allowed' : 'pointer',
+                                            backgroundColor: status === 'loading' ? '#D1D5DB' :
+                                                            status === 'success' ? '#10B981' :
+                                                            status === 'error' ? '#EF4444' :
+                                                            vehicleStatus !== 'In Transit' ? '#D1D5DB' :
+                                                            '#10B981',
+                                            color: 'white',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                        }}
+                                    >
+                                        {status === 'loading' ? 'Processing...' :
+                                        status === 'success' ? 'Success! ✓' :
+                                        status === 'error' ? 'Failed!' :
+                                        vehicleStatus !== 'In Transit' ? 'Must be In Transit' :
+                                        'Delivered'}
+                                    </button>
+                                    
+                                    {/* Lost Button - Changed from orange to red */}
+                                    <button
+                                        onClick={() => markAsLost(packageID)}
+                                        disabled={status === 'loading' || vehicleStatus !== 'In Transit'}
+                                        style={{
+                                            flex: 1, // Make buttons take equal space
+                                            height: '36px',
+                                            fontSize: '12px',
+                                            borderRadius: '4px',
+                                            transition: 'background-color 0.2s',
+                                            cursor: (status === 'loading' || vehicleStatus !== 'In Transit') ? 'not-allowed' : 'pointer',
+                                            backgroundColor: status === 'loading' ? '#D1D5DB' :
+                                                            status === 'success' ? '#DC2626' : // Changed success color too
+                                                            status === 'error' ? '#EF4444' :
+                                                            vehicleStatus !== 'In Transit' ? '#D1D5DB' :
+                                                            '#DC2626', // Changed from #F59E0B (orange) to #DC2626 (red)
+                                            color: 'white',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                        }}
+                                    >
+                                        {status === 'loading' ? 'Processing...' :
+                                        status === 'success' ? 'Updated! ✓' :
+                                        status === 'error' ? 'Failed!' :
+                                        vehicleStatus !== 'In Transit' ? 'Must be In Transit' :
+                                        'Lost'}
+                                    </button>
+                                </div>
                             </div>
                         );
                     })}
