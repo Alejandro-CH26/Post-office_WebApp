@@ -10,7 +10,7 @@ const SalesReport = () => {
   const [totalTransactions, setTotalTransactions] = useState(0);
   const [newCustomers, setNewCustomers] = useState(0);
   const [topProduct, setTopProduct] = useState("N/A");
-  const [packagesCreated, setPackagesCreated] = useState(0); // ✅ New
+  const [packagesCreated, setPackagesCreated] = useState(0);
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
   const [loading, setLoading] = useState(false);
@@ -41,7 +41,6 @@ const SalesReport = () => {
 
   const fetchLocations = async () => {
     try {
-      setError(null);
       const res = await fetch(`${BASE_URL}/locations`);
       const data = await res.json();
       setLocations(Array.isArray(data) ? data : []);
@@ -74,16 +73,16 @@ const SalesReport = () => {
       const summaryData = await summaryRes.json();
 
       const transactions = Array.isArray(salesData.data) ? salesData.data : [];
-      const uniqueTypes = [...new Set(transactions.map((t) => t.Item_name).filter(Boolean))];
+      const uniqueTypes = [...new Set(transactions.map((t) => t.raw_type).filter(Boolean))];
 
       if (abortRef.current === controller) {
-        setSales(transactions);
+        setSales(transactions); // ✅ Replace (don't append)
         setTypes(uniqueTypes);
         setTotalRevenue(summaryData.totalRevenue || "0.00");
         setTotalTransactions(summaryData.totalTransactions || 0);
         setNewCustomers(summaryData.newCustomers || 0);
         setTopProduct(summaryData.topProduct || "N/A");
-        setPackagesCreated(summaryData.packagesCreated || 0); // ✅ New
+        setPackagesCreated(summaryData.packagesCreated || 0);
       }
     } catch (err) {
       if (err.name !== "AbortError") {
@@ -204,7 +203,7 @@ const SalesReport = () => {
             </thead>
             <tbody>
               {getSortedSales().map((sale) => (
-                <tr key={sale.Transaction_ID}>
+                <tr key={sale.Transaction_ID + sale.Item_name + sale.Date}>
                   <td>{sale.Transaction_ID}</td>
                   <td>{new Date(sale.Date).toLocaleDateString()}</td>
                   <td>{sale.customer_name}</td>
