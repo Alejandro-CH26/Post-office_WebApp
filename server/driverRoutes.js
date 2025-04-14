@@ -89,7 +89,7 @@ function driverRoutes(req, res) {
         return true;
     }
 
-    // Handle vehicle status update endpoint - NEW ENDPOINT
+    // Handle vehicle status update endpoint
     if (req.method === "POST" && reqUrl.pathname === "/driver/update-status") {
         let body = "";
 
@@ -269,6 +269,132 @@ function driverRoutes(req, res) {
                     });
                 });
 
+                });
+            } catch (error) {
+                console.error("❌ Error processing request:", error);
+                setCorsHeaders(req, res);
+                res.writeHead(400, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ error: "Invalid request format" }));
+            }
+        });
+        
+        return true;
+    }
+
+    // NEW ENDPOINT: Handle package status update (for lost packages, etc.)
+    if (req.method === "POST" && reqUrl.pathname === "/driver/update-package-status") {
+        let body = "";
+
+        req.on("data", chunk => {
+            body += chunk.toString();
+        });
+
+        req.on("end", () => {
+            try {
+                const { packageID, employeeID, status } = JSON.parse(body);
+
+                if (!packageID || !employeeID || !status) {
+                    setCorsHeaders(req, res);
+                    res.writeHead(400, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify({ error: "Package ID, Employee ID, and status are required" }));
+                    return;
+                }
+
+                // Validate status value
+                const validStatuses = ["Lost"];
+                if (!validStatuses.includes(status)) {
+                    setCorsHeaders(req, res);
+                    res.writeHead(400, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify({ error: `Invalid status: ${status}. Must be one of: ${validStatuses.join(", ")}` }));
+                    return;
+                }
+
+                // Verify driver is assigned to this package (security check)
+                const verifyQuery = `
+                    SELECT COUNT(*) AS count
+                    FROM employees AS E, Package AS P, delivery_vehicle AS D
+                    WHERE E.employee_ID = D.Driver_ID 
+                        AND D.Vehicle_ID = P.Assigned_vehicle 
+                        AND P.Package_ID = ? 
+                        AND E.employee_ID = ?;
+                `;
+
+                connection.query(verifyQuery, [packageID, employeeID], (err, results) => {
+                    if (err) {
+                        console.error("❌ Error verifying package assignment:", err);
+                        setCorsHeaders(req, res);
+                        res.writeHead(500, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({ error: "Database query failed" }));
+                        return;
+                    }
+
+                    if (results[0].count === 0) {
+                        setCorsHeaders(req, res);
+                        res.writeHead(403, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({ error: "Not authorized to update this package" }));
+                        return;
+                    }
+
+                    // Insert into tracking_history with the specified status
+                    const trackingQuery = `
+                        INSERT INTO tracking_history (package_ID, location_ID, status, timestamp)
+                        SELECT 
+                            P.Package_ID,
+                            P.Next_Destination,
+                            ? AS status,
+                            NOW()
+                        FROM Package P
+                        WHERE P.Package_ID = ?;
+                    `;
+
+                    connection.query(trackingQuery, [status, packageID], (err, trackingResult) => {
+                        if (err) {
+                            console.error(`❌ Error adding ${status} tracking history:`, {
+                                sqlMessage: err.sqlMessage,
+                                sql: err.sql,
+                                code: err.code
+                            });
+                            setCorsHeaders(req, res);
+                            res.writeHead(500, { "Content-Type": "application/json" });
+                            res.end(JSON.stringify({ 
+                                error: `Failed to record ${status} status`,
+                                details: err.sqlMessage 
+                            }));
+                            return;
+                        }
+
+                        // Update package to clear vehicle assignment
+                        const updatePackageQuery = `
+                            UPDATE Package 
+                            SET Assigned_vehicle = NULL
+                            WHERE Package_ID = ?;
+                        `;
+
+                        connection.query(updatePackageQuery, [packageID], (err, updateResult) => {
+                            if (err) {
+                                console.error("❌ Error updating package assignment:", {
+                                    sqlMessage: err.sqlMessage,
+                                    sql: err.sql,
+                                    code: err.code
+                                });
+                                setCorsHeaders(req, res);
+                                res.writeHead(500, { "Content-Type": "application/json" });
+                                res.end(JSON.stringify({ 
+                                    error: "Failed to clear vehicle assignment",
+                                    details: err.sqlMessage 
+                                }));
+                                return;
+                            }
+
+                            // Success!
+                            setCorsHeaders(req, res);
+                            res.writeHead(200, { "Content-Type": "application/json" });
+                            res.end(JSON.stringify({ 
+                                success: true, 
+                                message: `Package marked as ${status} and vehicle assignment removed` 
+                            }));
+                        });
+                    });
                 });
             } catch (error) {
                 console.error("❌ Error processing request:", error);
