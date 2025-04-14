@@ -7,6 +7,7 @@ const InventoryReport = () => {
   const [allInventoryData, setAllInventoryData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [statusMessage, setStatusMessage] = useState("");
+  const [locationFilter, setLocationFilter] = useState("all");
   const [productFilter, setProductFilter] = useState("all");
   const [currentSortColumn, setCurrentSortColumn] = useState(null);
   const [currentSortDirection, setCurrentSortDirection] = useState("asc");
@@ -26,25 +27,20 @@ const InventoryReport = () => {
   const getInventory = async (dateParam = selectedDate) => {
     setStatusMessage("");
     try {
-      const employeeID = localStorage.getItem("employee_ID");
-
-      const response = await fetch(`${BASE_URL}/admin-inventory?date=${selectedDate}`);
-
+      const response = await fetch(`${BASE_URL}/inventory?date=${dateParam}`);
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       const data = await response.json();
-
       if (!data || data.length === 0) {
-        setStatusMessage("No inventory found.");
+        setStatusMessage("⚠️ No inventory found.");
         setAllInventoryData([]);
         setFilteredData([]);
         return;
       }
-
       setAllInventoryData(data);
-      applyFilterAndSort(data, productFilter, currentSortColumn, currentSortDirection);
+      applyFilterAndSort(data, locationFilter, productFilter, currentSortColumn, currentSortDirection);
     } catch (error) {
       console.error("Fetch error:", error);
-      setStatusMessage("Error fetching inventory. Check console.");
+      setStatusMessage("⚠️ Error fetching inventory. Check console.");
     }
   };
 
@@ -53,10 +49,11 @@ const InventoryReport = () => {
     return Array.from(options);
   };
 
-  const applyFilterAndSort = (data, prodFilter, sortColumn, sortDirection) => {
+  const applyFilterAndSort = (data, locFilter, prodFilter, sortColumn, sortDirection) => {
     let filtered = data.filter((item) => {
+      const matchesLocation = locFilter === "all" || item.location_name === locFilter;
       const matchesProduct = prodFilter === "all" || item.product_name.trim() === prodFilter;
-      return matchesProduct;
+      return matchesLocation && matchesProduct;
     });
 
     if (sortColumn) {
@@ -95,10 +92,16 @@ const InventoryReport = () => {
       : item.snapshot_quantity ?? item.adjusted_quantity;
   };
 
+  const handleLocationChange = (e) => {
+    const newFilter = e.target.value;
+    setLocationFilter(newFilter);
+    applyFilterAndSort(allInventoryData, newFilter, productFilter, currentSortColumn, currentSortDirection);
+  };
+
   const handleProductChange = (e) => {
     const newFilter = e.target.value;
     setProductFilter(newFilter);
-    applyFilterAndSort(allInventoryData, newFilter, currentSortColumn, currentSortDirection);
+    applyFilterAndSort(allInventoryData, locationFilter, newFilter, currentSortColumn, currentSortDirection);
   };
 
   const onHeaderClick = (columnKey) => {
@@ -108,7 +111,7 @@ const InventoryReport = () => {
     }
     setCurrentSortColumn(columnKey);
     setCurrentSortDirection(newDirection);
-    applyFilterAndSort(allInventoryData, productFilter, columnKey, newDirection);
+    applyFilterAndSort(allInventoryData, locationFilter, productFilter, columnKey, newDirection);
   };
 
   const handleReorderSubmit = async (e) => {
@@ -116,11 +119,13 @@ const InventoryReport = () => {
     setFeedback("");
 
     const match = allInventoryData.find(
-      (item) => item.product_name.trim() === productFilter
+      (item) =>
+        item.location_name === locationFilter &&
+        item.product_name.trim() === productFilter
     );
 
     if (!match) {
-      setFeedback("No matching product found in inventory.");
+      setFeedback("❌ No matching product/location found in inventory.");
       return;
     }
 
@@ -148,18 +153,16 @@ const InventoryReport = () => {
       }
     } catch (err) {
       console.error("Restock error:", err);
-      setFeedback("Error submitting restock.");
+      setFeedback("❌ Error submitting restock.");
     }
   };
 
   return (
-    <div className={`inventory-report ${showReorderForm ? "reorder-visible" : ""}`}>
+    <div className={`inventory-report ${showReorderForm ? 'reorder-visible' : ''}`}>
       <h1>Inventory Report</h1>
 
       <div className="inventory-buttons">
-        <button className="action-button" onClick={() => getInventory()}>
-          Refresh Inventory
-        </button>
+        <button className="action-button" onClick={() => getInventory()}>Refresh Inventory</button>
         <button className="action-button" onClick={() => setShowReorderForm((prev) => !prev)}>
           {showReorderForm ? "Hide Reorder Form" : "Reorder Stock"}
         </button>
@@ -178,13 +181,19 @@ const InventoryReport = () => {
           />
         </div>
 
+        <label htmlFor="locationFilter">Filter by Location:</label>
+        <select id="locationFilter" value={locationFilter} onChange={handleLocationChange}>
+          <option value="all">All Locations</option>
+          {getUniqueOptions(allInventoryData, "location_name").map((loc) => (
+            <option key={loc} value={loc}>{loc}</option>
+          ))}
+        </select>
+
         <label htmlFor="productFilter">Filter by Product:</label>
         <select id="productFilter" value={productFilter} onChange={handleProductChange}>
           <option value="all">All Products</option>
-          {getUniqueOptions(allInventoryData, "product_name").map((product) => (
-            <option key={product} value={product}>
-              {product}
-            </option>
+          {getUniqueOptions(allInventoryData, "product_name").map((prod) => (
+            <option key={prod} value={prod}>{prod}</option>
           ))}
         </select>
       </div>
@@ -235,6 +244,11 @@ const InventoryReport = () => {
           <h2>Reorder Stock</h2>
           <form onSubmit={handleReorderSubmit} className="reorder-flex-form">
             <div className="form-field">
+              <label>Location:</label>
+              <p>{locationFilter === "all" ? "Select location above" : locationFilter}</p>
+            </div>
+
+            <div className="form-field">
               <label>Product:</label>
               <p>{productFilter === "all" ? "Select product above" : productFilter}</p>
             </div>
@@ -253,7 +267,7 @@ const InventoryReport = () => {
 
             <button
               type="submit"
-              disabled={productFilter === "all"}
+              disabled={locationFilter === "all" || productFilter === "all"}
             >
               Submit Reorder
             </button>

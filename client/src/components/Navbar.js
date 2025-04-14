@@ -88,6 +88,7 @@ function Navbar() {
             <li><Link to="/admin/create-post-office">Create Post Office</Link></li>
             <li><Link to="/admin/create-delivery-vehicle">Create Delivery Vehicle</Link></li>
             <li><Link to="/sales-report">Sales Report</Link></li>
+            <li><Link to="/admin/inventory">Inventory Report</Link></li> 
           </>
         )}
 
