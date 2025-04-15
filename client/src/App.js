@@ -40,6 +40,8 @@ import PackagesLeft from "./pages/PackagesLeft";
 import EditEmployees from "./pages/EditEmployees";
 import PostOffices from "./pages/PostOffices";
 import EditPostOffices from "./pages/EditPostOffices";
+import Vehicles from "./pages/Vehicles";
+import EditVehicles from "./pages/EditVehicles";
 
 
 // Restrict access based on token & role
@@ -115,6 +117,8 @@ function App() {
         <Route path="/admin/editemployees/:id" element={<PrivateRoute element={<EditEmployees />} requiredRole="admin" />} />
         <Route path="/admin/postoffices" element={<PrivateRoute element={<PostOffices />} requiredRole="admin" />} />
         <Route path="/admin/editpostoffices/:id" element={<PrivateRoute element={<EditPostOffices />} requiredRole="admin" />} />
+        <Route path="/admin/vehicles" element={<PrivateRoute element={<Vehicles />} requiredRole="admin" />} />
+        <Route path="/admin/editvehicles/:id" element={<PrivateRoute element={<EditVehicles />} requiredRole="admin" />} />
         <Route path="/inventory" element={<InventoryReport />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />

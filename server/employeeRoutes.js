@@ -330,6 +330,32 @@ WHERE e.employee_ID = ? AND e.Is_Deleted = 0
     return true;
   }
 
+
+// 9) Get all post office names (GET: /post-offices)
+if (req.method === "GET" && reqUrl.pathname === "/post-offices") {
+  const query = `
+    SELECT 
+      CONCAT(address_Street, ', ', address_City, ', ', address_State, ' ', address_Zipcode) AS name
+    FROM db1.addresses
+    WHERE Office_Location = 1 AND is_deleted = 0
+  `;
+
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ Failed to fetch post offices:", err);
+      res.writeHead(500);
+      res.end(JSON.stringify({ error: "Failed to fetch post offices" }));
+    } else {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(results));
+    }
+  });
+
+  return true;
+}
+
+
+
   // fallback
   return false;
 }

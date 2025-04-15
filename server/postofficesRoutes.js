@@ -7,16 +7,17 @@ function postOfficeRoutes(req, res, reqUrl) {
 
     const query = `
       SELECT 
-        location_ID AS id,
-        name,
-        street_address,
-        city,
-        state,
-        zip,
-        office_phone,
+        address_ID AS id,
+        address_Street AS street_address,
+        address_City AS city,
+        address_State AS state,
+        address_Zipcode AS zip,
+        unit_number,
+        Office_Location,
         is_deleted
-      FROM post_office_location
-      ${includeDeleted ? "" : "WHERE is_deleted = FALSE"}
+      FROM addresses
+      WHERE Office_Location = 1
+      ${includeDeleted ? "" : "AND is_deleted = FALSE"}
     `;
 
     connection.query(query, (err, results) => {
@@ -46,15 +47,16 @@ function postOfficeRoutes(req, res, reqUrl) {
 
     const query = `
       SELECT 
-        location_ID AS id,
-        name,
-        street_address,
-        city,
-        state,
-        zip,
-        office_phone
-      FROM post_office_location
-      WHERE location_ID = ? AND is_deleted = FALSE
+        address_ID AS id,
+        address_Street AS street_address,
+        address_City AS city,
+        address_State AS state,
+        address_Zipcode AS zip,
+        unit_number,
+        Office_Location,
+        is_deleted
+      FROM addresses
+      WHERE Office_Location = 1 AND address_ID = ?
     `;
 
     connection.query(query, [id], (err, results) => {
@@ -84,16 +86,16 @@ function postOfficeRoutes(req, res, reqUrl) {
     req.on("data", chunk => (body += chunk));
     req.on("end", () => {
       try {
-        const { location_ID } = JSON.parse(body);
-        if (!location_ID) {
+        const { address_ID } = JSON.parse(body);
+        if (!address_ID) {
           res.writeHead(400);
-          res.end(JSON.stringify({ error: "Missing location_ID." }));
+          res.end(JSON.stringify({ error: "Missing address_ID." }));
           return;
         }
 
-        const query = `UPDATE post_office_location SET is_deleted = TRUE WHERE location_ID = ?`;
+        const query = `UPDATE addresses SET is_deleted = TRUE WHERE address_ID = ? AND Office_Location = 1`;
 
-        connection.query(query, [location_ID], (err) => {
+        connection.query(query, [address_ID], (err) => {
           if (err) {
             console.error("❌ Error deleting:", err);
             res.writeHead(500);
@@ -119,16 +121,16 @@ function postOfficeRoutes(req, res, reqUrl) {
     req.on("data", chunk => (body += chunk));
     req.on("end", () => {
       try {
-        const { location_ID } = JSON.parse(body);
-        if (!location_ID) {
+        const { address_ID } = JSON.parse(body);
+        if (!address_ID) {
           res.writeHead(400);
-          res.end(JSON.stringify({ error: "Missing location_ID." }));
+          res.end(JSON.stringify({ error: "Missing address_ID." }));
           return;
         }
 
-        const query = `UPDATE post_office_location SET is_deleted = FALSE WHERE location_ID = ?`;
+        const query = `UPDATE addresses SET is_deleted = FALSE WHERE address_ID = ? AND Office_Location = 1`;
 
-        connection.query(query, [location_ID], (err) => {
+        connection.query(query, [address_ID], (err) => {
           if (err) {
             res.writeHead(500);
             res.end(JSON.stringify({ error: "Failed to restore." }));
@@ -154,30 +156,29 @@ function postOfficeRoutes(req, res, reqUrl) {
     req.on("end", () => {
       try {
         const {
-          location_ID,
-          name,
+          address_ID,
           street_address,
           city,
           state,
           zip,
-          office_phone
+          unit_number
         } = JSON.parse(body);
 
-        if (!location_ID || !name || !street_address || !city || !state || !zip || !office_phone) {
+        if (!address_ID || !street_address || !city || !state || !zip) {
           res.writeHead(400);
           res.end(JSON.stringify({ error: "Missing required fields." }));
           return;
         }
 
         const query = `
-          UPDATE post_office_location
-          SET name = ?, street_address = ?, city = ?, state = ?, zip = ?, office_phone = ?
-          WHERE location_ID = ? AND is_deleted = FALSE
+          UPDATE addresses
+          SET address_Street = ?, address_City = ?, address_State = ?, address_Zipcode = ?, unit_number = ?
+          WHERE address_ID = ? AND Office_Location = 1 AND is_deleted = FALSE
         `;
 
         connection.query(
           query,
-          [name, street_address, city, state, zip, office_phone, location_ID],
+          [street_address, city, state, zip, unit_number || null, address_ID],
           (err) => {
             if (err) {
               console.error("❌ Error updating:", err);

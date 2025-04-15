@@ -1,109 +1,202 @@
-/* Outer container for the reports section */
-.reports-container {
-  padding: 1.5rem 1rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  max-width: 1200px;
-  margin: 0 auto;
+.sales-report-wrapper {
+  padding: 30px;
   padding-bottom: 100px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
-.reports-container h1 {
-  margin-bottom: 0.1rem;
-  font-size: 1.5rem; 
+/* Header */
+h1 {
+  font-size: 36px;
+  text-align: center;
+  margin-bottom: 30px;
+  color: #343a40;
 }
 
-
-.view-buttons {
-  margin-top: 0;
-  margin-bottom: 0.75rem; 
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-}
-
-/* Filter layout container */
-.filter-container {
+/* Filters */
+.filters {
   display: flex;
   flex-wrap: wrap;
+  gap: 16px;
   justify-content: center;
-  align-items: flex-end;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 30px;
+}
+
+.filters select,
+.filters input[type="date"] {
+  padding: 10px 14px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
+}
+
+.filters input[type="date"]:hover,
+.filters select:hover {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.2);
+}
+
+/* Summary Boxes */
+.report-summary {
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  margin-bottom: 40px;
+}
+
+.summary-box {
+  background-color: #ffffff;
+  padding: 30px 50px;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  text-align: center;
+  min-width: 240px;
+  transition: transform 0.2s ease;
+}
+
+.summary-box:hover {
+  transform: translateY(-3px);
+}
+
+.summary-box p {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #555;
+}
+
+.summary-box h2 {
+  margin-top: 10px;
+  font-size: 30px;
+  color: #007bff;
+  font-weight: bold;
+}
+
+/* Table */
+.report-table-wrapper {
   overflow-x: auto;
 }
 
-/* Each filter group (label + input/select) */
-.filter-group {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  white-space: nowrap;
-}
-
-/* Input/select styling */
-.filter-container label {
-  font-weight: bold;
-}
-
-.filter-container select,
-.filter-container input[type="date"] {
-  padding: 0.5rem 0.75rem;
-  font-size: 1rem;
-  height: 34px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: auto;
-  max-width: 200px;
-  display: inline-block;
-  flex-shrink: 0;
-}
-
-/* Table styles */
-.excel-style-table {
-  margin-left: 0;
-  margin-right: 0;
+.sales-report-table {
+  width: 100%;
   border-collapse: collapse;
-  font-size: 1rem;
-  background-color: #fff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  white-space: nowrap;
-  width: auto;
-  min-width: 1000px;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
 }
 
-.excel-style-table th,
-.excel-style-table td {
-  border: 1px solid #ccc;
-  padding: 1rem 1.5rem;
+.sales-report-table th,
+.sales-report-table td {
+  padding: 14px 20px;
+  text-align: left;
+  border-bottom: 1px solid #eaeaea;
+  font-size: 15px;
+}
+
+.sales-report-table th {
+  background-color: #4f4f80;
+  color: #f8f9fa;
+  font-weight: 600;
+}
+
+.sales-report-table tr:hover {
+  background-color: #f6f6f6;
+}
+
+.sales-report-table th:first-child {
+  border-top-left-radius: 12px;
+}
+
+.sales-report-table th:last-child {
+  border-top-right-radius: 12px;
+}
+
+.report-summary-combined {
+  display: flex;
+  justify-content: center;
+  margin: 30px 0;
+}
+
+.summary-combined-box {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  background: #ffffff;
+  box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: 25px 40px;
+  gap: 30px;
+  max-width: 900px;
+  width: 100%;
   text-align: center;
+  font-family: "Segoe UI", sans-serif;
+}
+
+
+.summary-combined-box p {
+  margin: 0;
+  font-size: 15px;
+  color: #777;
+}
+
+.summary-combined-box h2 {
+  margin: 6px 0 0;
+  font-size: 26px;
+  font-weight: 600;
+  color: #0066ff;
+}
+
+.top-product-label {
+  color: #777;
+  font-size: 15px;
+  margin: 0;
+}
+
+.top-product-value {
+  color: #007bff;
+  font-size: 18px !important;
+  font-weight: 500;
+  margin-top: 6px;
+  line-height: 1.2;
+  max-width: none;
   white-space: nowrap;
+  text-align: center;
 }
 
-.excel-style-table th {
-  background-color: #f0f0f0;
-  font-weight: bold;
+/* Loading and error states */
+.loading-indicator {
+  text-align: center;
+  padding: 20px;
+  color: #666;
 }
 
-.excel-style-table tr:nth-child(even) {
-  background-color: #fafafa;
+.error-message {
+  background-color: #fff3f3;
+  border: 1px solid #ffcccb;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
-/* Optional min widths for wider columns */
-.excel-style-table th:nth-child(2),
-.excel-style-table td:nth-child(2) {
-  min-width: 180px;
+.error-message button {
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  margin-top: 10px;
+  cursor: pointer;
 }
 
-.excel-style-table th:nth-child(5),
-.excel-style-table td:nth-child(5) {
-  min-width: 220px;
+.no-data-message {
+  text-align: center;
+  padding: 30px;
+  color: #666;
+  font-style: italic;
 }
-
-/* Summary row styling */
-.summary-row {
-  font-weight: bold;
-  background-color: #f8f8f8;
-  border-top: 2px solid #aaa;
-}
-
-

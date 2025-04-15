@@ -12,11 +12,10 @@ function EditEmployee() {
     middle_Name: "",
     last_Name: "",
     location: "",
-    role: "",
-    vehicle_ID: "" // new
+    role: ""
   });
 
-  const [availableVehicles, setAvailableVehicles] = useState([]);
+  const [postOffices, setPostOffices] = useState([]);
 
   // Fetch employee info
   useEffect(() => {
@@ -31,8 +30,7 @@ function EditEmployee() {
             middle_Name: data.middle_Name || "",
             last_Name: data.last_Name || "",
             location: data.location || "",
-            role: data.role || "",
-            vehicle_ID: data.vehicle_ID ? String(data.vehicle_ID) : ""
+            role: data.role || ""
           });
         } else {
           alert("Employee not found.");
@@ -48,21 +46,22 @@ function EditEmployee() {
     fetchEmployee();
   }, [id, BASE_URL, navigate]);
 
-  // Fetch available vehicles
+  // Fetch post office locations
   useEffect(() => {
-    const fetchVehicles = async () => {
+    const fetchPostOffices = async () => {
       try {
-        const res = await fetch(`${BASE_URL}/available-vehicles?driverId=${id}`);
+        const res = await fetch(`${BASE_URL}/post-offices`);
         const data = await res.json();
         if (Array.isArray(data)) {
-          setAvailableVehicles(data);
+          const names = data.map(po => po.name); // or adjust based on your API response
+          setPostOffices(names);
         }
       } catch (err) {
-        console.error("❌ Error fetching vehicles:", err);
+        console.error("❌ Error fetching post offices:", err);
       }
     };
 
-    fetchVehicles();
+    fetchPostOffices();
   }, [BASE_URL]);
 
   const handleChange = (e) => {
@@ -72,37 +71,26 @@ function EditEmployee() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const updatedData = {
       employee_ID: id,
       ...employee
     };
-  
+
     try {
-      // 1. Update employee info
       const res = await fetch(`${BASE_URL}/update-employee`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedData)
       });
-  
+
       const data = await res.json();
-  
+
       if (!res.ok) {
         alert(`❌ Failed to update: ${data.message || "Unknown error"}`);
         return;
       }
-  
-      // 2. Assign/unassign vehicle
-      await fetch(`${BASE_URL}/assign-vehicle`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          employee_ID: id,
-          vehicle_ID: employee.vehicle_ID || null
-        })
-      });
-  
+
       alert("✅ Employee updated successfully.");
       navigate("/admin/employees");
     } catch (err) {
@@ -110,7 +98,6 @@ function EditEmployee() {
       alert("An error occurred while updating the employee.");
     }
   };
-  
 
   return (
     <div className="edit-container">
@@ -140,37 +127,29 @@ function EditEmployee() {
             onChange={handleChange}
             required
           />
-          <input
-            type="text"
+
+          <select
             name="location"
-            placeholder="Location"
             value={employee.location}
             onChange={handleChange}
             required
-          />
-          <input
-            type="text"
+          >
+            <option value="">Select Location</option>
+            {postOffices.map((office, i) => (
+              <option key={i} value={office}>{office}</option>
+            ))}
+          </select>
+
+          <select
             name="role"
-            placeholder="Position"
             value={employee.role}
             onChange={handleChange}
             required
-          />
-
-          {employee.role.toLowerCase().startsWith("driver") && (
-            <select
-              name="vehicle_ID"
-              value={employee.vehicle_ID}
-              onChange={handleChange}
-            >
-              <option value="">Unassigned</option>
-              {availableVehicles.map((v) => (
-                <option key={v.Vehicle_ID} value={v.Vehicle_ID}>
-                  Truck ({v.Vehicle_ID}) - {v.Fuel_type}
-                </option>
-              ))}
-            </select>
-          )}
+          >
+            <option value="">Select Role</option>
+            <option value="Driver">Driver</option>
+            <option value="Warehouse">Warehouse</option>
+          </select>
 
           <button type="submit">Save Changes</button>
         </form>
