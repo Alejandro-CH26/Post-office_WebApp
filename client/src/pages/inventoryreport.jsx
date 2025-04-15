@@ -27,19 +27,21 @@ const InventoryReport = () => {
     setStatusMessage("");
     try {
       const employeeID = localStorage.getItem("employee_ID");
-
-      const response = await fetch(`${BASE_URL}/admin-inventory?date=${selectedDate}`);
-
+  
+      const response = await fetch(
+        `${BASE_URL}/inventory?date=${selectedDate}&employee_ID=${employeeID}`
+      );
+  
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       const data = await response.json();
-
+  
       if (!data || data.length === 0) {
         setStatusMessage("No inventory found.");
         setAllInventoryData([]);
         setFilteredData([]);
         return;
       }
-
+  
       setAllInventoryData(data);
       applyFilterAndSort(data, productFilter, currentSortColumn, currentSortDirection);
     } catch (error) {
@@ -47,7 +49,7 @@ const InventoryReport = () => {
       setStatusMessage("Error fetching inventory. Check console.");
     }
   };
-
+  
   const getUniqueOptions = (data, key) => {
     const options = new Set(data.map((item) => String(item[key]).trim()));
     return Array.from(options);
