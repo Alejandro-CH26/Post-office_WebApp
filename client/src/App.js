@@ -40,7 +40,7 @@ import PackagesLeft from "./pages/PackagesLeft";
 import EditEmployees from "./pages/EditEmployees";
 import PostOffices from "./pages/PostOffices";
 import EditPostOffices from "./pages/EditPostOffices";
-
+import AdminInventoryReport from "./pages/adminInventory"; // adjust path if needed
 
 // Restrict access based on token & role
 // hi
@@ -123,6 +123,10 @@ function App() {
           path="/sales-report"
           element={<PrivateRoute element={<SalesReport />} requiredRole="admin" />}
         />
+<Route
+  path="/admin/inventory"
+  element={<PrivateRoute element={<AdminInventoryReport />} requiredRole="admin" />}
+/>
 
         {/* Dashboards */}
         <Route path="/customer-dashboard" element={<PrivateRoute element={<CustomerDashboard />} requiredRole="customer" />} />
