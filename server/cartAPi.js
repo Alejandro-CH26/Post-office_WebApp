@@ -17,42 +17,84 @@ module.exports = function cartAPI(req, res, reqUrl) {
     req.on("data", chunk => (body += chunk.toString()));
     req.on("end", () => {
       try {
-        const { customer_ID, product_ID, quantity, format } = JSON.parse(body);
-
-        if (!customer_ID || !product_ID || !quantity || !format) {
+        const { customer_ID, product_ID, quantity, format, location_ID } = JSON.parse(body);
+        console.log("Incoming values:", {
+          customer_ID,
+          product_ID,
+          quantity,
+          format,
+          location_ID
+        });
+        if (!customer_ID || !product_ID || !quantity || !format || !location_ID) {
           res.writeHead(400, { "Content-Type": "application/json" });
           return res.end(JSON.stringify({ error: "Missing required fields." }));
         }
-
-        const checkSQL = "SELECT * FROM cart WHERE customer_id = ? AND product_id = ? AND format = ?";
-        db.query(checkSQL, [customer_ID, product_ID, format], (err, rows) => {
-          if (err) {
-            console.error("DB Error:", err);
-            res.writeHead(500, { "Content-Type": "application/json" });
-            return res.end(JSON.stringify({ error: "DB error" }));
+  
+        // Step 1: Check inventory
+        const inventorySQL = `
+          SELECT quantity 
+          FROM inventory 
+          WHERE product_ID = ? AND location_ID = ?
+        `;
+        db.query(inventorySQL, [product_ID, location_ID], (err, inventoryRows) => {
+          if (err || inventoryRows.length === 0) {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            return res.end(JSON.stringify({ error: "No inventory found for this item/location." }));
           }
-
-          if (rows.length > 0) {
-            const updateSQL = "UPDATE cart SET quantity = quantity + ? WHERE customer_id = ? AND product_id = ? AND format = ?";
-            db.query(updateSQL, [quantity, customer_ID, product_ID, format], (err) => {
-              if (err) {
-                res.writeHead(500, { "Content-Type": "application/json" });
-                return res.end(JSON.stringify({ error: "Failed to update cart" }));
-              }
-              res.writeHead(200, { "Content-Type": "application/json" });
-              res.end(JSON.stringify({ message: "Cart updated" }));
-            });
-          } else {
-            const insertSQL = "INSERT INTO cart (customer_id, product_id, quantity, format) VALUES (?, ?, ?, ?)";
-            db.query(insertSQL, [customer_ID, product_ID, quantity, format], (err) => {
-              if (err) {
-                res.writeHead(500, { "Content-Type": "application/json" });
-                return res.end(JSON.stringify({ error: "Failed to add to cart" }));
-              }
-              res.writeHead(201, { "Content-Type": "application/json" });
-              res.end(JSON.stringify({ message: "Item added to cart" }));
-            });
-          }
+  
+          const availableStock = inventoryRows[0].quantity;
+  
+          // Step 2: Check how much is already in cart
+          const checkSQL = `
+            SELECT quantity 
+            FROM cart 
+            WHERE customer_id = ? AND product_id = ? AND format = ?
+          `;
+          db.query(checkSQL, [customer_ID, product_ID, format], (err, cartRows) => {
+            if (err) {
+              res.writeHead(500, { "Content-Type": "application/json" });
+              return res.end(JSON.stringify({ error: "Cart lookup failed." }));
+            }
+  
+            const existingCartQty = cartRows.length > 0 ? cartRows[0].quantity : 0;
+            const newTotalQty = existingCartQty + quantity;
+  
+            // Step 3: Reject if not enough stock
+            if (newTotalQty > availableStock) {
+              res.writeHead(400, { "Content-Type": "application/json" });
+              return res.end(JSON.stringify({ error: "Not enough stock available at this location." }));
+            }
+  
+            // Step 4: Proceed with insert/update
+            if (cartRows.length > 0) {
+              const updateSQL = `
+                UPDATE cart 
+                SET quantity = ? 
+                WHERE customer_id = ? AND product_id = ? AND format = ?
+              `;
+              db.query(updateSQL, [newTotalQty, customer_ID, product_ID, format], (err) => {
+                if (err) {
+                  res.writeHead(500, { "Content-Type": "application/json" });
+                  return res.end(JSON.stringify({ error: "Failed to update cart" }));
+                }
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ message: "Cart updated" }));
+              });
+            } else {
+              const insertSQL = `
+                INSERT INTO cart (customer_id, product_id, quantity, format) 
+                VALUES (?, ?, ?, ?)
+              `;
+              db.query(insertSQL, [customer_ID, product_ID, quantity, format], (err) => {
+                if (err) {
+                  res.writeHead(500, { "Content-Type": "application/json" });
+                  return res.end(JSON.stringify({ error: "Failed to add to cart" }));
+                }
+                res.writeHead(201, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ message: "Item added to cart" }));
+              });
+            }
+          });
         });
       } catch (err) {
         console.error("Invalid JSON:", err);
@@ -62,6 +104,7 @@ module.exports = function cartAPI(req, res, reqUrl) {
     });
     return true;
   }
+  
 
   // GET CART BY CUSTOMER
   if (req.method === "GET" && reqUrl.pathname === "/cart") {

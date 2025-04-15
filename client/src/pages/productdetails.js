@@ -76,6 +76,7 @@ function ProductDetails() {
       product_ID: product.product_ID,
       quantity,
       format,
+      location_ID: locationId,
     };
   
     try {
@@ -103,7 +104,7 @@ function ProductDetails() {
       alert("Added to cart!");
     } catch (err) {
       console.error("Add to cart error:", err);
-      alert("Failed to add item to cart.");
+      alert("Not enough stock available at this location.");
     }
   };
   
