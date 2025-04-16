@@ -207,20 +207,21 @@ function driverRoutes(req, res) {
                         return;
                     }
 
-                    // ONLY insert into tracking_history (no other table updates)
+                    // UPDATED: Insert into tracking_history with employee_ID
                     const trackingQuery = `
-                        INSERT INTO tracking_history (package_ID, location_ID, status, timestamp)
+                        INSERT INTO tracking_history (package_ID, location_ID, status, timestamp, employee_ID)
                         SELECT 
                             P.Package_ID,
                             P.Next_Destination,
                             IF(A.Office_Location = 1, 'At Warehouse', 'Delivered') AS status,
-                            NOW()
+                            NOW(),
+                            ? AS employee_ID
                         FROM Package P
                         JOIN addresses A ON P.Next_Destination = A.address_ID
                         WHERE P.Package_ID = ?;
                     `;
 
-                    connection.query(trackingQuery, [packageID], (err, trackingResult) => {
+                    connection.query(trackingQuery, [employeeID, packageID], (err, trackingResult) => {
                         if (err) {
                             console.error("❌ Error adding tracking history:", {
                                 sqlMessage: err.sqlMessage,
@@ -281,7 +282,7 @@ function driverRoutes(req, res) {
         return true;
     }
 
-    // NEW ENDPOINT: Handle package status update (for lost packages, etc.)
+    // UPDATED ENDPOINT: Handle package status update (for lost packages, etc.)
     if (req.method === "POST" && reqUrl.pathname === "/driver/update-package-status") {
         let body = "";
 
@@ -335,19 +336,22 @@ function driverRoutes(req, res) {
                         return;
                     }
 
-                    // Insert into tracking_history with the specified status
+                    // UPDATED: Insert into tracking_history with employee_ID explicitly included
                     const trackingQuery = `
-                        INSERT INTO tracking_history (package_ID, location_ID, status, timestamp)
+                        INSERT INTO tracking_history (package_ID, location_ID, status, timestamp, employee_ID)
                         SELECT 
                             P.Package_ID,
-                            P.Next_Destination,
+                            E.Location_ID, -- Using employee's location instead of package's next destination
                             ? AS status,
-                            NOW()
+                            NOW(),
+                            ? AS employee_ID
                         FROM Package P
-                        WHERE P.Package_ID = ?;
+                        JOIN delivery_vehicle D ON P.Assigned_vehicle = D.Vehicle_ID
+                        JOIN employees E ON D.Driver_ID = E.employee_ID
+                        WHERE P.Package_ID = ? AND E.employee_ID = ?;
                     `;
 
-                    connection.query(trackingQuery, [status, packageID], (err, trackingResult) => {
+                    connection.query(trackingQuery, [status, employeeID, packageID, employeeID], (err, trackingResult) => {
                         if (err) {
                             console.error(`❌ Error adding ${status} tracking history:`, {
                                 sqlMessage: err.sqlMessage,
