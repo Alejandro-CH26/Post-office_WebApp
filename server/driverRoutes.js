@@ -281,7 +281,7 @@ function driverRoutes(req, res) {
         return true;
     }
 
-    // NEW ENDPOINT: Handle package status update (for lost packages, etc.)
+    // UPDATED ENDPOINT: Handle package status update (for lost packages, etc.)
     if (req.method === "POST" && reqUrl.pathname === "/driver/update-package-status") {
         let body = "";
 
@@ -335,19 +335,21 @@ function driverRoutes(req, res) {
                         return;
                     }
 
-                    // Insert into tracking_history with the specified status
+                    // UPDATED: Insert into tracking_history with employee's location for lost packages
                     const trackingQuery = `
                         INSERT INTO tracking_history (package_ID, location_ID, status, timestamp)
                         SELECT 
                             P.Package_ID,
-                            P.Next_Destination,
+                            E.Location_ID, -- Using employee's location instead of package's next destination
                             ? AS status,
                             NOW()
                         FROM Package P
-                        WHERE P.Package_ID = ?;
+                        JOIN delivery_vehicle D ON P.Assigned_vehicle = D.Vehicle_ID
+                        JOIN employees E ON D.Driver_ID = E.employee_ID
+                        WHERE P.Package_ID = ? AND E.employee_ID = ?;
                     `;
 
-                    connection.query(trackingQuery, [status, packageID], (err, trackingResult) => {
+                    connection.query(trackingQuery, [status, packageID, employeeID], (err, trackingResult) => {
                         if (err) {
                             console.error(`❌ Error adding ${status} tracking history:`, {
                                 sqlMessage: err.sqlMessage,
