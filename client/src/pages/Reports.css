@@ -1,202 +1,66 @@
-.sales-report-wrapper {
-  padding: 30px;
-  padding-bottom: 100px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f8f9fa;
-  min-height: 100vh;
-  box-sizing: border-box;
+.report-wrapper {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: auto;
 }
 
-/* Header */
-h1 {
-  font-size: 36px;
+.report-title {
   text-align: center;
-  margin-bottom: 30px;
-  color: #343a40;
-}
-
-/* Filters */
-.filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  justify-content: center;
-  margin-bottom: 30px;
-}
-
-.filters select,
-.filters input[type="date"] {
-  padding: 10px 14px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  transition: all 0.2s ease;
-}
-
-.filters input[type="date"]:hover,
-.filters select:hover {
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.2);
-}
-
-/* Summary Boxes */
-.report-summary {
-  display: flex;
-  justify-content: center;
-  gap: 60px;
-  margin-bottom: 40px;
-}
-
-.summary-box {
-  background-color: #ffffff;
-  padding: 30px 50px;
-  border-radius: 20px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-  text-align: center;
-  min-width: 240px;
-  transition: transform 0.2s ease;
-}
-
-.summary-box:hover {
-  transform: translateY(-3px);
-}
-
-.summary-box p {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #555;
-}
-
-.summary-box h2 {
-  margin-top: 10px;
-  font-size: 30px;
-  color: #007bff;
+  margin-bottom: 2rem;
+  font-size: 2rem;
   font-weight: bold;
 }
 
-/* Table */
-.report-table-wrapper {
-  overflow-x: auto;
+.report-filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 2rem;
 }
 
-.sales-report-table {
+.report-summary-boxes {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.summary-box {
+  background: #fff;
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  min-width: 200px;
+}
+
+.big-number {
+  font-size: 2rem;
+  color: #3f66ff;
+  margin-top: 0.5rem;
+  font-weight: bold;
+}
+
+.report-table {
   width: 100%;
   border-collapse: collapse;
-  background: #ffffff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
+  font-size: 0.95rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.sales-report-table th,
-.sales-report-table td {
-  padding: 14px 20px;
-  text-align: left;
-  border-bottom: 1px solid #eaeaea;
-  font-size: 15px;
-}
-
-.sales-report-table th {
-  background-color: #4f4f80;
-  color: #f8f9fa;
-  font-weight: 600;
-}
-
-.sales-report-table tr:hover {
-  background-color: #f6f6f6;
-}
-
-.sales-report-table th:first-child {
-  border-top-left-radius: 12px;
-}
-
-.sales-report-table th:last-child {
-  border-top-right-radius: 12px;
-}
-
-.report-summary-combined {
-  display: flex;
-  justify-content: center;
-  margin: 30px 0;
-}
-
-.summary-combined-box {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  background: #ffffff;
-  box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.08);
-  border-radius: 12px;
-  padding: 25px 40px;
-  gap: 30px;
-  max-width: 900px;
-  width: 100%;
-  text-align: center;
-  font-family: "Segoe UI", sans-serif;
-}
-
-
-.summary-combined-box p {
-  margin: 0;
-  font-size: 15px;
-  color: #777;
-}
-
-.summary-combined-box h2 {
-  margin: 6px 0 0;
-  font-size: 26px;
-  font-weight: 600;
-  color: #0066ff;
-}
-
-.top-product-label {
-  color: #777;
-  font-size: 15px;
-  margin: 0;
-}
-
-.top-product-value {
-  color: #007bff;
-  font-size: 18px !important;
-  font-weight: 500;
-  margin-top: 6px;
-  line-height: 1.2;
-  max-width: none;
-  white-space: nowrap;
-  text-align: center;
-}
-
-/* Loading and error states */
-.loading-indicator {
-  text-align: center;
-  padding: 20px;
-  color: #666;
-}
-
-.error-message {
-  background-color: #fff3f3;
-  border: 1px solid #ffcccb;
-  border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.error-message button {
-  background-color: #ff6b6b;
+.report-table th {
+  background-color: #3f3f8f;
   color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  margin-top: 10px;
-  cursor: pointer;
+  padding: 0.75rem;
+  text-align: left;
 }
 
-.no-data-message {
-  text-align: center;
-  padding: 30px;
-  color: #666;
-  font-style: italic;
+.report-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.report-table tr:nth-child(even) {
+  background-color: #f9f9f9;
 }

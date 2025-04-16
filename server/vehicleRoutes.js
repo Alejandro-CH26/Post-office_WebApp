@@ -6,21 +6,26 @@ function vehicleRoutes(req, res, reqUrl) {
     const includeDeleted = reqUrl.query.includeDeleted === "true";
 
     const query = `
-      SELECT 
-        vehicle_ID AS id,
-        License_plate AS license_plate,
-        Fuel_type AS fuel_type,
-        Volume_Capacity AS volume_capacity,
-        Payload_Capacity AS payload_capacity,
-        Mileage AS mileage,
-        Status AS status,
-        Last_maintenance_date AS last_maintenance_date,
-        Location_ID AS location_id,
-        Driver_ID AS driver_id,
-        is_deleted
-      FROM delivery_vehicle
-      ${includeDeleted ? "" : "WHERE is_deleted = FALSE"}
-    `;
+    SELECT 
+      v.vehicle_ID AS id,
+      v.License_plate AS license_plate,
+      v.Fuel_type AS fuel_type,
+      v.Volume_Capacity AS volume_capacity,
+      v.Payload_Capacity AS payload_capacity,
+      v.Mileage AS mileage,
+      v.Status AS status,
+      v.Last_maintenance_date AS last_maintenance_date,
+      v.Location_ID AS location_id,
+      v.Driver_ID AS driver_id,
+      CONCAT(e.First_Name, ' ', e.Last_Name) AS driver_name,
+      CONCAT(a.address_Street, ', ', a.address_City, ', ', a.address_State, ' ', a.address_Zipcode) AS location_address,
+      v.is_deleted
+    FROM delivery_vehicle v
+    LEFT JOIN employees e ON v.Driver_ID = e.employee_ID
+    LEFT JOIN addresses a ON v.Location_ID = a.address_ID
+    ${includeDeleted ? "" : "WHERE v.is_deleted = FALSE"}
+  `;
+  
 
     connection.query(query, (err, results) => {
       if (err) {

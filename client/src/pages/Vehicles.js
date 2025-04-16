@@ -151,9 +151,9 @@ const Vehicles = () => {
                 <td>{v.payload_capacity}</td>
                 <td>{v.mileage}</td>
                 <td>{v.status}</td>
-                <td>{v.driver_id || "Unassigned"}</td>
+                <td>{v.driver_name || 'Unassigned'}</td>
                 <td>{v.last_maintenance_date ? new Date(v.last_maintenance_date).toLocaleDateString() : "N/A"}</td>
-                <td>{v.location_id}</td>
+                <td>{v.location_address || '-'}</td>
                 <td>
                   {v.is_deleted ? (
                     <button
