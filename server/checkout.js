@@ -139,9 +139,9 @@ const height = parseFloat(product.height) || 1;
 
               // Insert into tracking_history table
               await connection.execute(
-                `INSERT INTO tracking_history (package_ID, location_ID, status)
-                 VALUES (?, ?, ?)`,
-                [package_ID, location_ID, 'Package Created']
+                `INSERT INTO tracking_history (package_ID, location_ID, status, employee_ID)
+                 VALUES (?, ?, ?, ?)`,
+                [package_ID, location_ID, 'Package Created', null]
               );
             }
 
