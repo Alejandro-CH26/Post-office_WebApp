@@ -11,7 +11,7 @@ function ClockInOut() {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    // Add your API base URL function
+    
     const getApiUrl = () => {
         return process.env.REACT_APP_API_BASE_URL ||
             (process.env.NODE_ENV === 'development'
@@ -47,7 +47,7 @@ function ClockInOut() {
           }
           const data = await response.json();
           setClockStatus(data.isClockedIn);
-          // Store both times for display
+          
           setLastAction(data.isClockedIn ? data.lastClockInTime : data.lastClockOutTime);
           setError(null);
       } catch (err) {

@@ -24,7 +24,7 @@ const BuyInventory = () => {
   const [nearbyStore, setNearbyStore] = useState("");
   const [inventory, setInventory] = useState({});
 
-  // Fetch all store locations dynamically
+  
   useEffect(() => {
     fetch(`${BASE_URL}/locations`)
       .then((res) => res.json())

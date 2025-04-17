@@ -22,8 +22,8 @@ const inventoryAPI = require("./inventory");
 const productsAPI = require("./products");
 const locationAPI = require("./locationAPI");
 const cartAPI = require("./cartAPi");
-const handleCheckout = require("./checkout"); // 👈 Add this
-const orderHistory = require("./orderHistory"); // 👈 Add this
+const handleCheckout = require("./checkout"); 
+const orderHistory = require("./orderHistory");
 const restock = require("./restock");
 const salesReport = require("./salesReport");
 

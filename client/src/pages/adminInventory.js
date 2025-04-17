@@ -125,7 +125,7 @@ const InventoryReport = () => {
     );
 
     if (!match) {
-      setFeedback("❌ No matching product/location found in inventory.");
+      setFeedback("No matching product/location found in inventory.");
       return;
     }
 
@@ -153,7 +153,7 @@ const InventoryReport = () => {
       }
     } catch (err) {
       console.error("Restock error:", err);
-      setFeedback("❌ Error submitting restock.");
+      setFeedback("Error submitting restock.");
     }
   };
 

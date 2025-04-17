@@ -33,14 +33,14 @@ function PostOfficeForm() {
 
       const data = await response.json();
       if (response.ok) {
-        alert("✅ Post office successfully registered!");
+        alert("Post office successfully registered!");
         navigate("/dashboard");
       } else {
-        alert(`❌ Error: ${data.message}`);
+        alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("❌ Error creating post office:", error);
-      alert("❌ Server error, please try again later.");
+      console.error("Error creating post office:", error);
+      alert("Server error, please try again later.");
     }
   };
 

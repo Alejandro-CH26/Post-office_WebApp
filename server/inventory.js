@@ -11,7 +11,7 @@ module.exports = (req, res, reqUrl) => {
     let params;
 
     if (employeeID) {
-      // 🔒 Restricted view for employees (only their location)
+      
       sql = `
         SELECT
           l.location_ID,
@@ -37,7 +37,7 @@ module.exports = (req, res, reqUrl) => {
       `;
       params = [selectedDate, employeeID];
     } else {
-      // 👑 Full inventory view for admins
+      
       sql = `
         SELECT
           l.location_ID,
@@ -64,10 +64,10 @@ module.exports = (req, res, reqUrl) => {
 
     connection.query(sql, params, (err, results) => {
       if (err) {
-        console.error("❌ Database Error:", err);
+        console.error("Database Error:", err);
         if (!res.headersSent) {
           res.writeHead(500, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ error: "❌ Database error", details: err }));
+          res.end(JSON.stringify({ error: "Database error", details: err }));
         }
         return;
       }
