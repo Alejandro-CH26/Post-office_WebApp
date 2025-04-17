@@ -87,6 +87,7 @@ function Navbar() {
             <li><Link to="/admin/postoffices">Post Office List</Link></li>
            
             <li><Link to="/sales-report">Sales Report</Link></li>
+            <li><Link to="/admin/reports">Packages Report</Link></li>
             <li><Link to="/admin/inventory">Inventory Report</Link></li> 
           </>
         )}
