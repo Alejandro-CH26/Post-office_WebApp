@@ -90,12 +90,14 @@ function handleCheckout(req, res, reqUrl) {
                 [productId]
               );
 
-              const weight = parseFloat(product.weight) || 0.1;
-              const fragile = product.fragile ? 1 : 0;
-              const priority = parseInt(product.priority) || 3;
-              const length = parseFloat(product.length) || 1;
-              const width = parseFloat(product.width) || 1;
-              const height = parseFloat(product.height) || 1;
+              const unitWeight = parseFloat(product.weight) || 0.1;
+const weight = unitWeight * quantity; 
+const fragile = product.fragile ? 1 : 0;
+const priority = parseInt(product.priority) || 3;
+const length = parseFloat(product.length) || 1;
+const width = parseFloat(product.width) || 1;
+const height = parseFloat(product.height) || 1;
+
 
               const shippingCost = parseFloat(
                 (weight * (1 + (priority / 5)) + (fragile ? 10 : 0)).toFixed(2)
@@ -137,9 +139,9 @@ function handleCheckout(req, res, reqUrl) {
 
               // Insert into tracking_history table
               await connection.execute(
-                `INSERT INTO tracking_history (package_ID, location_ID, status)
-                 VALUES (?, ?, ?)`,
-                [package_ID, location_ID, 'Package Created']
+                `INSERT INTO tracking_history (package_ID, location_ID, status, employee_ID)
+                 VALUES (?, ?, ?, ?)`,
+                [package_ID, location_ID, 'Package Created', null]
               );
             }
 

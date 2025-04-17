@@ -9,16 +9,29 @@ const Employees = () => {
   const [locationFilter, setLocationFilter] = useState('all');
   const [showDeleted, setShowDeleted] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [addressMap, setAddressMap] = useState({});
+
   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
   const navigate = useNavigate();
 
   useEffect(() => {
     const url = `${BASE_URL}/employee-reports${showDeleted ? '?includeDeleted=true' : ''}`;
-    fetch(url)
+    const fetchEmployees = fetch(url).then(res => res.json());
+
+    const fetchAddresses = fetch(`${BASE_URL}/all-addresses`)
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data)) {
-          const normalized = data.map(emp => ({
+        const map = {};
+        for (const addr of data) {
+          map[addr.address_ID] = addr.label;
+        }
+        setAddressMap(map);
+      });
+
+    Promise.all([fetchEmployees, fetchAddresses])
+      .then(([employeeData]) => {
+        if (Array.isArray(employeeData)) {
+          const normalized = employeeData.map(emp => ({
             ...emp,
             isFired: emp.isFired === 1 || emp.isFired === true || emp.isFired === "1",
             isDeleted: emp.isDeleted === 1 || emp.isDeleted === true || emp.isDeleted === "1"
@@ -26,15 +39,15 @@ const Employees = () => {
           const deduplicated = Array.from(
             new Map(normalized.map(emp => [emp.id, emp])).values()
           );
-          
+
           setEmployees(deduplicated);
         }
       })
       .catch(err => {
-        console.error("❌ Error fetching employees:", err);
+        console.error("❌ Error loading employees or addresses:", err);
         setEmployees([]);
       });
-  }, [showDeleted]);
+  }, [showDeleted, BASE_URL]);
 
   const toggleFireStatus = async (id, currentStatus) => {
     const confirmMsg = currentStatus
@@ -134,7 +147,7 @@ const Employees = () => {
       roleFilter === 'all' || simplifiedPosition === roleFilter;
 
     const locationMatch =
-      locationFilter === 'all' || emp.location === locationFilter;
+      locationFilter === 'all' || addressMap[emp.address_id] === locationFilter;
 
     const nameMatch =
       emp.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -146,7 +159,9 @@ const Employees = () => {
     employees.map(emp => simplifyPosition(emp.position))
   )];
 
-  const uniqueLocations = [...new Set(employees.map(emp => emp.location))];
+  const uniqueLocations = [...new Set(
+    employees.map(emp => addressMap[emp.address_id]).filter(Boolean)
+  )];
 
   return (
     <div className="reports-container">
@@ -175,15 +190,6 @@ const Employees = () => {
             <option key={i} value={loc}>{loc}</option>
           ))}
         </select>
-
-        <label>
-          <input
-            type="checkbox"
-            checked={showDeleted}
-            onChange={() => setShowDeleted(prev => !prev)}
-          />
-          Show Deleted
-        </label>
 
         <label>Search Name:</label>
         <input
@@ -214,7 +220,7 @@ const Employees = () => {
               <tr key={i} className={emp.isFired ? "fired-row" : emp.isDeleted ? "deleted-row" : ""}>
                 <td>{emp.id}</td>
                 <td>{emp.name}</td>
-                <td>{emp.location}</td>
+                <td>{emp.location_name || emp.location_Name || addressMap[emp.address_id] || "N/A"}</td>
                 <td>{simplifyPosition(emp.position)}</td>
                 <td>{emp.isFired ? "Yes" : "No"}</td>
                 <td>
@@ -226,12 +232,6 @@ const Employees = () => {
                           onClick={() => toggleFireStatus(emp.id, emp.isFired)}
                         >
                           {emp.isFired ? "Unfire" : "Fire"}
-                        </button>
-                        <button
-                          className="delete-btn"
-                          onClick={() => handleDelete(emp.id)}
-                        >
-                          Delete
                         </button>
                         <button
                           className="edit-btn"

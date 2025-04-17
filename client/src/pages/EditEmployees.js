@@ -15,7 +15,7 @@ function EditEmployee() {
     role: ""
   });
 
-  const [postOffices, setPostOffices] = useState([]);
+  const [addresses, setAddresses] = useState([]);
 
   // Fetch employee info
   useEffect(() => {
@@ -29,7 +29,7 @@ function EditEmployee() {
             first_Name: data.first_Name || "",
             middle_Name: data.middle_Name || "",
             last_Name: data.last_Name || "",
-            location: data.location || "",
+            location: data.location || "", // this should be address_ID
             role: data.role || ""
           });
         } else {
@@ -46,22 +46,21 @@ function EditEmployee() {
     fetchEmployee();
   }, [id, BASE_URL, navigate]);
 
-  // Fetch post office locations
+  // Fetch all addresses
   useEffect(() => {
-    const fetchPostOffices = async () => {
+    const fetchAddresses = async () => {
       try {
-        const res = await fetch(`${BASE_URL}/post-offices`);
+        const res = await fetch(`${BASE_URL}/all-addresses`);
         const data = await res.json();
         if (Array.isArray(data)) {
-          const names = data.map(po => po.name); // or adjust based on your API response
-          setPostOffices(names);
+          setAddresses(data); // [{ address_ID, label }]
         }
       } catch (err) {
-        console.error("❌ Error fetching post offices:", err);
+        console.error("❌ Error fetching addresses:", err);
       }
     };
 
-    fetchPostOffices();
+    fetchAddresses();
   }, [BASE_URL]);
 
   const handleChange = (e) => {
@@ -135,8 +134,10 @@ function EditEmployee() {
             required
           >
             <option value="">Select Location</option>
-            {postOffices.map((office, i) => (
-              <option key={i} value={office}>{office}</option>
+            {addresses.map(addr => (
+              <option key={addr.address_ID} value={addr.address_ID}>
+                {addr.label}
+              </option>
             ))}
           </select>
 
