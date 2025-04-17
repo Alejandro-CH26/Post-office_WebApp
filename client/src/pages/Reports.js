@@ -8,7 +8,8 @@ const PackageReport = () => {
   const [filters, setFilters] = useState({
     from: '',
     to: '',
-    status: ''
+    status: '',
+    postOffice: ''
   });
 
   useEffect(() => {
@@ -26,24 +27,18 @@ const PackageReport = () => {
       const matchStatus = !filters.status || status === filters.status;
       const matchFrom = !filters.from || (timestamp && timestamp >= new Date(filters.from));
       const matchTo = !filters.to || (timestamp && timestamp <= new Date(filters.to));
+      const matchPostOffice = !filters.postOffice || pkg.PostOfficeName === filters.postOffice;
 
-      return matchStatus && matchFrom && matchTo;
+      return matchStatus && matchFrom && matchTo && matchPostOffice;
     })
-    .sort((a, b) => new Date(b.status_timestamp) - new Date(a.status_timestamp)); // newest first
+    .sort((a, b) => new Date(b.status_timestamp) - new Date(a.status_timestamp));
 
-  // 🔢 Metrics
   const totalCost = filtered.reduce((sum, p) => sum + parseFloat(p.shipping_cost || 0), 0).toFixed(2);
   const totalLost = filtered.filter(p => p.current_status?.toLowerCase() === 'lost').length;
   const totalDelivered = filtered.filter(p => p.current_status?.toLowerCase() === 'delivered').length;
   const totalInTransit = filtered.filter(p => p.current_status?.toLowerCase() === 'in transit').length;
 
-  const topDestination = (() => {
-    const count = {};
-    filtered.forEach(p => {
-      if (p.PostOffice) count[p.PostOffice] = (count[p.PostOffice] || 0) + 1;
-    });
-    return Object.entries(count).sort((a, b) => b[1] - a[1])[0]?.[0] || "—";
-  })();
+  const uniquePostOffices = [...new Set(data.map(p => p.PostOfficeName).filter(Boolean))];
 
   return (
     <div className="sales-report-wrapper">
@@ -72,6 +67,15 @@ const PackageReport = () => {
           <option value="in transit">In Transit</option>
           <option value="lost">Lost</option>
         </select>
+        <select
+          value={filters.postOffice}
+          onChange={e => setFilters(f => ({ ...f, postOffice: e.target.value }))}
+        >
+          <option value="">All Locations</option>
+          {uniquePostOffices.map((name, i) => (
+            <option key={i} value={name}>{name}</option>
+          ))}
+        </select>
       </div>
 
       {/* Summary */}
@@ -97,12 +101,6 @@ const PackageReport = () => {
             <p>Delivered</p>
             <h2>{totalDelivered}</h2>
           </div>
-          {/*
-          <div>
-            <p>Top Destination</p>
-            <h2 className="top-product-value">{topDestination}</h2>
-          </div>
-          */}
         </div>
       </div>
 
@@ -113,9 +111,8 @@ const PackageReport = () => {
             <tr>
               <th>Package ID</th>
               <th>Status</th>
-              <th>Destination</th>
-              <th>Driver</th>
-              <th>Vehicle</th>
+              <th>Location</th>
+              <th>Employee</th>
               <th>Shipping Cost</th>
               <th>Status Timestamp</th>
             </tr>
@@ -126,16 +123,15 @@ const PackageReport = () => {
                 <tr key={i}>
                   <td>{pkg.package_ID}</td>
                   <td>{pkg.current_status}</td>
-                  <td>{pkg.PostOffice || "—"}</td>
-                  <td>{pkg.DriverName || "—"}</td>
-                  <td>{pkg.Vehicle || "—"}</td>
+                  <td>{pkg.Location || "—"}</td>
+                  <td>{pkg.Employee || "—"}</td>
                   <td>${parseFloat(pkg.shipping_cost || 0).toFixed(2)}</td>
                   <td>{pkg.status_timestamp ? new Date(pkg.status_timestamp).toLocaleString() : "—"}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="no-data-message">
+                <td colSpan="6" className="no-data-message">
                   No package data found.
                 </td>
               </tr>

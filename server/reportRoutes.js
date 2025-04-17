@@ -8,34 +8,32 @@ function reportRoutes(req, res, reqUrl) {
   ) {
     connection.query(
       `
-      WITH latest_status AS (
-        SELECT th.package_ID, th.status, th.timestamp
-        FROM tracking_history th
-        INNER JOIN (
-          SELECT package_ID, MAX(timestamp) AS max_ts
-          FROM tracking_history
-          GROUP BY package_ID
-        ) latest ON th.package_ID = latest.package_ID AND th.timestamp = latest.max_ts
-      )
-      
-      SELECT 
-        p.package_ID,
-        ls.status AS current_status,
-        COALESCE(
-          CONCAT_WS(', ', a.address_Street, a.address_City, a.address_State, a.address_Zipcode),
-          'Unknown'
-        ) AS Destination,
-        v.license_plate AS Vehicle,
-        CONCAT(e.First_Name, ' ', e.Last_Name) AS DriverName,
-        p.shipping_cost,
-        ls.timestamp AS status_timestamp
-      FROM package p
-      INNER JOIN latest_status ls ON p.package_ID = ls.package_ID
-      LEFT JOIN addresses a ON p.Destination_ID = a.address_ID
-      LEFT JOIN delivery_vehicle v ON p.Assigned_Vehicle = v.Vehicle_ID
-      LEFT JOIN employees e ON v.Driver_ID = e.employee_ID
-      WHERE ls.timestamp IS NOT NULL
-      ORDER BY ls.timestamp DESC;
+WITH latest_status AS (
+  SELECT th.package_ID, th.status, th.timestamp, th.location_ID, th.employee_ID
+  FROM tracking_history th
+  INNER JOIN (
+    SELECT package_ID, MAX(timestamp) AS max_ts
+    FROM tracking_history
+    GROUP BY package_ID
+  ) latest ON th.package_ID = latest.package_ID AND th.timestamp = latest.max_ts
+)
+
+SELECT 
+  p.package_ID,
+  ls.status AS current_status,
+  CONCAT_WS(', ', a.address_Street, a.address_City, a.address_State, a.address_Zipcode) AS Location,
+  po.name AS PostOfficeName,
+  CONCAT(e.First_Name, ' ', e.Last_Name) AS Employee,
+  p.shipping_cost,
+  ls.timestamp AS status_timestamp
+FROM package p
+JOIN latest_status ls ON p.package_ID = ls.package_ID
+LEFT JOIN addresses a ON ls.location_ID = a.address_ID
+LEFT JOIN post_office_location po ON po.Address_ID = a.address_ID
+LEFT JOIN employees e ON ls.employee_ID = e.employee_ID
+WHERE ls.timestamp IS NOT NULL
+ORDER BY ls.timestamp DESC;
+
       `,
       (err, results) => {
         if (err) {
