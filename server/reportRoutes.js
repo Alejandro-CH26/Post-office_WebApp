@@ -1,7 +1,7 @@
 const connection = require("./db");
 
 function reportRoutes(req, res, reqUrl) {
-  // 📦 Packages Summary Report (Admin Analytics View)
+  //  Packages Summary Report (Admin Analytics View)
   if (
     req.method === "GET" &&
     reqUrl.pathname === "/reports/packages-summary"
@@ -98,7 +98,7 @@ ORDER BY ls.timestamp DESC;
     return true;
   }
 
-  // 👤 Deliveries by Driver Report
+  //  Deliveries by Driver Report
   if (
     req.method === "GET" &&
     reqUrl.pathname === "/reports/deliveries-by-driver"

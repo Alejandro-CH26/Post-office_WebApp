@@ -6,24 +6,26 @@ function vehicleRoutes(req, res, reqUrl) {
     const includeDeleted = reqUrl.query.includeDeleted === "true";
 
     const query = `
-    SELECT 
-      v.vehicle_ID AS id,
-      v.License_plate AS license_plate,
-      v.Fuel_type AS fuel_type,
-      v.Volume_Capacity AS volume_capacity,
-      v.Payload_Capacity AS payload_capacity,
-      v.Mileage AS mileage,
-      v.Status AS status,
-      v.Last_maintenance_date AS last_maintenance_date,
-      v.Location_ID AS location_id,
-      v.Driver_ID AS driver_id,
-      CONCAT(e.First_Name, ' ', e.Last_Name) AS driver_name,
-      CONCAT(a.address_Street, ', ', a.address_City, ', ', a.address_State, ' ', a.address_Zipcode) AS location_address,
-      v.is_deleted
-    FROM delivery_vehicle v
-    LEFT JOIN employees e ON v.Driver_ID = e.employee_ID
-    LEFT JOIN addresses a ON v.Location_ID = a.address_ID
-    ${includeDeleted ? "" : "WHERE v.is_deleted = FALSE"}
+  SELECT 
+    v.vehicle_ID AS id,
+    v.License_plate AS license_plate,
+    v.Fuel_type AS fuel_type,
+    v.Volume_Capacity AS volume_capacity,
+    v.Payload_Capacity AS payload_capacity,
+    v.Mileage AS mileage,
+    v.Status AS status,
+    v.Last_maintenance_date AS last_maintenance_date,
+    v.Location_ID AS location_id,
+    v.Driver_ID AS driver_id,
+    CONCAT(e.First_Name, ' ', e.Last_Name) AS driver_name,
+    CONCAT(a.address_Street, ', ', a.address_City, ', ', a.address_State, ' ', a.address_Zipcode) AS location_address,
+    po.name AS post_office_name,
+    v.is_deleted
+  FROM delivery_vehicle v
+  LEFT JOIN employees e ON v.Driver_ID = e.employee_ID
+  LEFT JOIN addresses a ON v.Location_ID = a.address_ID
+  LEFT JOIN post_office_location po ON a.address_ID = po.Address_ID
+  ${includeDeleted ? "" : "WHERE v.is_deleted = FALSE"}
   `;
   
 
@@ -226,7 +228,57 @@ function vehicleRoutes(req, res, reqUrl) {
     return true;
   }
 
+  // 6) Get all drivers (GET: /get-drivers)
+if (req.method === "GET" && reqUrl.pathname === "/get-drivers") {
+  const query = `
+    SELECT 
+      employee_ID AS driver_id,
+      CONCAT(First_Name, ' ', Last_Name) AS driver_name
+    FROM employees
+    WHERE Role = 'Driver'
+  `;
+
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ Error fetching drivers:", err);
+      res.writeHead(500);
+      res.end(JSON.stringify({ error: "Failed to get drivers." }));
+      return;
+    }
+
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(results));
+  });
+
+  return true;
+}
+
+// 7) Get all post office locations (GET: /get-postoffices)
+if (req.method === "GET" && reqUrl.pathname === "/get-postoffices") {
+  const query = `
+    SELECT 
+      po.Location_ID AS location_id,
+      po.name AS location_name
+    FROM post_office_location po
+  `;
+
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ Error fetching locations:", err);
+      res.writeHead(500);
+      res.end(JSON.stringify({ error: "Failed to get post offices." }));
+      return;
+    }
+
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(results));
+  });
+
+  return true;
+}
+
   return false;
 }
+
 
 module.exports = vehicleRoutes;

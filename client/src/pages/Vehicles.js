@@ -6,6 +6,7 @@ const Vehicles = () => {
   const [vehicles, setVehicles] = useState([]);
   const [fuelFilter, setFuelFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [locationFilter, setLocationFilter] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [showDeleted, setShowDeleted] = useState(false);
   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
@@ -72,14 +73,18 @@ const Vehicles = () => {
 
   const uniqueFuelTypes = [...new Set(vehicles.map(v => v.fuel_type))];
   const uniqueStatuses = [...new Set(vehicles.map(v => v.status))];
+  const uniqueLocations = [
+    ...new Set(vehicles.map(v => v.post_office_name).filter(name => !!name))
+  ];
 
   const filteredVehicles = vehicles.filter(v => {
     const fuelMatch = fuelFilter === 'All' || v.fuel_type === fuelFilter;
     const statusMatch = statusFilter === 'All' || v.status === statusFilter;
+    const locationMatch = locationFilter === 'All' || v.post_office_name === locationFilter;
     const searchMatch =
       v.license_plate.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (v.driver_id && v.driver_id.toString().includes(searchTerm));
-    return fuelMatch && statusMatch && searchMatch;
+    return fuelMatch && statusMatch && locationMatch && searchMatch;
   });
 
   return (
@@ -100,6 +105,14 @@ const Vehicles = () => {
           <option value="All">All</option>
           {uniqueStatuses.map((s, i) => (
             <option key={i} value={s}>{s}</option>
+          ))}
+        </select>
+
+        <label style={{ marginLeft: '1rem' }}>Location:</label>
+        <select value={locationFilter} onChange={(e) => setLocationFilter(e.target.value)}>
+          <option value="All">All Locations</option>
+          {uniqueLocations.map((loc, i) => (
+            <option key={i} value={loc}>{loc}</option>
           ))}
         </select>
 
@@ -135,8 +148,8 @@ const Vehicles = () => {
               <th>Payload</th>
               <th>Mileage</th>
               <th>Status</th>
-              <th>Driver</th>
               <th>Last Maintenance</th>
+              <th>Driver</th>
               <th>Location</th>
               <th>Actions</th>
             </tr>
@@ -151,9 +164,9 @@ const Vehicles = () => {
                 <td>{v.payload_capacity}</td>
                 <td>{v.mileage}</td>
                 <td>{v.status}</td>
-                <td>{v.driver_name || 'Unassigned'}</td>
                 <td>{v.last_maintenance_date ? new Date(v.last_maintenance_date).toLocaleDateString() : "N/A"}</td>
-                <td>{v.location_address || '-'}</td>
+                <td>{v.driver_name || 'Unassigned'}</td>
+                <td>{v.post_office_name || v.location_address || '-'}</td>
                 <td>
                   {v.is_deleted ? (
                     <button

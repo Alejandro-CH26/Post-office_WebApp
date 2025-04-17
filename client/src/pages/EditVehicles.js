@@ -19,6 +19,9 @@ function EditVehicle() {
     driver_id: ""
   });
 
+  const [locations, setLocations] = useState([]);
+  const [drivers, setDrivers] = useState([]);
+
   // Fetch vehicle data
   useEffect(() => {
     const fetchVehicle = async () => {
@@ -49,7 +52,31 @@ function EditVehicle() {
       }
     };
 
+    const fetchMetaData = async () => {
+      try {
+        const [locationRes, driverRes] = await Promise.all([
+          fetch(`${BASE_URL}/get-postoffices`),
+          fetch(`${BASE_URL}/get-drivers`)
+        ]);
+    
+        const [locationData, driverData] = await Promise.all([
+          locationRes.json(),
+          driverRes.json()
+        ]);
+    
+        // Ensure they're arrays before setting
+        setLocations(Array.isArray(locationData) ? locationData : []);
+        setDrivers(Array.isArray(driverData) ? driverData : []);
+      } catch (err) {
+        console.error("❌ Error fetching metadata:", err);
+        setLocations([]);
+        setDrivers([]);
+      }
+    };
+    
+
     fetchVehicle();
+    fetchMetaData();
   }, [id, BASE_URL, navigate]);
 
   const handleChange = (e) => {
@@ -147,21 +174,31 @@ function EditVehicle() {
             value={vehicle.last_maintenance_date}
             onChange={handleChange}
           />
-          <input
-            type="number"
+          <select
             name="location_id"
-            placeholder="Location ID"
             value={vehicle.location_id}
             onChange={handleChange}
             required
-          />
-          <input
-            type="number"
+          >
+            <option value="">Select Location</option>
+            {locations.map((loc) => (
+              <option key={loc.location_id} value={loc.location_id}>
+                {loc.location_name}
+              </option>
+            ))}
+          </select>
+          <select
             name="driver_id"
-            placeholder="Driver ID (optional)"
             value={vehicle.driver_id}
             onChange={handleChange}
-          />
+          >
+            <option value="">Select Driver</option>
+            {drivers.map((drv) => (
+              <option key={drv.driver_id} value={drv.driver_id}>
+                {drv.driver_name}
+              </option>
+            ))}
+          </select>
 
           <button type="submit">Save Changes</button>
         </form>

@@ -46,17 +46,16 @@ const PackageReport = () => {
 
       {/* Filters */}
       <div className="filters">
-        <input
-          type="date"
-          value={filters.from}
-          onChange={e => setFilters(f => ({ ...f, from: e.target.value }))}
-        />
-        <input
-          type="date"
-          value={filters.to}
-          onChange={e => setFilters(f => ({ ...f, to: e.target.value }))}
-        />
-        <select
+      <select
+          value={filters.postOffice}
+          onChange={e => setFilters(f => ({ ...f, postOffice: e.target.value }))}
+        >
+          <option value="">All Locations</option>
+          {uniquePostOffices.map((name, i) => (
+            <option key={i} value={name}>{name}</option>
+          ))}
+        </select>
+      <select
           value={filters.status}
           onChange={e => setFilters(f => ({ ...f, status: e.target.value }))}
         >
@@ -67,15 +66,16 @@ const PackageReport = () => {
           <option value="in transit">In Transit</option>
           <option value="lost">Lost</option>
         </select>
-        <select
-          value={filters.postOffice}
-          onChange={e => setFilters(f => ({ ...f, postOffice: e.target.value }))}
-        >
-          <option value="">All Locations</option>
-          {uniquePostOffices.map((name, i) => (
-            <option key={i} value={name}>{name}</option>
-          ))}
-        </select>
+        <input
+          type="date"
+          value={filters.from}
+          onChange={e => setFilters(f => ({ ...f, from: e.target.value }))}
+        />
+        <input
+          type="date"
+          value={filters.to}
+          onChange={e => setFilters(f => ({ ...f, to: e.target.value }))}
+        />
       </div>
 
       {/* Summary */}
