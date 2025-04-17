@@ -29,23 +29,10 @@ function SearchPackage() {
             onChange={(e) => setTrackingNumber(e.target.value)}
             onKeyDown={handleKeyDown}
           />
-          <button className="search-btn" onClick={handleSearch}></button>
+          <button className="search-btn" onClick={handleSearch}>🔍</button>
         </div>
 
-        <div className="features">
-          <a href="" className="feature-button">
-            <span className="icon"></span>
-            <p><strong>Click-N-Ship®</strong><br />Pay for and print shipping labels.</p>
-          </a>
-          <a href="" className="feature-button">
-            <span className="icon"></span>
-            <p><strong>Stamps & Supplies</strong><br />Forever® Stamps: $0.73</p>
-          </a>
-          <a href="" className="feature-button">
-            <span className="icon"></span>
-            <p><strong>Informed Delivery®</strong><br />Digitally preview your incoming mail.</p>
-          </a>
-        </div>
+        
       </div>
     </div>
   );
