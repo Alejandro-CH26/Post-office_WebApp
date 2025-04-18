@@ -37,7 +37,7 @@ const PostOffices = () => {
       const res = await fetch(`${BASE_URL}/delete-postoffice`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ location_ID: id })
+        body: JSON.stringify({ address_ID: id })
       });
 
       if (res.ok) {
@@ -57,7 +57,7 @@ const PostOffices = () => {
       const res = await fetch(`${BASE_URL}/undelete-postoffice`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ location_ID: id })
+        body: JSON.stringify({ address_ID: id })
       });
 
       if (res.ok) {
@@ -79,8 +79,9 @@ const PostOffices = () => {
     const matchesCity = cityFilter === 'All' || po.city === cityFilter;
     const matchesState = stateFilter === 'All' || po.state === stateFilter;
     const matchesSearch =
-      po.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      po.street_address.toLowerCase().includes(searchTerm.toLowerCase());
+      po.street_address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (po.unit_number && po.unit_number.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (po.post_office_name && po.post_office_name.toLowerCase().includes(searchTerm.toLowerCase()));
     return matchesCity && matchesState && matchesSearch;
   });
 
@@ -107,7 +108,7 @@ const PostOffices = () => {
 
         <input
           type="text"
-          placeholder="Search name or address..."
+          placeholder="Search address, unit or name..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{ marginLeft: "1rem", padding: "0.3rem" }}
@@ -131,8 +132,9 @@ const PostOffices = () => {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Name</th>
+              <th>Post Office Name</th>
               <th>Address</th>
+              <th>Unit</th>
               <th>City</th>
               <th>State</th>
               <th>Zip</th>
@@ -143,8 +145,9 @@ const PostOffices = () => {
             {filteredPostOffices.map((po, i) => (
               <tr key={i} className={po.is_deleted ? "fired-row" : ""}>
                 <td>{po.id}</td>
-                <td>{po.name}</td>
+                <td>{po.post_office_name || 'N/A'}</td>
                 <td>{po.street_address}</td>
+                <td>{po.unit_number || 'N/A'}</td>
                 <td>{po.city}</td>
                 <td>{po.state}</td>
                 <td>{po.zip}</td>
