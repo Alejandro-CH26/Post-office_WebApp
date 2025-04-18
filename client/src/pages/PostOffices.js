@@ -80,7 +80,8 @@ const PostOffices = () => {
     const matchesState = stateFilter === 'All' || po.state === stateFilter;
     const matchesSearch =
       po.street_address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (po.unit_number && po.unit_number.toLowerCase().includes(searchTerm.toLowerCase()));
+      (po.unit_number && po.unit_number.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (po.post_office_name && po.post_office_name.toLowerCase().includes(searchTerm.toLowerCase()));
     return matchesCity && matchesState && matchesSearch;
   });
 
@@ -107,7 +108,7 @@ const PostOffices = () => {
 
         <input
           type="text"
-          placeholder="Search address or unit..."
+          placeholder="Search address, unit or name..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{ marginLeft: "1rem", padding: "0.3rem" }}
@@ -131,6 +132,7 @@ const PostOffices = () => {
           <thead>
             <tr>
               <th>ID</th>
+              <th>Post Office Name</th>
               <th>Address</th>
               <th>Unit</th>
               <th>City</th>
@@ -143,6 +145,7 @@ const PostOffices = () => {
             {filteredPostOffices.map((po, i) => (
               <tr key={i} className={po.is_deleted ? "fired-row" : ""}>
                 <td>{po.id}</td>
+                <td>{po.post_office_name || 'N/A'}</td>
                 <td>{po.street_address}</td>
                 <td>{po.unit_number || 'N/A'}</td>
                 <td>{po.city}</td>

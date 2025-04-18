@@ -21,8 +21,9 @@ function EditVehicle() {
 
   const [locations, setLocations] = useState([]);
   const [drivers, setDrivers] = useState([]);
+  const [allDrivers, setAllDrivers] = useState([]); // Keep for fallback
 
-  // Fetch vehicle data
+  // Fetch vehicle + meta data
   useEffect(() => {
     const fetchVehicle = async () => {
       try {
@@ -52,32 +53,53 @@ function EditVehicle() {
       }
     };
 
-    const fetchMetaData = async () => {
+    const fetchLocationsAndAllDrivers = async () => {
       try {
-        const [locationRes, driverRes] = await Promise.all([
+        const [locRes, driverRes] = await Promise.all([
           fetch(`${BASE_URL}/get-postoffices`),
           fetch(`${BASE_URL}/get-drivers`)
         ]);
-    
-        const [locationData, driverData] = await Promise.all([
-          locationRes.json(),
+
+        const [locationData, allDriverData] = await Promise.all([
+          locRes.json(),
           driverRes.json()
         ]);
-    
-        // Ensure they're arrays before setting
+
         setLocations(Array.isArray(locationData) ? locationData : []);
-        setDrivers(Array.isArray(driverData) ? driverData : []);
+        setAllDrivers(Array.isArray(allDriverData) ? allDriverData : []);
       } catch (err) {
         console.error("❌ Error fetching metadata:", err);
         setLocations([]);
+        setAllDrivers([]);
+      }
+    };
+
+    fetchVehicle();
+    fetchLocationsAndAllDrivers();
+  }, [id, BASE_URL, navigate]);
+
+  // Fetch filtered drivers when location changes
+  useEffect(() => {
+    const fetchDriversByLocation = async () => {
+      if (!vehicle.location_id) return;
+
+      try {
+        const res = await fetch(`${BASE_URL}/get-drivers-by-location?location_id=${vehicle.location_id}`);
+        const data = await res.json();
+
+        if (res.ok && Array.isArray(data)) {
+          setDrivers(data);
+        } else {
+          setDrivers([]);
+        }
+      } catch (err) {
+        console.error("❌ Error fetching drivers by location:", err);
         setDrivers([]);
       }
     };
-    
 
-    fetchVehicle();
-    fetchMetaData();
-  }, [id, BASE_URL, navigate]);
+    fetchDriversByLocation();
+  }, [vehicle.location_id, BASE_URL]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -113,6 +135,17 @@ function EditVehicle() {
       alert("An error occurred while updating the vehicle.");
     }
   };
+
+  // Merge in current driver if not in filtered list
+  const currentDriverInList = drivers.some((d) => d.driver_id === vehicle.driver_id);
+  const driversToShow = currentDriverInList
+    ? drivers
+    : [
+        ...drivers,
+        ...allDrivers.filter(
+          (drv) => drv.driver_id === vehicle.driver_id
+        )
+      ];
 
   return (
     <div className="edit-container">
@@ -193,7 +226,7 @@ function EditVehicle() {
             onChange={handleChange}
           >
             <option value="">Select Driver</option>
-            {drivers.map((drv) => (
+            {driversToShow.map((drv) => (
               <option key={drv.driver_id} value={drv.driver_id}>
                 {drv.driver_name}
               </option>

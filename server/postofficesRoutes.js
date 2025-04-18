@@ -6,18 +6,22 @@ function postOfficeRoutes(req, res, reqUrl) {
     const includeDeleted = reqUrl.query.includeDeleted === "true";
 
     const query = `
-      SELECT 
-        address_ID AS id,
-        address_Street AS street_address,
-        address_City AS city,
-        address_State AS state,
-        address_Zipcode AS zip,
-        unit_number,
-        Office_Location,
-        is_deleted
-      FROM addresses
-      WHERE Office_Location = 1
-      ${includeDeleted ? "" : "AND is_deleted = FALSE"}
+SELECT 
+  a.address_ID AS id,
+  a.address_Street AS street_address,
+  a.address_City AS city,
+  a.address_State AS state,
+  a.address_Zipcode AS zip,
+  a.unit_number,
+  a.Office_Location,
+  a.is_deleted,
+  p.name AS post_office_name,
+  p.location_ID
+FROM addresses a
+LEFT JOIN post_office_location p ON a.address_ID = p.Address_ID
+WHERE a.Office_Location = 1
+${includeDeleted ? "" : "AND a.is_deleted = FALSE"}
+
     `;
 
     connection.query(query, (err, results) => {
@@ -46,17 +50,21 @@ function postOfficeRoutes(req, res, reqUrl) {
     }
 
     const query = `
-      SELECT 
-        address_ID AS id,
-        address_Street AS street_address,
-        address_City AS city,
-        address_State AS state,
-        address_Zipcode AS zip,
-        unit_number,
-        Office_Location,
-        is_deleted
-      FROM addresses
-      WHERE Office_Location = 1 AND address_ID = ?
+SELECT 
+  a.address_ID AS id,
+  a.address_Street AS street_address,
+  a.address_City AS city,
+  a.address_State AS state,
+  a.address_Zipcode AS zip,
+  a.unit_number,
+  a.Office_Location,
+  a.is_deleted,
+  p.name AS name,
+  p.office_phone AS office_phone
+FROM addresses a
+LEFT JOIN post_office_location p ON a.address_ID = p.Address_ID
+WHERE a.Office_Location = 1 AND a.address_ID = ?
+
     `;
 
     connection.query(query, [id], (err, results) => {
@@ -80,125 +88,193 @@ function postOfficeRoutes(req, res, reqUrl) {
     return true;
   }
 
-  // 3) Soft delete a post office (POST: /delete-postoffice)
-  if (req.method === "POST" && reqUrl.pathname === "/delete-postoffice") {
-    let body = "";
-    req.on("data", chunk => (body += chunk));
-    req.on("end", () => {
-      try {
-        const { address_ID } = JSON.parse(body);
-        if (!address_ID) {
-          res.writeHead(400);
-          res.end(JSON.stringify({ error: "Missing address_ID." }));
-          return;
-        }
-
-        const query = `UPDATE addresses SET is_deleted = TRUE WHERE address_ID = ? AND Office_Location = 1`;
-
-        connection.query(query, [address_ID], (err) => {
-          if (err) {
-            console.error("❌ Error deleting:", err);
-            res.writeHead(500);
-            res.end(JSON.stringify({ error: "Failed to delete." }));
-            return;
-          }
-
-          res.writeHead(200);
-          res.end(JSON.stringify({ message: "Post office deleted successfully." }));
-        });
-      } catch (err) {
+// 3) Soft delete a post office and fire employees (POST: /delete-postoffice)
+if (req.method === "POST" && reqUrl.pathname === "/delete-postoffice") {
+  let body = "";
+  req.on("data", chunk => (body += chunk));
+  req.on("end", async () => {
+    try {
+      const { address_ID } = JSON.parse(body);
+      if (!address_ID) {
         res.writeHead(400);
-        res.end(JSON.stringify({ error: "Invalid JSON" }));
+        res.end(JSON.stringify({ error: "Missing address_ID." }));
+        return;
       }
-    });
 
-    return true;
-  }
+      // First: get post office name by Address_ID
+      const [postOfficeResult] = await connection
+        .promise()
+        .query(`SELECT name FROM post_office_location WHERE Address_ID = ?`, [address_ID]);
 
-  // 4) Restore soft-deleted post office (POST: /undelete-postoffice)
-  if (req.method === "POST" && reqUrl.pathname === "/undelete-postoffice") {
-    let body = "";
-    req.on("data", chunk => (body += chunk));
-    req.on("end", () => {
-      try {
-        const { address_ID } = JSON.parse(body);
-        if (!address_ID) {
-          res.writeHead(400);
-          res.end(JSON.stringify({ error: "Missing address_ID." }));
-          return;
-        }
+      const postOfficeName = postOfficeResult[0]?.name;
 
-        const query = `UPDATE addresses SET is_deleted = FALSE WHERE address_ID = ? AND Office_Location = 1`;
+      if (!postOfficeName) {
+        res.writeHead(404);
+        res.end(JSON.stringify({ error: "Post office not found." }));
+        return;
+      }
 
-        connection.query(query, [address_ID], (err) => {
-          if (err) {
-            res.writeHead(500);
-            res.end(JSON.stringify({ error: "Failed to restore." }));
-            return;
-          }
+      // Soft delete in both tables
+      const deleteAddresses = connection
+        .promise()
+        .query(`UPDATE addresses SET is_deleted = TRUE WHERE address_ID = ?`, [address_ID]);
 
-          res.writeHead(200);
-          res.end(JSON.stringify({ message: "Post office restored successfully." }));
-        });
-      } catch (err) {
+      const deletePostOffice = connection
+        .promise()
+        .query(`UPDATE post_office_location SET is_deleted = TRUE WHERE Address_ID = ?`, [address_ID]);
+
+      const fireEmployees = connection
+        .promise()
+        .query(`UPDATE employees SET is_fired = TRUE WHERE Location = ?`, [postOfficeName]);
+
+      await Promise.all([deleteAddresses, deletePostOffice, fireEmployees]);
+
+      res.writeHead(200);
+      res.end(JSON.stringify({ message: "Post office deleted and employees fired." }));
+    } catch (err) {
+      console.error("❌ Error deleting and firing employees:", err);
+      res.writeHead(500);
+      res.end(JSON.stringify({ error: "Failed to delete or fire employees." }));
+    }
+  });
+
+  return true;
+}
+
+
+
+
+// 4) Restore soft-deleted post office (POST: /undelete-postoffice)
+if (req.method === "POST" && reqUrl.pathname === "/undelete-postoffice") {
+  let body = "";
+  req.on("data", chunk => (body += chunk));
+  req.on("end", () => {
+    try {
+      const { address_ID } = JSON.parse(body);
+      if (!address_ID) {
         res.writeHead(400);
-        res.end(JSON.stringify({ error: "Invalid JSON" }));
+        res.end(JSON.stringify({ error: "Missing address_ID." }));
+        return;
       }
-    });
 
-    return true;
-  }
+      const restoreAddressQuery = `
+        UPDATE addresses 
+        SET is_deleted = FALSE 
+        WHERE address_ID = ? AND Office_Location = 1
+      `;
 
-  // 5) Update post office (POST: /update-postoffice)
-  if (req.method === "POST" && reqUrl.pathname === "/update-postoffice") {
-    let body = "";
-    req.on("data", chunk => (body += chunk));
-    req.on("end", () => {
-      try {
-        const {
-          address_ID,
-          street_address,
-          city,
-          state,
-          zip,
-          unit_number
-        } = JSON.parse(body);
-
-        if (!address_ID || !street_address || !city || !state || !zip) {
-          res.writeHead(400);
-          res.end(JSON.stringify({ error: "Missing required fields." }));
+      connection.query(restoreAddressQuery, [address_ID], (err1) => {
+        if (err1) {
+          console.error("❌ Error restoring address:", err1);
+          res.writeHead(500);
+          res.end(JSON.stringify({ error: "Failed to restore address." }));
           return;
         }
 
-        const query = `
-          UPDATE addresses
-          SET address_Street = ?, address_City = ?, address_State = ?, address_Zipcode = ?, unit_number = ?
-          WHERE address_ID = ? AND Office_Location = 1 AND is_deleted = FALSE
+        const restoreLocationQuery = `
+          UPDATE post_office_location 
+          SET is_deleted = FALSE 
+          WHERE Address_ID = ?
         `;
 
-        connection.query(
-          query,
-          [street_address, city, state, zip, unit_number || null, address_ID],
-          (err) => {
-            if (err) {
-              console.error("❌ Error updating:", err);
-              res.writeHead(500);
-              res.end(JSON.stringify({ error: "Failed to update." }));
-              return;
-            }
-
-            res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ message: "Post office updated successfully." }));
+        connection.query(restoreLocationQuery, [address_ID], (err2) => {
+          if (err2) {
+            console.error("❌ Error restoring post office location:", err2);
+            res.writeHead(500);
+            res.end(JSON.stringify({ error: "Address restored but failed to update post office location." }));
+            return;
           }
-        );
-      } catch (err) {
-        res.writeHead(400);
-        res.end(JSON.stringify({ error: "Invalid JSON" }));
-      }
-    });
 
-    return true;
-  }
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ message: "Post office restored successfully." }));
+        });
+      });
+    } catch (err) {
+      console.error("❌ JSON parse error:", err);
+      res.writeHead(400);
+      res.end(JSON.stringify({ error: "Invalid JSON" }));
+    }
+  });
+
+  return true;
+}
+
+
+  // 5) Update post office (POST: /update-postoffice)
+if (req.method === "POST" && reqUrl.pathname === "/update-postoffice") {
+  let body = "";
+  req.on("data", chunk => (body += chunk));
+  req.on("end", () => {
+    try {
+      const {
+        address_ID,
+        street_address,
+        city,
+        state,
+        zip,
+        unit_number,
+        name,
+        office_phone
+      } = JSON.parse(body);
+
+      if (!address_ID || !street_address || !city || !state || !zip || !name) {
+        res.writeHead(400);
+        res.end(JSON.stringify({ error: "Missing required fields." }));
+        return;
+      }
+
+      const updateAddressQuery = `
+        UPDATE addresses
+        SET address_Street = ?, address_City = ?, address_State = ?, address_Zipcode = ?, unit_number = ?
+        WHERE address_ID = ? AND Office_Location = 1 AND is_deleted = FALSE
+      `;
+
+      const updatePostOfficeQuery = `
+        UPDATE post_office_location
+        SET name = ?, office_phone = ?
+        WHERE Address_ID = ?
+      `;
+
+      // First, update the address
+      connection.query(
+        updateAddressQuery,
+        [street_address, city, state, zip, unit_number || null, address_ID],
+        (err1) => {
+          if (err1) {
+            console.error("❌ Error updating address:", err1);
+            res.writeHead(500);
+            res.end(JSON.stringify({ error: "Failed to update address." }));
+            return;
+          }
+
+          // Then, update the post office name and phone
+          connection.query(
+            updatePostOfficeQuery,
+            [name, office_phone || null, address_ID],
+            (err2) => {
+              if (err2) {
+                console.error("❌ Error updating post office name/phone:", err2);
+                res.writeHead(500);
+                res.end(JSON.stringify({ error: "Failed to update post office name or phone." }));
+                return;
+              }
+
+              res.writeHead(200, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ message: "Post office updated successfully." }));
+            }
+          );
+        }
+      );
+    } catch (err) {
+      console.error("❌ JSON parse error:", err);
+      res.writeHead(400);
+      res.end(JSON.stringify({ error: "Invalid JSON" }));
+    }
+  });
+
+  return true;
+}
+
 
   return false; // Default fallback
 }

@@ -11,11 +11,11 @@ function EditEmployee() {
     first_Name: "",
     middle_Name: "",
     last_Name: "",
-    location: "",
+    location: "", // This is now Location_ID
     role: ""
   });
 
-  const [addresses, setAddresses] = useState([]);
+  const [locations, setLocations] = useState([]); // post_office_location data
 
   // Fetch employee info
   useEffect(() => {
@@ -29,7 +29,7 @@ function EditEmployee() {
             first_Name: data.first_Name || "",
             middle_Name: data.middle_Name || "",
             last_Name: data.last_Name || "",
-            location: data.location || "", // this should be address_ID
+            location: data.location || "", // Location_ID
             role: data.role || ""
           });
         } else {
@@ -46,21 +46,21 @@ function EditEmployee() {
     fetchEmployee();
   }, [id, BASE_URL, navigate]);
 
-  // Fetch all addresses
+  // Fetch all post office locations
   useEffect(() => {
-    const fetchAddresses = async () => {
+    const fetchLocations = async () => {
       try {
-        const res = await fetch(`${BASE_URL}/all-addresses`);
+        const res = await fetch(`${BASE_URL}/post-offices`);
         const data = await res.json();
         if (Array.isArray(data)) {
-          setAddresses(data); // [{ address_ID, label }]
+          setLocations(data); // expects [{ name, Address_ID }]
         }
       } catch (err) {
-        console.error("❌ Error fetching addresses:", err);
+        console.error("❌ Error fetching post office locations:", err);
       }
     };
 
-    fetchAddresses();
+    fetchLocations();
   }, [BASE_URL]);
 
   const handleChange = (e) => {
@@ -134,9 +134,9 @@ function EditEmployee() {
             required
           >
             <option value="">Select Location</option>
-            {addresses.map(addr => (
-              <option key={addr.address_ID} value={addr.address_ID}>
-                {addr.label}
+            {locations.map((loc, idx) => (
+              <option key={idx} value={loc.Address_ID}>
+                {loc.name}
               </option>
             ))}
           </select>

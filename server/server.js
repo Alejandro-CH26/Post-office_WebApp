@@ -147,7 +147,7 @@ const server = http.createServer((req, res) => {
     else if (req.method === "GET" && req.url === "/locations") {
         try {
             db.query(
-                "SELECT location_ID, name FROM post_office_location",
+                "SELECT location_ID, name FROM post_office_location WHERE is_deleted = FALSE",
                 (err, results) => {
                     if (err) {
                         console.error("Error fetching locations:", err);

@@ -156,18 +156,19 @@ function employeeRoutes(req, res, reqUrl) {
     }
 
     const query = `
-      SELECT 
-        e.employee_ID,
-        e.First_Name AS first_Name,
-        e.Middle_Name AS middle_Name,
-        e.Last_Name AS last_Name,
-        e.Location AS location,
-        e.Role AS role,
-        dv.Vehicle_ID AS vehicle_ID,
-        dv.Fuel_type AS fuel_type
-      FROM employees e
-      LEFT JOIN delivery_vehicle dv ON e.employee_ID = dv.Driver_ID
-      WHERE e.employee_ID = ? AND e.Is_Deleted = 0
+SELECT 
+  e.employee_ID,
+  e.First_Name AS first_Name,
+  e.Middle_Name AS middle_Name,
+  e.Last_Name AS last_Name,
+  e.Location_ID AS location,
+  e.Role AS role,
+  dv.Vehicle_ID AS vehicle_ID,
+  dv.Fuel_type AS fuel_type
+FROM employees e
+LEFT JOIN delivery_vehicle dv ON e.employee_ID = dv.Driver_ID
+WHERE e.employee_ID = ? AND e.Is_Deleted = 0
+
     `;
 
     connection.query(query, [id], (err, results) => {
@@ -201,7 +202,7 @@ function employeeRoutes(req, res, reqUrl) {
         }
 
         const query = `
-          UPDATE employees SET First_Name = ?, Middle_Name = ?, Last_Name = ?, Location = ?, Role = ?
+          UPDATE employees SET First_Name = ?, Middle_Name = ?, Last_Name = ?, Location_ID = ?, Role = ?
           WHERE employee_ID = ? AND Is_Deleted = 0
         `;
 
@@ -229,27 +230,24 @@ function employeeRoutes(req, res, reqUrl) {
     const includeDeleted = reqUrl.query.includeDeleted === "true";
 
     const query = `
-      SELECT 
-        e.employee_ID AS id,
-        CONCAT(e.First_Name, ' ', e.Last_Name) AS name,
-        e.Location AS address_id,
-        CASE
-          WHEN po.name IS NOT NULL THEN po.name
-          ELSE CONCAT(a.address_Street, ', ', a.address_City, ', ', a.address_State, ' ', a.address_Zipcode)
-        END AS location_name,
-        CASE 
-          WHEN e.Role = 'Driver' AND dv.Vehicle_ID IS NOT NULL 
-            THEN CONCAT('Driver - Truck (', dv.Vehicle_ID, ') - ', dv.Fuel_type)
-          ELSE e.Role
-        END AS position,
-        e.Is_Fired AS isFired,
-        e.Is_Deleted AS isDeleted
-      FROM employees e
-      LEFT JOIN delivery_vehicle dv ON e.employee_ID = dv.Driver_ID
-      LEFT JOIN addresses a ON e.Location = a.address_ID
-      LEFT JOIN post_office_location po ON a.address_ID = po.Address_ID
-      ${includeDeleted ? "" : "WHERE e.Is_Deleted = 0"}
+    SELECT 
+      e.employee_ID AS id,
+      CONCAT(e.First_Name, ' ', e.Last_Name) AS name,
+      e.Location_ID AS location_id,
+      po.name AS location_name,
+      CASE 
+        WHEN e.Role = 'Driver' AND dv.Vehicle_ID IS NOT NULL 
+          THEN CONCAT('Driver - Truck (', dv.Vehicle_ID, ') - ', dv.Fuel_type)
+        ELSE e.Role
+      END AS position,
+      e.Is_Fired AS isFired,
+      e.Is_Deleted AS isDeleted
+    FROM employees e
+    LEFT JOIN delivery_vehicle dv ON e.employee_ID = dv.Driver_ID
+    LEFT JOIN post_office_location po ON e.Location_ID = po.location_ID
+    ${includeDeleted ? "" : "WHERE e.Is_Deleted = 0 AND po.is_deleted = 0"}
     `;
+    
 
     connection.query(query, (err, results) => {
       if (err) {
@@ -268,12 +266,14 @@ function employeeRoutes(req, res, reqUrl) {
 
   // 9) Get all post office names (GET: /post-offices)
   if (req.method === "GET" && reqUrl.pathname === "/post-offices") {
-    const query = `
-      SELECT 
-        CONCAT(address_Street, ', ', address_City, ', ', address_State, ' ', address_Zipcode) AS name
-      FROM db1.addresses
-      WHERE Office_Location = 1 AND is_deleted = 0
-    `;
+const query = `
+  SELECT 
+    name,
+    Address_ID
+  FROM db1.post_office_location
+  WHERE is_deleted = 0
+`;
+
 
     connection.query(query, (err, results) => {
       if (err) {
