@@ -34,7 +34,7 @@ function AdminLogin() {
                 setError(data.error || "Invalid credentials");
             }
         } catch (err) {
-            console.error("❌ Login error:", err);
+            console.error("Login error:", err);
             setError("Server error, try again.");
         }
     };
