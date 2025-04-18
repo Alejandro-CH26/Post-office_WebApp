@@ -19,10 +19,9 @@ function setCorsHeaders(req, res) {
 }
 
 function driverRoutes(req, res) {
-    // Handle CORS preflight requests
     if (req.method === "OPTIONS") {
-        setCorsHeaders(req, res);  // Set headers first
-        res.writeHead(200);   // Then set status code
+        setCorsHeaders(req, res);  
+        res.writeHead(200);   
         res.end();
         return true;
     }
@@ -143,7 +142,6 @@ function driverRoutes(req, res) {
                         return;
                     }
 
-                    // Success!
                     setCorsHeaders(req, res);
                     res.writeHead(200, { "Content-Type": "application/json" });
                     res.end(JSON.stringify({ 
@@ -181,7 +179,7 @@ function driverRoutes(req, res) {
                     return;
                 }
 
-                // Verify driver is assigned to this package (security check)
+                // Verify driver is assigned to this package
                 const verifyQuery = `
                     SELECT COUNT(*) AS count
                     FROM employees AS E, Package AS P, delivery_vehicle AS D
@@ -207,7 +205,7 @@ function driverRoutes(req, res) {
                         return;
                     }
 
-                    // UPDATED: Insert into tracking_history with employee_ID
+                    // Insert into tracking_history with employee_ID
                     const trackingQuery = `
                         INSERT INTO tracking_history (package_ID, location_ID, status, timestamp, employee_ID)
                         SELECT 
@@ -237,7 +235,6 @@ function driverRoutes(req, res) {
                             return;
                         }
 
-                        // Success!
                         const updatePackageQuery = `
                         UPDATE Package 
                         SET Assigned_vehicle = NULL
@@ -260,7 +257,7 @@ function driverRoutes(req, res) {
                             return;
                         }
 
-                        // Success! (updated message)
+                        
                         setCorsHeaders(req, res);
                         res.writeHead(200, { "Content-Type": "application/json" });
                         res.end(JSON.stringify({ 
@@ -282,7 +279,7 @@ function driverRoutes(req, res) {
         return true;
     }
 
-    // UPDATED ENDPOINT: Handle package status update (for lost packages, etc.)
+    // Handle package status update (for lost packages, etc.)
     if (req.method === "POST" && reqUrl.pathname === "/driver/update-package-status") {
         let body = "";
 
@@ -390,7 +387,7 @@ function driverRoutes(req, res) {
                                 return;
                             }
 
-                            // Success!
+                            
                             setCorsHeaders(req, res);
                             res.writeHead(200, { "Content-Type": "application/json" });
                             res.end(JSON.stringify({ 
@@ -411,7 +408,7 @@ function driverRoutes(req, res) {
         return true;
     }
 
-    return false; // Not handled by this router
+    return false;
 }
 
 module.exports = driverRoutes;

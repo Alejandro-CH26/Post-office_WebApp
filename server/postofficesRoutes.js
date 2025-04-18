@@ -276,7 +276,7 @@ if (req.method === "POST" && reqUrl.pathname === "/update-postoffice") {
 }
 
 
-  return false; // Default fallback
+  return false;
 }
 
 module.exports = postOfficeRoutes;
