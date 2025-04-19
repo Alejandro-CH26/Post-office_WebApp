@@ -13,7 +13,7 @@ module.exports = function postOfficeAPI(req, res, reqUrl) {
           return res.end(JSON.stringify({ status: "error", message: "Missing required fields." }));
         }
 
-        // Insert into addresses table
+        
         const [addressResult] = await db.promise().query(
           `INSERT INTO addresses (address_Street, address_City, address_State, address_Zipcode, Office_Location)
            VALUES (?, ?, ?, ?, ?)`,
@@ -22,7 +22,7 @@ module.exports = function postOfficeAPI(req, res, reqUrl) {
 
         const addressId = addressResult.insertId;
 
-        // Insert into post_office_location using the same ID
+        
         await db.promise().query(
           `INSERT INTO post_office_location 
            (location_ID, name, street_address, city, state, zip, office_phone, Address_ID)
@@ -30,7 +30,7 @@ module.exports = function postOfficeAPI(req, res, reqUrl) {
           [addressId, name, street_address, city, state, zip, office_phone, addressId]
         );
 
-        // Insert 7 inventory rows for the new location
+       
         const inventoryInserts = [];
         for (let productId = 1; productId <= 7; productId++) {
           inventoryInserts.push([addressId, productId, 100]);

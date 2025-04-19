@@ -5,7 +5,7 @@ function routeHandler(req, res, reqUrl) {
   const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
   const query = parsedUrl.searchParams;
 
-  // SALES REPORT - Detailed Transactions
+ 
   if (req.method === "GET" && parsedUrl.pathname === "/sales-report") {
     (async () => {
       let connection;
@@ -69,7 +69,7 @@ function routeHandler(req, res, reqUrl) {
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ status: "success", data: rows }));
       } catch (error) {
-        console.error("❌ Sales Report Error:", error);
+        console.error("Sales Report Error:", error);
         if (!res.headersSent) {
           res.writeHead(500, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ status: "error", message: error.message }));
@@ -81,7 +81,7 @@ function routeHandler(req, res, reqUrl) {
     return true;
   }
   
-  // SALES SUMMARY - Revenue, Total Sales, New Customers, Top Product, Packages Created
+ 
   if (req.method === "GET" && parsedUrl.pathname === "/sales-summary") {
     (async () => {
       let connection;
@@ -113,7 +113,7 @@ function routeHandler(req, res, reqUrl) {
           params.push(to);
         }
 
-        // Revenue & Total Sales
+      
         const sqlMain = `
           SELECT 
             SUM(CASE 
@@ -129,7 +129,7 @@ function routeHandler(req, res, reqUrl) {
         `;
         const [summary] = await connection.execute(sqlMain, params);
 
-        // New Customers
+       
         const sqlNewCustomers = `
           SELECT COUNT(*) AS newCustomers FROM (
             SELECT t.Customer_ID
@@ -141,7 +141,7 @@ function routeHandler(req, res, reqUrl) {
         `;
         const [newCustomerResult] = await connection.execute(sqlNewCustomers, params);
 
-        // Top Product
+        
         const sqlTopProduct = `
           SELECT t.Item_name, SUM(t.Quantity) AS totalQty
           FROM transaction t
@@ -153,7 +153,7 @@ function routeHandler(req, res, reqUrl) {
         `;
         const [topProductResult] = await connection.execute(sqlTopProduct, params);
 
-        // Packages Created
+       
         let packagesQuery = `
           SELECT COUNT(*) AS packagesCreated
           FROM transaction t
@@ -200,7 +200,7 @@ function routeHandler(req, res, reqUrl) {
           })
         );
       } catch (error) {
-        console.error("❌ Sales Summary Error:", error);
+        console.error("Sales Summary Error:", error);
         if (!res.headersSent) {
           res.writeHead(500, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ status: "error", message: error.message }));

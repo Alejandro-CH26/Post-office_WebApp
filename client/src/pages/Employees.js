@@ -8,55 +8,53 @@ const Employees = () => {
   const [roleFilter, setRoleFilter] = useState('all');
   const [locationFilter, setLocationFilter] = useState('all');
   const [showDeleted, setShowDeleted] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
   const navigate = useNavigate();
 
   useEffect(() => {
     const url = `${BASE_URL}/employee-reports${showDeleted ? '?includeDeleted=true' : ''}`;
+
     fetch(url)
       .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          const normalized = data.map(emp => ({
+      .then(employeeData => {
+        if (Array.isArray(employeeData)) {
+          const normalized = employeeData.map(emp => ({
             ...emp,
             isFired: emp.isFired === 1 || emp.isFired === true || emp.isFired === "1",
             isDeleted: emp.isDeleted === 1 || emp.isDeleted === true || emp.isDeleted === "1"
           }));
-          setEmployees(normalized);
+          const deduplicated = Array.from(
+            new Map(normalized.map(emp => [emp.id, emp])).values()
+          );
+          setEmployees(deduplicated);
         }
       })
       .catch(err => {
-        console.error("❌ Error fetching employees:", err);
+        console.error("❌ Error loading employees:", err);
         setEmployees([]);
       });
-  }, [showDeleted]);
-  
+  }, [showDeleted, BASE_URL]);
+
   const toggleFireStatus = async (id, currentStatus) => {
     const confirmMsg = currentStatus
       ? "Unfire this employee and restore access?"
       : "Are you sure you want to fire this employee?";
-    const confirmed = window.confirm(confirmMsg);
-    if (!confirmed) return;
-  
+    if (!window.confirm(confirmMsg)) return;
+
     try {
       const res = await fetch(`${BASE_URL}/fire-employee`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ employee_ID: id, isFired: !currentStatus })
       });
-  
+
       if (res.ok) {
         setEmployees(prev =>
           prev.map(emp =>
             emp.id === id
-              ? {
-                  ...emp,
-                  isFired: !currentStatus,
-                  // If fired, unassign vehicle from position string
-                  position: !currentStatus && emp.position.startsWith("Driver - Truck")
-                    ? "Driver - Unassigned"
-                    : emp.position
-                }
+              ? { ...emp, isFired: !currentStatus }
               : emp
           )
         );
@@ -69,11 +67,9 @@ const Employees = () => {
       alert("An error occurred while updating.");
     }
   };
-  
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this employee?");
-    if (!confirmed) return;
+    if (!window.confirm("Are you sure you want to delete this employee?")) return;
 
     try {
       const res = await fetch(`${BASE_URL}/delete-employee`, {
@@ -95,41 +91,66 @@ const Employees = () => {
   };
 
   const handleUndelete = async (id) => {
-    const res = await fetch(`${BASE_URL}/undelete-employee`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ employee_ID: id })
-    });
+    try {
+      const res = await fetch(`${BASE_URL}/undelete-employee`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ employee_ID: id })
+      });
 
-    if (res.ok) {
-      setEmployees(prev =>
-        prev.map(emp =>
-          emp.id === id ? { ...emp, isDeleted: false } : emp
-        )
-      );
-      alert("Employee restored.");
-    } else {
-      alert("Failed to restore employee.");
+      if (res.ok) {
+        setEmployees(prev =>
+          prev.map(emp =>
+            emp.id === id ? { ...emp, isDeleted: false } : emp
+          )
+        );
+        alert("Employee restored.");
+      } else {
+        alert("Failed to restore employee.");
+      }
+    } catch (err) {
+      console.error("Error restoring employee:", err);
     }
   };
 
+  const simplifyPosition = (position) => {
+    if (!position) return "";
+    const pos = position.toLowerCase();
+    if (pos.includes('driver')) return 'Driver';
+    if (pos.includes('warehouse')) return 'Warehouse';
+    return position;
+  };
+
   const filteredEmployees = employees.filter(emp => {
+    const simplifiedPosition = simplifyPosition(emp.position);
+
     const statusMatch =
       statusFilter === 'all' ||
       (statusFilter === 'active' && !emp.isFired) ||
       (statusFilter === 'fired' && emp.isFired);
 
-      const roleMatch =
-      roleFilter === 'all' || emp.position?.startsWith(roleFilter);    
-    const locationMatch = locationFilter === 'all' || emp.location === locationFilter;
+    const roleMatch =
+      roleFilter === 'all' || simplifiedPosition === roleFilter;
 
-    return statusMatch && roleMatch && locationMatch;
+    const locationMatch =
+      locationFilter === 'all' || emp.location_name === locationFilter;
+
+    const nameMatch =
+      emp.name.toLowerCase().includes(searchTerm.toLowerCase());
+
+    return statusMatch && roleMatch && locationMatch && nameMatch;
   });
 
   const uniqueRoles = [...new Set(
-    employees.map(emp => emp.position?.split(' - ')[0])  
+    employees.map(emp => simplifyPosition(emp.position))
   )];
-  const uniqueLocations = [...new Set(employees.map(emp => emp.location))];
+
+  const uniqueLocations = [...new Set(
+    employees
+      .filter(emp => !emp.isDeleted && emp.location_name) 
+      .map(emp => emp.location_name)
+  )];
+  
 
   return (
     <div className="reports-container">
@@ -159,14 +180,14 @@ const Employees = () => {
           ))}
         </select>
 
-        <label>
-          <input
-            type="checkbox"
-            checked={showDeleted}
-            onChange={() => setShowDeleted(prev => !prev)}
-          />
-          Show Deleted
-        </label>
+        <label>Search Name:</label>
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Enter name..."
+          style={{ marginLeft: "8px", padding: "4px" }}
+        />
       </div>
 
       {filteredEmployees.length === 0 ? (
@@ -188,12 +209,8 @@ const Employees = () => {
               <tr key={i} className={emp.isFired ? "fired-row" : emp.isDeleted ? "deleted-row" : ""}>
                 <td>{emp.id}</td>
                 <td>{emp.name}</td>
-                <td>{emp.location}</td>
-                <td>
-                  {emp.position.startsWith("Driver") && !emp.position.includes("Truck")
-                    ? "Driver - Unassigned"
-                    : emp.position}
-                </td>
+                <td>{emp.location_name || "N/A"}</td>
+                <td>{simplifyPosition(emp.position)}</td>
                 <td>{emp.isFired ? "Yes" : "No"}</td>
                 <td>
                   <div className="action-buttons">
@@ -204,12 +221,6 @@ const Employees = () => {
                           onClick={() => toggleFireStatus(emp.id, emp.isFired)}
                         >
                           {emp.isFired ? "Unfire" : "Fire"}
-                        </button>
-                        <button
-                          className="delete-btn"
-                          onClick={() => handleDelete(emp.id)}
-                        >
-                          Delete
                         </button>
                         <button
                           className="edit-btn"

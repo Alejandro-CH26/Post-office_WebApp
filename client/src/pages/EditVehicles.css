@@ -1,0 +1,87 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    width: 100%;
+  }
+  
+  
+  
+  .edit-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 40px;
+    padding-bottom: 60px;
+    box-sizing: border-box;
+  }
+  
+  
+  .edit-box {
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+    width: 380px;
+    text-align: center;
+  }
+  
+  .edit-title {
+    font-size: 26px;
+    margin-bottom: 20px;
+    color: #333;
+    font-weight: bold;
+  }
+  
+  .edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .edit-form input {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 100%;
+  }
+  
+  .edit-form input:focus {
+    border-color: #28a745;
+    outline: none;
+    box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+  }
+  
+  .edit-form button {
+    background-color: #28a745;
+    color: white;
+    padding: 12px;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
+  }
+  
+  .edit-form button:hover {
+    background-color: #218838;
+  }
+  
+  .edit-form select {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 100%;
+    background-color: white;
+  }
+  
+  .edit-form select:focus {
+    border-color: #28a745;
+    outline: none;
+    box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+  }
+  

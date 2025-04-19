@@ -1,0 +1,47 @@
+.admin-dashboard {
+    max-width: 700px;
+    margin: 3rem auto;
+    text-align: center;
+    padding: 2rem;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+  }
+  
+  .admin-dashboard h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .admin-dashboard .welcome {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 2rem;
+  }
+  
+  .action-section h3 {
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .button-group button {
+    padding: 12px 24px;
+    font-size: 16px;
+    background-color: #357edd;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  .button-group button:hover {
+    background-color: #285fc4;
+  }
+  

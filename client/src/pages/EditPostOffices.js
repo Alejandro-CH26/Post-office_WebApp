@@ -55,7 +55,7 @@ function EditPostOffice() {
     e.preventDefault();
 
     const updatedData = {
-      location_ID: id,
+      address_ID: id,
       ...office
     };
 

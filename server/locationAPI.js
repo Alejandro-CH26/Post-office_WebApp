@@ -31,7 +31,7 @@ module.exports = function locationAPI(req, res, reqUrl) {
 
     db.query(sql, params, (err, results) => {
       if (err) {
-        console.error("🔥 SQL Error:", err.sqlMessage || err);
+        console.error("SQL Error:", err.sqlMessage || err);
         res.writeHead(500, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: err.sqlMessage || "Database query error" }));
         return true;

@@ -23,7 +23,7 @@ function handleCheckout(req, res, reqUrl) {
           try {
             await connection.beginTransaction();
 
-            // Handle shipping address
+          
             let shippingAddressId;
 
             const [existingAddress] = await connection.execute(
@@ -44,7 +44,7 @@ function handleCheckout(req, res, reqUrl) {
               shippingAddressId = newAddress.insertId;
             }
 
-            // Insert into orders table
+           
             const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
             const [orderResult] = await connection.execute(
               `INSERT INTO orders (
@@ -55,19 +55,19 @@ function handleCheckout(req, res, reqUrl) {
 
             const order_ID = orderResult.insertId;
 
-            // Get customer name
+           
             const [[{ first_Name: customer_Name }]] = await connection.execute(
               `SELECT first_Name FROM customers WHERE customer_ID = ?`,
               [customer_ID]
             );
 
-            // ✅ Declare array to collect package info for email
+           
             const packageInfoArray = [];
 
             for (const item of cart) {
               const { productId, quantity, name } = item;
 
-              // Insert into transaction
+             
               const [transactionResult] = await connection.execute(
                 `INSERT INTO transaction (Order_ID, Customer_ID, Payment_method, Status, Item_name, product_ID, Quantity) 
                  VALUES (?, ?, ?, 'Completed', ?, ?, ?)`,
@@ -76,32 +76,34 @@ function handleCheckout(req, res, reqUrl) {
 
               const transaction_ID = transactionResult.insertId;
 
-              // Update inventory
+           
               await connection.execute(
                 `UPDATE inventory SET quantity = quantity - ? 
                  WHERE product_ID = ? AND location_ID = ? AND quantity >= ?`,
                 [quantity, productId, location_ID, quantity]
               );
 
-              // Fetch product details for package
+              
               const [[product]] = await connection.execute(
                 `SELECT weight, fragile, priority, length, width, height 
                  FROM products WHERE product_ID = ?`,
                 [productId]
               );
 
-              const weight = parseFloat(product.weight) || 0.1;
-              const fragile = product.fragile ? 1 : 0;
-              const priority = parseInt(product.priority) || 3;
-              const length = parseFloat(product.length) || 1;
-              const width = parseFloat(product.width) || 1;
-              const height = parseFloat(product.height) || 1;
+              const unitWeight = parseFloat(product.weight) || 0.1;
+const weight = unitWeight * quantity; 
+const fragile = product.fragile ? 1 : 0;
+const priority = parseInt(product.priority) || 3;
+const length = parseFloat(product.length) || 1;
+const width = parseFloat(product.width) || 1;
+const height = parseFloat(product.height) || 1;
+
 
               const shippingCost = parseFloat(
                 (weight * (1 + (priority / 5)) + (fragile ? 10 : 0)).toFixed(2)
               );
 
-              // Insert into package table
+              
               const [packageResult] = await connection.execute(
                 `INSERT INTO package (
                   Weight, Sender_Customer_ID, Origin_ID, Destination_ID, Shipping_Cost,
@@ -127,7 +129,7 @@ function handleCheckout(req, res, reqUrl) {
 
               const package_ID = packageResult.insertId;
 
-              // Save for email
+              
               packageInfoArray.push({
                 name,
                 quantity,
@@ -135,15 +137,15 @@ function handleCheckout(req, res, reqUrl) {
                 package_ID
               });
 
-              // Insert into tracking_history table
+              
               await connection.execute(
-                `INSERT INTO tracking_history (package_ID, location_ID, status)
-                 VALUES (?, ?, ?)`,
-                [package_ID, location_ID, 'Package Created']
+                `INSERT INTO tracking_history (package_ID, location_ID, status, employee_ID)
+                 VALUES (?, ?, ?, ?)`,
+                [package_ID, location_ID, 'Package Created', null]
               );
             }
 
-            // Optional: Email receipt
+            
             const [[{ customer_Email }]] = await connection.execute(
               `SELECT customer_Email FROM customers WHERE customer_ID = ?`,
               [customer_ID]
@@ -183,14 +185,14 @@ function handleCheckout(req, res, reqUrl) {
             res.end(JSON.stringify({ message: "Order placed and package(s) created successfully." }));
           } catch (error) {
             await connection.rollback();
-            console.error("❌ Checkout transaction failed:", error);
+            console.error("Checkout transaction failed:", error);
             res.writeHead(500, { "Content-Type": "application/json" });
             res.end(JSON.stringify({ error: error.sqlMessage || error.message }));
           } finally {
             connection.release();
           }
         } catch (error) {
-          console.error("❌ Checkout handler error:", error);
+          console.error("Checkout handler error:", error);
           res.writeHead(400, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "Invalid request or missing data" }));
         }

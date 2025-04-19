@@ -3,6 +3,30 @@ import "./Onboard.css";
 
 function OnboardEmployee() {
   const [locations, setLocations] = useState([]);
+  const [zipWarning, setZipWarning] = useState("");
+  const [phoneWarning, setPhoneWarning] = useState("");
+  const [emergencyWarning, setEmergencyWarning] = useState("");
+  const [dobDayWarning, setDobDayWarning] = useState("");
+  const [dobMonthWarning, setDobMonthWarning] = useState("");
+  const [dobYearWarning, setDobYearWarning] = useState("");
+  const [firstNameWarning, setFirstNameWarning] = useState("");
+  const [middleNameWarning, setMiddleNameWarning] = useState("");
+  const [lastNameWarning, setLastNameWarning] = useState("");
+  const [emailWarning, setEmailWarning] = useState("");
+  const [streetWarning, setStreetWarning] = useState("");
+  const [cityWarning, setCityWarning] = useState("");
+  const [apartmentWarning, setApartmentWarning] = useState("");
+  const [usernameWarning, setUsernameWarning] = useState("");
+  const [passwordWarning, setPasswordWarning] = useState("");
+  const [educationWarning, setEducationWarning] = useState("");
+  const [genderWarning, setGenderWarning] = useState("");
+
+
+
+
+
+
+
   const [formData, setFormData] = useState({
     Fname: "",
     middleName: "",
@@ -30,7 +54,7 @@ function OnboardEmployee() {
   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
   useEffect(() => {
-    // Fetch post office locations
+    // Fetches post office locations
     fetch(`${BASE_URL}/locations`)
       .then((res) => res.json())
       .then((data) => setLocations(data))
@@ -44,7 +68,6 @@ function OnboardEmployee() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Add validation as needed here
 
     try {
       const response = await fetch(`${BASE_URL}/onboard`, {
@@ -56,13 +79,13 @@ function OnboardEmployee() {
       const result = await response.json();
 
       if (response.ok) {
-        alert("🎉 Employee onboarded successfully!");
+        alert("Employee onboarded successfully!");
       } else {
-        alert(`❌ Error: ${result.message}`);
+        alert(`Error: ${result.message}`);
       }
     } catch (err) {
       console.error("Submission error:", err);
-      alert("❌ Something went wrong.");
+      alert("Something went wrong.");
     }
   };
 
@@ -73,21 +96,284 @@ function OnboardEmployee() {
         <form className="onboard-form" onSubmit={handleSubmit}>
           <div className="form-columns">
             <div className="form-column">
-              <input name="Fname" placeholder="First Name" required onChange={handleChange} />
-              <input name="middleName" placeholder="Middle Name (Optional)" onChange={handleChange} />
-              <input name="Lname" placeholder="Last Name" required onChange={handleChange} />
-              <input name="email" type="email" placeholder="Email" required onChange={handleChange} />
-              <input name="phone" type="tel" placeholder="Phone Number" required onChange={handleChange} />
-              <input name="emergencyContact" placeholder="Emergency Contact" onChange={handleChange} />
-              <input name="street" placeholder="Street" required onChange={handleChange} />
-              <input name="city" placeholder="City" required onChange={handleChange} />
-              <input name="state" placeholder="State" required onChange={handleChange} />
+              <input
+                type="text"
+                name="Fname"
+                placeholder="First Name"
+                required
+                maxLength={50}
+                value={formData.Fname}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, Fname: value }));
+
+                  if (value.length === 50) {
+                    setFirstNameWarning("You've reached the 50-character limit for first name.");
+                  } else {
+                    setFirstNameWarning("");
+                  }
+                }}
+              />
+              {firstNameWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {firstNameWarning}
+                </p>
+              )}
+              <input
+                type="text"
+                name="middleName"
+                placeholder="Middle Name (Optional)"
+                maxLength={50}
+                value={formData.middleName}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, middleName: value }));
+
+                  if (value.length === 50) {
+                    setMiddleNameWarning("You've reached the 50-character limit for middle name.");
+                  } else {
+                    setMiddleNameWarning("");
+                  }
+                }}
+              />
+              {middleNameWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {middleNameWarning}
+                </p>
+              )}
+
+              <input
+                type="text"
+                name="Lname"
+                placeholder="Last Name"
+                required
+                maxLength={50}
+                value={formData.Lname}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, Lname: value }));
+
+                  if (value.length === 50) {
+                    setLastNameWarning("You've reached the 50-character limit for last name.");
+                  } else {
+                    setLastNameWarning("");
+                  }
+                }}
+              />
+              {lastNameWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {lastNameWarning}
+                </p>
+              )}
+
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                required
+                maxLength={100}
+                value={formData.email}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, email: value }));
+
+                  if (value.length === 100) {
+                    setEmailWarning("You've reached the 100-character limit for email.");
+                  } else {
+                    setEmailWarning("");
+                  }
+                }}
+              />
+              {emailWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {emailWarning}
+                </p>
+              )}
+
+
+              <input
+                type="tel"
+                name="phone"
+                placeholder="Phone Number"
+                required
+                maxLength={10}
+                value={formData.phone}
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  if (/^\d*$/.test(value)) {
+                    setFormData((prev) => ({ ...prev, phone: value }));
+
+                    if (value.length > 0 && value.length !== 10) {
+                      setPhoneWarning("Phone number must be exactly 10 digits.");
+                    } else {
+                      setPhoneWarning("");
+                    }
+                  } else {
+                    setPhoneWarning("Only numbers are allowed.");
+                  }
+                }}
+
+              />
+              {phoneWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {phoneWarning}
+                </p>
+              )}
+
+              <input
+                type="tel"
+                name="emergencyContact"
+                placeholder="Emergency Contact"
+                required
+                maxLength={10}
+                value={formData.emergencyContact}
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  if (/^\d*$/.test(value)) {
+                    setFormData((prev) => ({ ...prev, emergencyContact: value }));
+
+                    if (value.length > 0 && value.length !== 10) {
+                      setEmergencyWarning("Emergency contact must be exactly 10 digits.");
+                    } else {
+                      setEmergencyWarning("");
+                    }
+                  } else {
+                    setEmergencyWarning("Only numbers are allowed.");
+                  }
+                }}
+
+              />
+              {emergencyWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {emergencyWarning}
+                </p>
+              )}
+
+              <input
+                type="text"
+                name="street"
+                placeholder="Street"
+                required
+                maxLength={255}
+                value={formData.street}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, street: value }));
+
+                  setStreetWarning(
+                    value.length === 255 ? "You've reached the 255-character limit for street." : ""
+                  );
+                }}
+              />
+              {streetWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {streetWarning}
+                </p>
+              )}
+
+              <input
+                type="text"
+                name="city"
+                placeholder="City"
+                required
+                maxLength={100}
+                value={formData.city}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, city: value }));
+
+                  setCityWarning(
+                    value.length === 100 ? "You've reached the 100-character limit for city." : ""
+                  );
+                }}
+              />
+              {cityWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {cityWarning}
+                </p>
+              )}
+
+              <select
+                name="state"
+                required
+                value={formData.state}
+                onChange={handleChange}
+              >
+                <option value="">Select Destination State</option>
+                {[
+                  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+                  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+                  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+                  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+                  "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
+                ].map((abbr) => (
+                  <option key={abbr} value={abbr}>
+                    {abbr}
+                  </option>
+                ))}
+              </select>
+
             </div>
 
             <div className="form-column">
-              <input name="zip" placeholder="Zip Code" required onChange={handleChange} />
-              <input name="apartmentNumber" placeholder="Apt/Unit #" onChange={handleChange} />
-              <input name="role" placeholder="Role (e.g., driver)" required onChange={handleChange} />
+
+              <input
+                name="zip"
+                placeholder="Zip Code"
+                required
+                maxLength={5}
+                value={formData.zip}
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  if (/^\d*$/.test(value)) {
+                    setFormData((prev) => ({ ...prev, zip: value }));
+
+                    if (value.length > 0 && value.length !== 5) {
+                      setZipWarning("Zip Code must be exactly 5 digits.");
+                    } else {
+                      setZipWarning("");
+                    }
+                  } else {
+                    setZipWarning("Zip Code must contain digits only.");
+                  }
+                }}
+              />
+              {zipWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {zipWarning}
+                </p>
+              )}
+
+              <input
+                type="text"
+                name="apartmentNumber"
+                placeholder="Apt/Unit #"
+                maxLength={20}
+                value={formData.apartmentNumber}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, apartmentNumber: value }));
+
+                  setApartmentWarning(
+                    value.length === 20 ? "You've reached the 20-character limit for Apt/Unit." : ""
+                  );
+                }}
+              />
+              {apartmentWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {apartmentWarning}
+                </p>
+              )}
+
+              <select name="role" required value={formData.role} onChange={handleChange}>
+                <option value="">Select Role</option>
+                <option value="driver">Driver</option>
+                <option value="warehouse">Warehouse</option>
+              </select>
+
               <input name="hourlyWage" type="number" placeholder="Hourly Wage" required onChange={handleChange} />
               <select
                 name="locationID"
@@ -111,17 +397,174 @@ function OnboardEmployee() {
                 ))}
               </select>
 
-              <input name="username" placeholder="Username" required onChange={handleChange} />
-              <input name="password" type="password" placeholder="Password" required onChange={handleChange} />
-              <input name="education" placeholder="Education" onChange={handleChange} />
-              <input name="gender" placeholder="Gender" required onChange={handleChange} />
+              <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                required
+                maxLength={50}
+                value={formData.username}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, username: value }));
+
+                  setUsernameWarning(
+                    value.length === 50 ? "You've reached the 50-character limit for username." : ""
+                  );
+                }}
+              />
+              {usernameWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {usernameWarning}
+                </p>
+              )}
+
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                required
+                maxLength={255}
+                value={formData.password}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, password: value }));
+
+                  setPasswordWarning(
+                    value.length === 255 ? "You've reached the 255-character limit for password." : ""
+                  );
+                }}
+              />
+              {passwordWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {passwordWarning}
+                </p>
+              )}
+
+              <input
+                type="text"
+                name="education"
+                placeholder="Education"
+                maxLength={50}
+                value={formData.education}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, education: value }));
+
+                  setEducationWarning(
+                    value.length === 50 ? "You've reached the 50-character limit for education." : ""
+                  );
+                }}
+              />
+              {educationWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {educationWarning}
+                </p>
+              )}
+
+              <input
+                type="text"
+                name="gender"
+                placeholder="Gender"
+                required
+                maxLength={10}
+                value={formData.gender}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, gender: value }));
+
+                  setGenderWarning(
+                    value.length === 10 ? "You've reached the 10-character limit for gender." : ""
+                  );
+                }}
+              />
+              {genderWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {genderWarning}
+                </p>
+              )}
+
             </div>
           </div>
 
           <div className="dob-section">
-            <input name="dobDay" type="number" placeholder="Day of Birth" required onChange={handleChange} />
-            <input name="dobMonth" type="number" placeholder="Month of Birth" required onChange={handleChange} />
-            <input name="dobYear" type="number" placeholder="Year of Birth" required onChange={handleChange} />
+            <div className="dob-section">
+              {/* Day */}
+              <div>
+                <input
+                  name="dobDay"
+                  type="text"
+                  placeholder="Day of Birth (ex. 17)"
+                  required
+                  maxLength={2}
+                  value={formData.dobDay}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d*$/.test(value) && value.length <= 2) {
+                      setFormData(prev => ({ ...prev, dobDay: value }));
+                      const num = parseInt(value, 10);
+                      if (value && (num < 1 || num > 31)) {
+                        setDobDayWarning("Day must be between 1 and 31.");
+                      } else {
+                        setDobDayWarning("");
+                      }
+                    }
+                  }}
+                />
+                {dobDayWarning && <p style={{ color: "red", fontSize: "0.85rem" }}>{dobDayWarning}</p>}
+              </div>
+
+              {/* Month */}
+              <div>
+                <input
+                  name="dobMonth"
+                  type="text"
+                  placeholder="Month of Birth (ex. 11)"
+                  required
+                  maxLength={2}
+                  value={formData.dobMonth}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d*$/.test(value) && value.length <= 2) {
+                      setFormData(prev => ({ ...prev, dobMonth: value }));
+                      const num = parseInt(value, 10);
+                      if (value && (num < 1 || num > 12)) {
+                        setDobMonthWarning("Month must be between 1 and 12.");
+                      } else {
+                        setDobMonthWarning("");
+                      }
+                    }
+                  }}
+                />
+                {dobMonthWarning && <p style={{ color: "red", fontSize: "0.85rem" }}>{dobMonthWarning}</p>}
+              </div>
+
+              {/* Year */}
+              <div>
+                <input
+                  name="dobYear"
+                  type="text"
+                  placeholder="Year of Birth (ex. 1976)"
+                  required
+                  maxLength={4}
+                  value={formData.dobYear}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d*$/.test(value) && value.length <= 4) {
+                      setFormData(prev => ({ ...prev, dobYear: value }));
+                      const num = parseInt(value, 10);
+                      if (value && (num < 1900 || num > 2025)) {
+                        setDobYearWarning("Year must be between 1900 and 2025.");
+                      } else {
+                        setDobYearWarning("");
+                      }
+                    }
+                  }}
+                />
+                {dobYearWarning && <p style={{ color: "red", fontSize: "0.85rem" }}>{dobYearWarning}</p>}
+              </div>
+            </div>
+
           </div>
 
           <button className="onboard-button" type="submit">Onboard Employee</button>
@@ -129,589 +572,9 @@ function OnboardEmployee() {
       </div>
     </div>
 
-    // <div className="onboard-container">
-    //   <h2>Employee Onboarding</h2>
-    //   <form onSubmit={handleSubmit}>
-    //     <input name="Fname" placeholder="First Name" required onChange={handleChange} />
-    //     <input name="middleName" placeholder="Middle Name (Optional)" onChange={handleChange} />
-    //     <input name="Lname" placeholder="Last Name" required onChange={handleChange} />
-    //     <input name="email" type="email" placeholder="Email" required onChange={handleChange} />
-    //     <input name="phone" type="tel" placeholder="Phone Number" required onChange={handleChange} />
-    //     <input name="emergencyContact" placeholder="Emergency Contact" onChange={handleChange} />
-    //     <input name="street" placeholder="Street" required onChange={handleChange} />
-    //     <input name="city" placeholder="City" required onChange={handleChange} />
-    //     <input name="state" placeholder="State" required onChange={handleChange} />
-    //     <input name="zip" placeholder="Zip Code" required onChange={handleChange} />
-    //     <input name="apartmentNumber" placeholder="Apt/Unit #" onChange={handleChange} />
-    //     <input name="role" placeholder="Role (e.g., driver)" required onChange={handleChange} />
-    //     <input name="hourlyWage" type="number" placeholder="Hourly Wage" required onChange={handleChange} />
-    //     <select name="locationID" required onChange={handleChange}>
-    //       <option value="">Select Location</option>
-    //       {locations.map(loc => (
-    //         <option key={loc.location_ID} value={loc.location_ID}>
-    //           {loc.name}
-    //         </option>
-    //       ))}
-    //     </select>
-    //     <input name="username" placeholder="Username" required onChange={handleChange} />
-    //     <input name="password" type="password" placeholder="Password" required onChange={handleChange} />
-    //     <input name="education" placeholder="Education" onChange={handleChange} />
-    //     <input name="gender" placeholder="Gender" required onChange={handleChange} />
-    //     <input name="dobDay" type="number" placeholder="Day of Birth" required onChange={handleChange} />
-    //     <input name="dobMonth" type="number" placeholder="Month of Birth" required onChange={handleChange} />
-    //     <input name="dobYear" type="number" placeholder="Year of Birth" required onChange={handleChange} />
 
-    //     <button type="submit">Onboard Employee</button>
-    //   </form>
-    // </div>
   );
 }
 
 export default OnboardEmployee;
 
-
-
-
-
-
-
-// import  { useState } from "react";
-
-// function Onboard() {
-//   const [employee, setEmployee] = useState({
-//     employeeID: "",
-//     Fname: "",
-//     middleName: "",
-//     Lname: "",
-//     email: "",
-//     phone: "",
-//     emergencyContact: "",
-//     addressID: "",
-//     street: "",
-//     city: "",
-//     state: "",
-//     zip: "",
-//     apartmentNumber: "",
-//     role: "",
-//     hourlyWage: "",
-//     supervisorID: "",
-//     location: "",
-//     locationID: "",
-//     username: "",
-//     password: "",
-//     education: "",
-//     gender: "",
-//     dobDay: "",
-//     dobMonth: "",
-//     dobYear: "",
-//   });
-
-//   const [errors, setErrors] = useState({});
-//   const [loading, setLoading] = useState(false);
-
-//   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
-
-
-//   const handleChange = (e) => {
-//     setEmployee({
-//       ...employee,
-//       [e.target.name]: e.target.value,
-//     });
-//   };
-
-//   const validateForm = () => {
-//     let formErrors = {};
-//     if (!employee.employeeID) formErrors.employeeID = "Employee ID is required.";
-//     if (!employee.Fname) formErrors.Fname = "First name is required.";
-//     if (!employee.Lname) formErrors.Lname = "Last name is required.";
-//     if (!employee.email) formErrors.email = "Email is required.";
-//     else if (!/\S+@\S+\.\S+/.test(employee.email)) formErrors.email = "Email is invalid.";
-//     if (!employee.phone) formErrors.phone = "Phone number is required.";
-//     if (!employee.role) formErrors.role = "Role is required.";
-//     if (!employee.dobDay || !employee.dobMonth || !employee.dobYear) formErrors.dob = "Complete date of birth is required.";
-//     if (!employee.gender) formErrors.gender = "Gender is required.";
-//     if (!employee.username) formErrors.username = "Username is required.";
-//     if (!employee.password) formErrors.password = "Password is required.";
-//     if (!employee.street) formErrors.street = "Street address is required.";
-//     if (!employee.city) formErrors.city = "City is required.";
-//     setErrors(formErrors);
-//     return Object.keys(formErrors).length === 0;
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     if (!validateForm()) return;
-
-//     setLoading(true);
-
-//     try {
-//       const response = await fetch(`${BASE_URL}/onboard`, {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify(employee),
-//       });
-//       const data = await response.json();
-//       if (response.ok) {
-//         alert("Employee onboarded successfully!");
-//         setEmployee({
-//           employeeID: "",
-//           Fname: "",
-//           middleName: "",
-//           Lname: "",
-//           email: "",
-//           phone: "",
-//           emergencyContact: "",
-//           addressID: "",
-//           street: "",
-//           city: "",
-//           state: "",
-//           zip: "",
-//           apartmentNumber: "",
-//           role: "",
-//           hourlyWage: "",
-//           supervisorID: "",
-//           location: "",
-//           locationID: "",
-//           username: "",
-//           password: "",
-//           education: "",
-//           gender: "",
-//           dobDay: "",
-//           dobMonth: "",
-//           dobYear: "",
-//         });
-//       } else {
-//         alert(data.error || "An error occurred");
-//       }
-//     } catch (error) {
-//       alert("Failed to submit data. Check your server connection.");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const formStyles = {
-//     container: {
-//       padding: "32px",
-//       maxWidth: "900px",
-//       margin: "0 auto",
-//       backgroundColor: "white",
-//       boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
-//       borderRadius: "16px",
-//     },
-//     header: {
-//       textAlign: "center",
-//       fontSize: "32px",
-//       fontWeight: "bold",
-//       marginBottom: "40px",
-//       color: "#4A90E2",
-//     },
-//     subHeader: {
-//       textAlign: "center",
-//       fontSize: "18px",
-//       marginBottom: "24px",
-//       color: "#606060",
-//     },
-//     label: {
-//       fontSize: "16px",
-//       fontWeight: "600",
-//       marginBottom: "8px",
-//       color: "#333333",
-//     },
-//     input: {
-//       padding: "16px",
-//       borderRadius: "8px",
-//       border: "2px solid #D1D5DB",
-//       width: "100%",
-//       marginBottom: "24px",
-//       fontSize: "16px",
-//     },
-//     inputError: {
-//       borderColor: "red",
-//     },
-//     errorMessage: {
-//       color: "red",
-//       fontSize: "14px",
-//       marginBottom: "16px",
-//     },
-//     button: {
-//       backgroundColor: "#4A90E2",
-//       color: "white",
-//       padding: "16px",
-//       borderRadius: "8px",
-//       width: "100%",
-//       cursor: "pointer",
-//       fontSize: "18px",
-//       fontWeight: "bold",
-//     },
-//     buttonHover: {
-//       backgroundColor: "#357ABD",
-//     },
-//   };
-
-//   // Generate days and months for dropdown
-//   const generateDays = () => {
-//     const days = [];
-//     for (let i = 1; i <= 31; i++) {
-//       days.push(i);
-//     }
-//     return days;
-//   };
-
-//   const generateMonths = () => {
-//     const months = [
-//       "January", "February", "March", "April", "May", "June",
-//       "July", "August", "September", "October", "November", "December"
-//     ];
-//     return months;
-//   };
-
-//   return (
-//     <div style={formStyles.container}>
-//       <h1 style={formStyles.header}>Onboard Employee</h1>
-//       <p style={formStyles.subHeader}>Please fill in the details below:</p>
-
-//       <form onSubmit={handleSubmit}>
-//         <div style={{ marginBottom: "40px" }}>
-//           <h2 style={{ fontSize: "24px", fontWeight: "600", marginBottom: "24px" }}>Employee Identification</h2>
-
-//           <label style={formStyles.label}>Employee ID</label>
-//           <input
-//             type="text"
-//             name="employeeID"
-//             value={employee.employeeID}
-//             onChange={handleChange}
-//             placeholder="Enter employee ID"
-//             style={{
-//               ...formStyles.input,
-//               ...(errors.employeeID ? formStyles.inputError : {}),
-//             }}
-//           />
-//           {errors.employeeID && <p style={formStyles.errorMessage}>{errors.employeeID}</p>}
-
-//           <label style={formStyles.label}>Username</label>
-//           <input
-//             type="text"
-//             name="username"
-//             value={employee.username}
-//             onChange={handleChange}
-//             placeholder="Enter username"
-//             style={{
-//               ...formStyles.input,
-//               ...(errors.username ? formStyles.inputError : {}),
-//             }}
-//           />
-//           {errors.username && <p style={formStyles.errorMessage}>{errors.username}</p>}
-
-//           <label style={formStyles.label}>Password</label>
-//           <input
-//             type="password"
-//             name="password"
-//             value={employee.password}
-//             onChange={handleChange}
-//             placeholder="Enter password"
-//             style={{
-//               ...formStyles.input,
-//               ...(errors.password ? formStyles.inputError : {}),
-//             }}
-//           />
-//           {errors.password && <p style={formStyles.errorMessage}>{errors.password}</p>}
-//         </div>
-
-//         <div style={{ marginBottom: "40px" }}>
-//           <h2 style={{ fontSize: "24px", fontWeight: "600", marginBottom: "24px" }}>Personal Information</h2>
-
-//           <label style={formStyles.label}>First Name</label>
-//           <input
-//             type="text"
-//             name="Fname"
-//             value={employee.Fname}
-//             onChange={handleChange}
-//             placeholder="Enter first name"
-//             style={{
-//               ...formStyles.input,
-//               ...(errors.Fname ? formStyles.inputError : {}),
-//             }}
-//           />
-//           {errors.Fname && <p style={formStyles.errorMessage}>{errors.Fname}</p>}
-
-//           <label style={formStyles.label}>Middle Name</label>
-//           <input
-//             type="text"
-//             name="middleName"
-//             value={employee.middleName}
-//             onChange={handleChange}
-//             placeholder="Enter middle name"
-//             style={formStyles.input}
-//           />
-
-//           <label style={formStyles.label}>Last Name</label>
-//           <input
-//             type="text"
-//             name="Lname"
-//             value={employee.Lname}
-//             onChange={handleChange}
-//             placeholder="Enter last name"
-//             style={{
-//               ...formStyles.input,
-//               ...(errors.Lname ? formStyles.inputError : {}),
-//             }}
-//           />
-//           {errors.Lname && <p style={formStyles.errorMessage}>{errors.Lname}</p>}
-
-//           <label style={formStyles.label}>Gender</label>
-//           <select
-//             name="gender"
-//             value={employee.gender}
-//             onChange={handleChange}
-//             style={{
-//               ...formStyles.input,
-//               ...(errors.gender ? formStyles.inputError : {}),
-//             }}
-//           >
-//             <option value="">Select Gender</option>
-//             <option value="Male">Male</option>
-//             <option value="Female">Female</option>
-//             <option value="Other">Other</option>
-//           </select>
-//           {errors.gender && <p style={formStyles.errorMessage}>{errors.gender}</p>}
-
-//           <label style={formStyles.label}>Date of Birth</label>
-//           <div style={{ display: "flex", gap: "24px", marginBottom: "24px" }}>
-//             <select
-//               name="dobDay"
-//               value={employee.dobDay}
-//               onChange={handleChange}
-//               style={formStyles.input}
-//             >
-//               <option value="">Day</option>
-//               {generateDays().map(day => (
-//                 <option key={day} value={day}>{day}</option>
-//               ))}
-//             </select>
-
-//             <select
-//               name="dobMonth"
-//               value={employee.dobMonth}
-//               onChange={handleChange}
-//               style={formStyles.input}
-//             >
-//               <option value="">Month</option>
-//               {generateMonths().map((month, index) => (
-//                 <option key={index} value={index + 1}>{month}</option>
-//               ))}
-//             </select>
-
-//             <input
-//               type="text"
-//               name="dobYear"
-//               value={employee.dobYear}
-//               onChange={handleChange}
-//               placeholder="Year"
-//               style={formStyles.input}
-//             />
-//           </div>
-//           {errors.dob && <p style={formStyles.errorMessage}>{errors.dob}</p>}
-//         </div>
-
-//         <div style={{ marginBottom: "40px" }}>
-//           <h2 style={{ fontSize: "24px", fontWeight: "600", marginBottom: "24px" }}>Address Information</h2>
-
-//           <label style={formStyles.label}>Address ID</label>
-//           <input
-//             type="text"
-//             name="addressID"
-//             value={employee.addressID}
-//             onChange={handleChange}
-//             placeholder="Address ID"
-//             style={formStyles.input}
-//           />
-
-//           <label style={formStyles.label}>Street</label>
-//           <input
-//             type="text"
-//             name="street"
-//             value={employee.street}
-//             onChange={handleChange}
-//             placeholder="Street address"
-//             style={{
-//               ...formStyles.input,
-//               ...(errors.street ? formStyles.inputError : {}),
-//             }}
-//           />
-//           {errors.street && <p style={formStyles.errorMessage}>{errors.street}</p>}
-
-//           <label style={formStyles.label}>Apartment #</label>
-//           <input
-//             type="text"
-//             name="apartmentNumber"
-//             value={employee.apartmentNumber}
-//             onChange={handleChange}
-//             placeholder="Apartment number"
-//             style={formStyles.input}
-//           />
-
-//           <label style={formStyles.label}>City</label>
-//           <input
-//             type="text"
-//             name="city"
-//             value={employee.city}
-//             onChange={handleChange}
-//             placeholder="City"
-//             style={{
-//               ...formStyles.input,
-//               ...(errors.city ? formStyles.inputError : {}),
-//             }}
-//           />
-//           {errors.city && <p style={formStyles.errorMessage}>{errors.city}</p>}
-
-//           <label style={formStyles.label}>State</label>
-//           <input
-//             type="text"
-//             name="state"
-//             value={employee.state}
-//             onChange={handleChange}
-//             placeholder="State"
-//             style={formStyles.input}
-//           />
-
-//           <label style={formStyles.label}>ZIP Code</label>
-//           <input
-//             type="text"
-//             name="zip"
-//             value={employee.zip}
-//             onChange={handleChange}
-//             placeholder="ZIP code"
-//             style={formStyles.input}
-//           />
-//         </div>
-
-//         <div style={{ marginBottom: "40px" }}>
-//           <h2 style={{ fontSize: "24px", fontWeight: "600", marginBottom: "24px" }}>Contact Information</h2>
-
-//           <label style={formStyles.label}>Email</label>
-//           <input
-//             type="email"
-//             name="email"
-//             value={employee.email}
-//             onChange={handleChange}
-//             placeholder="Email"
-//             style={{
-//               ...formStyles.input,
-//               ...(errors.email ? formStyles.inputError : {}),
-//             }}
-//           />
-//           {errors.email && <p style={formStyles.errorMessage}>{errors.email}</p>}
-
-//           <label style={formStyles.label}>Phone Number</label>
-//           <input
-//             type="text"
-//             name="phone"
-//             value={employee.phone}
-//             onChange={handleChange}
-//             placeholder="Phone Number"
-//             style={{
-//               ...formStyles.input,
-//               ...(errors.phone ? formStyles.inputError : {}),
-//             }}
-//           />
-//           {errors.phone && <p style={formStyles.errorMessage}>{errors.phone}</p>}
-
-//           <label style={formStyles.label}>Emergency Contact</label>
-//           <input
-//             type="text"
-//             name="emergencyContact"
-//             value={employee.emergencyContact}
-//             onChange={handleChange}
-//             placeholder="Emergency Contact Number"
-//             style={formStyles.input}
-//           />
-//         </div>
-
-//         <div style={{ marginBottom: "40px" }}>
-//           <h2 style={{ fontSize: "24px", fontWeight: "600", marginBottom: "24px" }}>Job Information</h2>
-
-//           <label style={formStyles.label}>Role</label>
-//           <input
-//             type="text"
-//             name="role"
-//             value={employee.role}
-//             onChange={handleChange}
-//             placeholder="Role"
-//             style={{
-//               ...formStyles.input,
-//               ...(errors.role ? formStyles.inputError : {}),
-//             }}
-//           />
-//           {errors.role && <p style={formStyles.errorMessage}>{errors.role}</p>}
-
-//           <label style={formStyles.label}>Hourly Wage</label>
-//           <input
-//             type="text"
-//             name="hourlyWage"
-//             value={employee.hourlyWage}
-//             onChange={handleChange}
-//             placeholder="Hourly Wage"
-//             style={formStyles.input}
-//           />
-
-//           <label style={formStyles.label}>Supervisor ID</label>
-//           <input
-//             type="text"
-//             name="supervisorID"
-//             value={employee.supervisorID}
-//             onChange={handleChange}
-//             placeholder="Supervisor ID"
-//             style={formStyles.input}
-//           />
-
-//           <label style={formStyles.label}>Location</label>
-//           <input
-//             type="text"
-//             name="location"
-//             value={employee.location}
-//             onChange={handleChange}
-//             placeholder="Work Location"
-//             style={formStyles.input}
-//           />
-
-//           <label style={formStyles.label}>Location ID</label>
-//           <input
-//             type="text"
-//             name="locationID"
-//             value={employee.locationID}
-//             onChange={handleChange}
-//             placeholder="Location ID"
-//             style={formStyles.input}
-//           />
-
-//           <label style={formStyles.label}>Education</label>
-//           <input
-//             type="text"
-//             name="education"
-//             value={employee.education}
-//             onChange={handleChange}
-//             placeholder="Education Level"
-//             style={formStyles.input}
-//           />
-//         </div>
-
-//         <div style={{ marginTop: "40px", textAlign: "center" }}>
-//           <button
-//             type="submit"
-//             disabled={loading}
-//             style={{
-//               ...formStyles.button,
-//               opacity: loading ? 0.6 : 1,
-//               cursor: loading ? "not-allowed" : "pointer",
-//             }}
-//           >
-//             {loading ? "Submitting..." : "Submit Onboarding Form"}
-//           </button>
-//         </div>
-//       </form>
-//     </div>
-//   );
-// }
-
-// export default Onboard;

@@ -66,7 +66,7 @@ const CheckoutPage = () => {
         alert("Order failed: " + (result.error || result.message || "Unknown error."));
       }
     } catch (error) {
-      console.error("❌ Error placing order:", error);
+      console.error("Error placing order:", error);
       alert("An error occurred. Try again later.");
     }
   };

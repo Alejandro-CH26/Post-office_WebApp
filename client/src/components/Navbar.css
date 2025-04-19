@@ -1,4 +1,4 @@
-/* ======= BASE NAVBAR ======= */
+
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -11,21 +11,21 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Align hamburger and logo together */
+
 .navbar-left {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-/* ======= LOGO ======= */
+
 .nav-logo {
   font-size: 18px;
   font-weight: bold;
   color: #2d2c72;
 }
 
-/* ======= LINKS (DESKTOP) ======= */
+
 .nav-links {
   list-style: none;
   display: flex;
@@ -54,7 +54,7 @@
   border-radius: 5px;
 }
 
-/* ======= LOGOUT BUTTON ======= */
+
 .logout-button {
   background: #ff4d4d;
   color: white;
@@ -70,7 +70,7 @@
   background: #cc0000;
 }
 
-/* ======= CART ======= */
+
 .cart-link {
   position: relative;
 }
@@ -81,7 +81,7 @@
   margin-left: 5px;
 }
 
-/* ======= HAMBURGER ICON ======= */
+
 .hamburger {
   display: none;
   font-size: 24px;
@@ -91,7 +91,7 @@
   cursor: pointer;
 }
 
-/* ======= MOBILE STYLES ======= */
+
 @media (max-width: 768px) {
   .hamburger {
     display: block;

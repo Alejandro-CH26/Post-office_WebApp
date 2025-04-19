@@ -10,7 +10,7 @@ function Login() {
   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
   useEffect(() => {
-    // Redirect user if already logged in
+    // Redirects user if already logged in
     if (localStorage.getItem("token")) {
       navigate("/dashboard");
     }
@@ -45,12 +45,39 @@ function Login() {
         setError(data.error || "Invalid username or password");
       }
     } catch (error) {
-      console.error("❌ Error logging in:", error);
-      setError("❌ Server error, please try again later.");
+      console.error("Error logging in:", error);
+      setError("Server error, please try again later.");
     }
   };
 
   return (
+
+    // <form className="login-form" onSubmit={handleSubmit}>
+    //   <label>
+    //     Username
+    //     <input
+    //       type="text"
+    //       placeholder="Username"
+    //       value={username}
+    //       onChange={(e) => setUsername(e.target.value)}
+    //       required
+    //     />
+    //   </label>
+
+    //   <label>
+    //     Password
+    //     <input
+    //       type="password"
+    //       placeholder="Password"
+    //       value={password}
+    //       onChange={(e) => setPassword(e.target.value)}
+    //       required
+    //     />
+    //   </label>
+
+    //   <button type="submit">Login</button>
+    // </form>
+
     <div className="login-container">
       <div className="login-box">
         <h1 className="login-title">Login</h1>

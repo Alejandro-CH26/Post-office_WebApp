@@ -3,7 +3,7 @@ import { useCart } from "./CartContext";
 import "./CartPage.css";
 import { Link } from "react-router-dom";
 
-// Image imports
+
 import expressMailImage from "../images/express_mail.jpg";
 import ShippingLabel from "../images/ShippingLabel.jpg";
 import BubbleEnvelope from "../images/BubbleEnvelope2.jpg";
@@ -42,7 +42,7 @@ const CartPage = () => {
         </div>
       ) : (
         <div className="cart-content">
-          {/* LEFT: Cart Items */}
+          
           <div className="cart-items">
             {cart.map((item) => (
               <div className="cart-item" key={`${item.productId}-${item.format}`}>
@@ -92,7 +92,7 @@ const CartPage = () => {
             ))}
           </div>
 
-          {/* RIGHT: Order Summary */}
+          
           <div className="cart-summary-box">
             <h2>Order Summary</h2>
             <ul className="summary-list">
