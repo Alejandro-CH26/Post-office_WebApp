@@ -1,7 +1,7 @@
 const db = require("./db");
 
 module.exports = function cartAPI(req, res, reqUrl) {
-  // CORS support
+  
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -11,7 +11,7 @@ module.exports = function cartAPI(req, res, reqUrl) {
     return res.end();
   }
 
-  // ADD TO CART
+  
   if (req.method === "POST" && reqUrl.pathname === "/cart") {
     let body = "";
     req.on("data", chunk => (body += chunk.toString()));
@@ -30,7 +30,7 @@ module.exports = function cartAPI(req, res, reqUrl) {
           return res.end(JSON.stringify({ error: "Missing required fields." }));
         }
   
-        // Step 1: Check inventory
+        
         const inventorySQL = `
           SELECT quantity 
           FROM inventory 
@@ -44,7 +44,7 @@ module.exports = function cartAPI(req, res, reqUrl) {
   
           const availableStock = inventoryRows[0].quantity;
   
-          // Step 2: Check how much is already in cart
+          
           const checkSQL = `
             SELECT quantity 
             FROM cart 
@@ -59,13 +59,13 @@ module.exports = function cartAPI(req, res, reqUrl) {
             const existingCartQty = cartRows.length > 0 ? cartRows[0].quantity : 0;
             const newTotalQty = existingCartQty + quantity;
   
-            // Step 3: Reject if not enough stock
+            
             if (newTotalQty > availableStock) {
               res.writeHead(400, { "Content-Type": "application/json" });
               return res.end(JSON.stringify({ error: "Not enough stock available at this location." }));
             }
   
-            // Step 4: Proceed with insert/update
+           
             if (cartRows.length > 0) {
               const updateSQL = `
                 UPDATE cart 
@@ -106,7 +106,7 @@ module.exports = function cartAPI(req, res, reqUrl) {
   }
   
 
-  // GET CART BY CUSTOMER
+ 
   if (req.method === "GET" && reqUrl.pathname === "/cart") {
     const customer_ID = reqUrl.query.customer_ID;
     if (!customer_ID) {
@@ -134,7 +134,7 @@ module.exports = function cartAPI(req, res, reqUrl) {
     return true;
   }
 
-  // REMOVE FROM CART (single item)
+  
   if (req.method === "DELETE" && reqUrl.pathname === "/cart") {
     let body = "";
     req.on("data", chunk => (body += chunk.toString()));
@@ -168,7 +168,7 @@ module.exports = function cartAPI(req, res, reqUrl) {
     return true;
   }
 
-  // CLEAR ENTIRE CART (after checkout)
+  
   if (req.method === "DELETE" && reqUrl.pathname === "/cart/clear") {
     let body = "";
     req.on("data", chunk => (body += chunk.toString()));

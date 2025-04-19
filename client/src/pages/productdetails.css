@@ -1,4 +1,4 @@
-/* Main container layout */
+
 .product-details-container {
     display: flex;
     flex-wrap: wrap;
@@ -7,10 +7,10 @@
     background-color: #f9f9f9;
     justify-content: center;
     font-family: "Segoe UI", sans-serif;
-    color: #2d2c72; /* Global text color */
+    color: #2d2c72; 
   }
   
-  /* Left: image section */
+  
   .product-image-section {
     flex: 0 0 450px;
     display: flex;
@@ -25,13 +25,13 @@
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
   
-  /* Right: info section */
+ 
   .product-info-section {
     flex: 1;
     max-width: 750px;
   }
   
-  /* Title & subtitle */
+  
   .product-name {
     font-size: 2rem;
     font-weight: 700;
@@ -44,7 +44,7 @@
     margin-bottom: 1.25rem;
   }
   
-  /* Metadata */
+  
   .product-availability {
     font-weight: 700;
     color: #2e7d32;
@@ -57,7 +57,7 @@
     margin-bottom: 1rem;
   }
   
-  /* Description */
+ 
   .product-description {
     font-size: 1rem;
     color: #2d2c72;
@@ -65,13 +65,13 @@
     line-height: 1.5;
   }
   
-  /* Format column (now includes quantity too) */
+  
   .format-column {
     display: flex;
     flex-direction: column;
   }
   
-  /* Format heading */
+ 
   .format-column h3 {
     font-size: 1.1rem;
     margin-bottom: 0.5rem;
@@ -79,7 +79,7 @@
     font-weight: 700;
   }
   
-  /* Format buttons */
+ 
   .format-button-group {
     display: flex;
     gap: 0.75rem;
@@ -109,7 +109,7 @@
     color: #d32f2f;
   }
   
-  /* Quantity section */
+  
   .quantity-section {
     display: flex;
     flex-direction: column;
@@ -131,7 +131,7 @@
     color: #2d2c72;
   }
   
-  /* Summary */
+  
   .product-summary {
     font-size: 1.05rem;
     font-weight: 600;
@@ -143,7 +143,7 @@
     margin: 0.3rem 0;
   }
   
-  /* Action buttons */
+  
   .product-actions {
     display: flex;
     gap: 1rem;
@@ -180,7 +180,7 @@
     background-color: #256629;
   }
   
-  /* Responsive layout */
+  
   @media (max-width: 768px) {
     .product-details-container {
       flex-direction: column;

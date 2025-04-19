@@ -6,7 +6,7 @@ const CartContext = createContext();
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
 
-  // Load cart from backend on initial mount
+  
   useEffect(() => {
     const fetchCart = async () => {
       const customer_ID = localStorage.getItem("customer_ID");
@@ -42,13 +42,13 @@ export const CartProvider = ({ children }) => {
       );
   
       if (existingIndex !== -1) {
-        // If item exists, update the quantity
+       
         const updatedCart = [...prevCart];
         updatedCart[existingIndex].quantity += newItem.quantity;
         return updatedCart;
       }
   
-      // If it's a new item, add it to the cart
+      
       return [...prevCart, newItem];
     });
   };
@@ -74,7 +74,7 @@ export const CartProvider = ({ children }) => {
         body: JSON.stringify({ cart_id: match.cart_id }),
       });
 
-      // Refresh cart from backend
+      
       const refreshed = await fetch(`${BASE_URL}/cart?customer_ID=${customer_ID}`);
       const updatedCart = await refreshed.json();
 
@@ -108,14 +108,14 @@ export const CartProvider = ({ children }) => {
 
       if (!match || !match.cart_id) return;
 
-      // Delete the old item first
+     
       await fetch(`${BASE_URL}/cart`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cart_id: match.cart_id }),
       });
 
-      // Reinsert with updated quantity
+      
       await fetch(`${BASE_URL}/cart`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -127,7 +127,7 @@ export const CartProvider = ({ children }) => {
         }),
       });
 
-      // Refresh cart again
+      
       const refreshed = fetch(`${BASE_URL}/cart?customer_ID=${customer_ID}`);
       const updatedCart = await refreshed.json();
 

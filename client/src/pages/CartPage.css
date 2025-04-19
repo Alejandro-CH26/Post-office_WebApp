@@ -85,12 +85,12 @@
   border: 1px solid #ccc;
 }
 
-/* Subtotal block */
+
 .cart-item-row > div {
   white-space: nowrap;
 }
 
-/* Order summary panel */
+
 .cart-summary-box {
   flex: 1 1 30%;
   padding: 1.5rem;
@@ -184,7 +184,7 @@
 .empty-cart {
   text-align: center;
   padding: 80px 20px;
-  background-color: transparent; /* no box */
+  background-color: transparent; 
   margin: 60px auto;
   max-width: 600px;
   animation: fadeIn 0.3s ease-in;

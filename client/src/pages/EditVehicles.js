@@ -21,7 +21,7 @@ function EditVehicle() {
 
   const [locations, setLocations] = useState([]);
   const [drivers, setDrivers] = useState([]);
-  const [allDrivers, setAllDrivers] = useState([]); // Keep for fallback
+  const [allDrivers, setAllDrivers] = useState([]);
 
   // Fetch vehicle + meta data
   useEffect(() => {

@@ -11,11 +11,11 @@ function EditEmployee() {
     first_Name: "",
     middle_Name: "",
     last_Name: "",
-    location: "", // This is now Location_ID
+    location: "", 
     role: ""
   });
 
-  const [locations, setLocations] = useState([]); // post_office_location data
+  const [locations, setLocations] = useState([]); 
 
   // Fetch employee info
   useEffect(() => {
@@ -29,7 +29,7 @@ function EditEmployee() {
             first_Name: data.first_Name || "",
             middle_Name: data.middle_Name || "",
             last_Name: data.last_Name || "",
-            location: data.location || "", // Location_ID
+            location: data.location || "",
             role: data.role || ""
           });
         } else {
@@ -53,7 +53,7 @@ function EditEmployee() {
         const res = await fetch(`${BASE_URL}/post-offices`);
         const data = await res.json();
         if (Array.isArray(data)) {
-          setLocations(data); // expects [{ name, Address_ID }]
+          setLocations(data); 
         }
       } catch (err) {
         console.error("❌ Error fetching post office locations:", err);

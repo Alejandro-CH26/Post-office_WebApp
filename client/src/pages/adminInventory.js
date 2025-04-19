@@ -31,7 +31,7 @@ const InventoryReport = () => {
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       const data = await response.json();
       if (!data || data.length === 0) {
-        setStatusMessage("⚠️ No inventory found.");
+        setStatusMessage("No inventory found.");
         setAllInventoryData([]);
         setFilteredData([]);
         return;
@@ -40,7 +40,7 @@ const InventoryReport = () => {
       applyFilterAndSort(data, locationFilter, productFilter, currentSortColumn, currentSortDirection);
     } catch (error) {
       console.error("Fetch error:", error);
-      setStatusMessage("⚠️ Error fetching inventory. Check console.");
+      setStatusMessage("Error fetching inventory. Check console.");
     }
   };
 
@@ -125,7 +125,7 @@ const InventoryReport = () => {
     );
 
     if (!match) {
-      setFeedback("❌ No matching product/location found in inventory.");
+      setFeedback("No matching product/location found in inventory.");
       return;
     }
 
@@ -153,7 +153,7 @@ const InventoryReport = () => {
       }
     } catch (err) {
       console.error("Restock error:", err);
-      setFeedback("❌ Error submitting restock.");
+      setFeedback("Error submitting restock.");
     }
   };
 

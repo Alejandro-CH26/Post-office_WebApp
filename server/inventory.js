@@ -11,7 +11,7 @@ module.exports = (req, res, reqUrl) => {
     let params;
 
     if (employeeID) {
-      // 🔒 Restricted view for employees (only their location)
+      
       sql = `
         SELECT
           l.location_ID,
@@ -37,7 +37,7 @@ module.exports = (req, res, reqUrl) => {
       `;
       params = [selectedDate, employeeID];
     } else {
-      // 👑 Full inventory view for admins
+      
       sql = `
         SELECT
           l.location_ID,
@@ -56,6 +56,7 @@ module.exports = (req, res, reqUrl) => {
           AND t.product_ID = p.product_ID
           AND t.Status = 'Completed'
           AND DATE(t.Date) <= ?
+          WHERE l.is_deleted = 0
         GROUP BY l.location_ID, p.product_ID
         ORDER BY l.name, p.product_name;
       `;
@@ -64,10 +65,10 @@ module.exports = (req, res, reqUrl) => {
 
     connection.query(sql, params, (err, results) => {
       if (err) {
-        console.error("❌ Database Error:", err);
+        console.error("Database Error:", err);
         if (!res.headersSent) {
           res.writeHead(500, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ error: "❌ Database error", details: err }));
+          res.end(JSON.stringify({ error: "Database error", details: err }));
         }
         return;
       }
