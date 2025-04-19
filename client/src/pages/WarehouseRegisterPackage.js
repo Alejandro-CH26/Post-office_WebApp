@@ -102,12 +102,12 @@ function WarehouseRegisterPackage() {
             <div className="package-box">
                 <h1 className="package-title">Create a Package</h1>
                 <form className="package-form" onSubmit={handleSubmit}>
-                    <input type="number" placeholder="Weight" required value={weight} onChange={(e) => setWeight(e.target.value)} />
+                    <input type="number" placeholder="Weight" required min="0" max="999.99" step="0.01" maxLength="6" value={weight} onChange={(e) => setWeight(e.target.value)} />
                     <input type="text" placeholder="Sender Email" required value={senderEmail} onChange={(e) => setSenderEmail(e.target.value)} />
-                    <input type="text" placeholder="Recipient Name" required value={recipientName} onChange={(e) => setRecipientName(e.target.value)} />
-                    <input type="text" placeholder="Destination Street" required value={destinationStreet} onChange={(e) => setDestinationStreet(e.target.value)} />
-                    <input type="text" placeholder="Destination Unit (Leave blank if none)" value={destinationUnit} onChange={(e) => setDestinationUnit(e.target.value)} />
-                    <input type="text" placeholder="Destination City" required value={destinationCity} onChange={(e) => setDestinationCity(e.target.value)} />
+                    <input type="text" placeholder="Recipient Name" required value={recipientName} maxLength="60" onChange={(e) => setRecipientName(e.target.value)} />
+                    <input type="text" placeholder="Destination Street" required value={destinationStreet} maxLength="255" onChange={(e) => setDestinationStreet(e.target.value)} />
+                    <input type="text" placeholder="Destination Unit (Leave blank if none)" value={destinationUnit} maxLength="20" onChange={(e) => setDestinationUnit(e.target.value)} />
+                    <input type="text" placeholder="Destination City" required value={destinationCity} maxLength="100" onChange={(e) => setDestinationCity(e.target.value)} />
 
                     {/* State Dropdown */}
                     <select className="select-input" required value={destinationState} onChange={(e) => setDestinationState(e.target.value)}>
@@ -117,7 +117,7 @@ function WarehouseRegisterPackage() {
                         ))}
                     </select>
 
-                    <input type="text" placeholder="Destination Zipcode" required value={destinationZipcode} onChange={(e) => setDestinationZipcode(e.target.value)} />
+                    <input type="text" placeholder="Destination Zipcode" required value={destinationZipcode} maxLength="5" onChange={(e) => setDestinationZipcode(e.target.value)} />
 
                     {/* Priority Dropdown (Now an Integer) */}
                     <select className="select-input" required value={priority} onChange={(e) => setPriority(e.target.value)}>
@@ -132,9 +132,9 @@ function WarehouseRegisterPackage() {
                         <input type="checkbox" checked={fragile} onChange={(e) => setFragile(e.target.checked)} />
                     </label>
 
-                    <input type="number" placeholder="Length" required value={length} onChange={(e) => setLength(e.target.value)} />
-                    <input type="number" placeholder="Width" required value={width} onChange={(e) => setWidth(e.target.value)} />
-                    <input type="number" placeholder="Height" required value={height} onChange={(e) => setHeight(e.target.value)} />
+                    <input type="number" placeholder="Length" required value={length} min="0" max="99.9" step="0.1" maxLength="5" onChange={(e) => setLength(e.target.value)} />
+                    <input type="number" placeholder="Width" required value={width} min="0" max="99.9" step="0.1" maxLength="5" onChange={(e) => setWidth(e.target.value)} />
+                    <input type="number" placeholder="Height" required value={height} min="0" max="99.9" step="0.1" maxLength="5" onChange={(e) => setHeight(e.target.value)} />
                     <button type="submit">Create Package</button>
                 </form>
             </div>

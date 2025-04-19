@@ -11,7 +11,7 @@ function WarehousePackageCheckout() {
     const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
     if (!packageData) {
-        return <p>❌ Error: No package data found.</p>;
+        return <p> Error: No package data found.</p>;
     }
 
     const handlePaymentSubmit = async (e) => {
@@ -32,7 +32,7 @@ function WarehousePackageCheckout() {
             });
     
             const data = await response.json();
-            console.log("✅ Server Response:", data);
+            console.log("Server Response:", data);
     
             if (response.ok) {
                 // Navigate to success page and pass trackingNumber as state
@@ -76,9 +76,9 @@ function WarehousePackageCheckout() {
                 </div>
 
                 <div className="payment-details">
-                    <input type="text" placeholder="Card Number" required />
-                    <input type="text" placeholder="Exp. (MM/YY)" required />
-                    <input type="text" placeholder="CVV" required />
+                    <input type="text" placeholder="Card Number" maxLength="16" pattern="\d{16}" required />
+                    <input type="text" placeholder="Exp. (MM/YY)" pattern="(0[1-9]|1[0-2])\/[0-9]{2}" required />
+                    <input type="text" placeholder="CVV" maxLength="4" pattern="\d{3,4}" required />
                 </div>
 
                 <button type="submit" className="submit-btn">Checkout</button>
