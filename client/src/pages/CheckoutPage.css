@@ -11,7 +11,7 @@
   align-items: flex-start;
   box-sizing: border-box;
   width: 100%;
-  max-width: 1000px; /* adjust as needed */
+  max-width: 1000px;
   justify-content: center;
 }
 .checkout-box {
@@ -98,7 +98,7 @@
   margin: 0.5rem 0;
 }
 
-/* Responsive */
+
 @media (max-width: 768px) {
   .checkout-container {
     flex-direction: column;

@@ -76,7 +76,7 @@ const SalesReport = () => {
       const uniqueTypes = [...new Set(transactions.map((t) => t.raw_type).filter(Boolean))];
 
       if (abortRef.current === controller) {
-        setSales(transactions); // ✅ Replace (don't append)
+        setSales(transactions);
         setTypes(uniqueTypes);
         setTotalRevenue(summaryData.totalRevenue || "0.00");
         setTotalTransactions(summaryData.totalTransactions || 0);
@@ -86,7 +86,7 @@ const SalesReport = () => {
       }
     } catch (err) {
       if (err.name !== "AbortError") {
-        console.error("❌ Failed to fetch data:", err);
+        console.error("Failed to fetch data:", err);
         setError(`Failed to load data: ${err.message}`);
       }
     } finally {

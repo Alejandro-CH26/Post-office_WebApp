@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 
 function WarehouseAssignPackages() {
-    const [packages, setPackages] = useState([]); // Packages fetched from the backend
-    const [locations, setLocations] = useState([]); // Combined list of destinations & post offices
+    const [packages, setPackages] = useState([]); 
+    const [locations, setLocations] = useState([]); 
     const [filteredLocations, setFilteredLocations] = useState([]);
     const [deliveryVehicles, setDeliveryVehicles] = useState([]);
     const [filteredVehicles, setFilteredVehicles] = useState([]);
@@ -10,7 +10,7 @@ function WarehouseAssignPackages() {
     const [selectedLocation, setSelectedLocation] = useState("");
     const [selectedVehicle, setSelectedVehicle] = useState("");
     const [submittedPackage, setSubmittedPackage] = useState(null);
-    const [error, setError] = useState(""); // Error handling
+    const [error, setError] = useState(""); 
 
     const priorityLabels = {
         5: "Express",
@@ -35,13 +35,13 @@ function WarehouseAssignPackages() {
                 const data = await response.json();
                 console.log("Backend response:", data);
 
-                // Store packages without affecting post office locations
+               
                 setPackages(data.packages || []);
                 setDeliveryVehicles(data.deliveryVehicles || []);
                 setFilteredVehicles(data.deliveryVehicles || []);
 
 
-                // Set post offices separately
+            
                 const postOffices = data.postOffices.map(postOffice => ({
                     addressID: postOffice.addressID,
                     addressStreet: postOffice.addressStreet,
@@ -51,7 +51,7 @@ function WarehouseAssignPackages() {
                     type: "Warehouse"
                 }));
 
-                setLocations(postOffices); // Default locations hold only warehouses
+                setLocations(postOffices); 
               } else {
                 setError("Failed to fetch data. Please try again.");
             }
@@ -70,7 +70,7 @@ function WarehouseAssignPackages() {
       setSelectedLocation("");
       setSelectedVehicle("");
   
-      // Ensure the package's destination is properly formatted and added
+      
       const destinationLocation = {
           addressID: packageData.destination.addressID,
           addressStreet: packageData.destination.addressStreet,
@@ -80,7 +80,7 @@ function WarehouseAssignPackages() {
           type: "Destination"
       };
   
-      // Merge this package's destination with warehouse locations
+     
       setFilteredLocations([destinationLocation, ...locations]);  
   };
   
@@ -132,7 +132,7 @@ function WarehouseAssignPackages() {
 
             if (response.ok) {
                 alert(`Package ${data.updatedPackageId} was successfully updated!`);
-                fetchPackages(); // Refresh package list
+                fetchPackages(); 
             } else {
                 alert(`${data.message}`);
             }
@@ -180,7 +180,7 @@ function WarehouseAssignPackages() {
                         </button>
                         {assigningPackage === pkg.packageID && (
                             <div style={{ marginTop: "10px" }}>
-                                {/* Combined Location Dropdown */}
+                               
                                 <label>Search Locations (Destinations & Warehouses):</label>
                                 <input
                                     type="text"
@@ -189,7 +189,7 @@ function WarehouseAssignPackages() {
                                     onChange={locationFilter}
                                 />
                                 <select
-                                    onChange={(e) => setSelectedLocation(e.target.value)}  // Use e.target.value instead of dataset.id
+                                    onChange={(e) => setSelectedLocation(e.target.value)}  
                                     value={selectedLocation || ""}
                                     style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
                                 >
@@ -205,7 +205,7 @@ function WarehouseAssignPackages() {
 
 
 
-                                {/* Delivery Vehicles Dropdown */}
+                               
                                 <label>Delivery Vehicles:</label>
                                 <input
                                     type="text"

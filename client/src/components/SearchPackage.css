@@ -13,20 +13,20 @@
 .search-title {
     font-size: 22px;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     color: #2d2c72;
     width: 90%;
     max-width: 1100px;
-    text-align: left; 
+    text-align: center; 
     padding-left: 10px; 
 }
 
 
 .search-container {
     display: flex;
-    justify-content: space-between;
+    justify-content:center;
     align-items: center;
-    width: 90%;
+    width: 100%;
     max-width: 1100px;
 }
 

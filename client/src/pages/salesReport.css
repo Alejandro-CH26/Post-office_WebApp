@@ -7,7 +7,7 @@
     box-sizing: border-box;
 }
 
-/* Header */
+
 h1 {
     font-size: 36px;
     text-align: center;
@@ -15,7 +15,7 @@ h1 {
     color: #343a40;
 }
 
-/* Filters */
+
 .filters {
     display: flex;
     flex-wrap: wrap;
@@ -41,7 +41,7 @@ h1 {
     box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.2);
 }
 
-/* Summary Boxes */
+
 .report-summary {
     display: flex;
     justify-content: center;
@@ -77,7 +77,7 @@ h1 {
     font-weight: bold;
 }
 
-/* Table */
+
 .report-table-wrapper {
     overflow-x: auto;
 }
@@ -168,7 +168,7 @@ h1 {
     text-align: center;
 }
 
-/* Loading and error states */
+
 .loading-indicator {
     text-align: center;
     padding: 20px;

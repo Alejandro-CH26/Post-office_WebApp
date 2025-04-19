@@ -57,10 +57,11 @@ function PackagesLeft({ employeeID }) {
 
     const updateVehicleStatus = async (newStatus) => {
         if (!employeeID) return;
-        
+    
         try {
             setUpdatingStatus(true);
             const API_URL = getApiUrl();
+    
             
             const response = await fetch(`${API_URL}/driver/update-status`, {
                 method: 'POST',
@@ -70,16 +71,33 @@ function PackagesLeft({ employeeID }) {
                     status: newStatus 
                 }),
             });
-            
+    
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.message || `Server responded with ${response.status}`);
             }
+    
+           
+            if (newStatus === "In Transit") {
+                const trackResponse = await fetch(`${API_URL}/driver/mark-departure`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ employeeID })
+                });
+    
+                if (!trackResponse.ok) {
+                    const trackError = await trackResponse.json().catch(() => ({}));
+                    console.error("⚠️ Failed to insert tracking history:", trackError.message || "Unknown error");
+                } else {
+                    const result = await trackResponse.json();
+                    console.log("📦 Tracking history created:", result.message);
+                }
+            }
+    
             
-            // Update local state and refetch packages to get fresh data
             setVehicleStatus(newStatus);
             await loadPackages();
-            
+    
         } catch (err) {
             console.error("Failed to update vehicle status:", err);
             setError(`Failed to update status: ${err.message}`);
@@ -87,6 +105,7 @@ function PackagesLeft({ employeeID }) {
             setUpdatingStatus(false);
         }
     };
+    
 
     const updatePackageStatus = async (packageID, status) => {
         const API_URL = getApiUrl();
