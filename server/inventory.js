@@ -56,6 +56,7 @@ module.exports = (req, res, reqUrl) => {
           AND t.product_ID = p.product_ID
           AND t.Status = 'Completed'
           AND DATE(t.Date) <= ?
+          WHERE l.is_deleted = 0
         GROUP BY l.location_ID, p.product_ID
         ORDER BY l.name, p.product_name;
       `;
