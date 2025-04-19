@@ -49,7 +49,7 @@ ORDER BY ls.timestamp DESC;
     return true;
   }
 
-  // 📬 Delivered Packages Report
+  //  Delivered Packages Report
   if (
     req.method === "GET" &&
     reqUrl.pathname === "/reports/packages-delivered"
@@ -143,7 +143,7 @@ ORDER BY ls.timestamp DESC;
     return true;
   }
 
-  return false; // Let other routes handle unrecognized paths
+  return false; 
 }
 
 module.exports = reportRoutes;
