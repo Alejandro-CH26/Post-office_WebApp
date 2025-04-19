@@ -568,7 +568,9 @@ const server = http.createServer((req, res) => {
                     if (err) {
                         console.error("Delivery Vehicle Insert Error:", err);
                         res.writeHead(500, { "Content-Type": "application/json" });
-                        res.end(JSON.stringify({ status: "error", message: "Database error" }));
+                        res.end(JSON.stringify({ status: "error", message: "License plate number already exists!" }));
+
+                        // res.end(JSON.stringify({ status: "error", message: "Database error" }));
                         return;
                     }
 
