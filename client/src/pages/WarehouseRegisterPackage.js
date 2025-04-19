@@ -44,7 +44,7 @@ function WarehouseRegisterPackage() {
             });
     
             const data = await response.json();
-            console.log("✅ Server Response:", data);
+            console.log("Server Response:", data);
     
             if (!response.ok) {
                 alert(`Error: ${data.message}`);
@@ -72,8 +72,8 @@ function WarehouseRegisterPackage() {
             navigate("/warehousepackagecheckout", { state: { packageData: newPackage } });
     
         } catch (error) {
-            console.error("❌ Network Error:", error);
-            alert("❌ Failed to connect to the server. Please try again.");
+            console.error("Network Error:", error);
+            alert("Failed to connect to the server. Please try again.");
         }
     };
     
@@ -88,6 +88,14 @@ function WarehouseRegisterPackage() {
     ];
 
     const priorities = [1, 2, 3, 4, 5]; // Ensure priority options are integers
+
+    const priorityOptions = {
+        1: "Economy",
+        2: "Standard",
+        3: "First-Class",
+        4: "Priority",
+        5: "Express",
+    };
 
     return (
         <div className="package-container">
@@ -114,8 +122,8 @@ function WarehouseRegisterPackage() {
                     {/* Priority Dropdown (Now an Integer) */}
                     <select className="select-input" required value={priority} onChange={(e) => setPriority(e.target.value)}>
                         <option value="">Select Priority Level</option>
-                        {priorities.map((level) => (
-                            <option key={level} value={level}>{level}</option>
+                        {Object.entries(priorityOptions).map(([value, label]) => (
+                            <option key={value} value={value}>{label}</option>
                         ))}
                     </select>
 

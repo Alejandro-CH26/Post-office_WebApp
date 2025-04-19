@@ -1,239 +1,216 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"; 
+function WarehouseAssignPackages() { 
+    const [packages, setPackages] = useState([]); 
+    const [locations, setLocations] = useState([]); 
+    const [deliveryVehicles, setDeliveryVehicles] = useState([]); 
+    const [assigningPackage, setAssigningPackage] = useState(null); 
+    const [selectedLocation, setSelectedLocation] = useState(""); 
+    const [selectedVehicle, setSelectedVehicle] = useState(""); 
+    const [viewingPackagesForVehicle, setViewingPackagesForVehicle] = useState(null); 
+    const [expandedPackageDetails, setExpandedPackageDetails] = useState({}); 
+    const [error, setError] = useState(""); 
+    const [viewMode, setViewMode] = useState("packages");
+    const [message, setMessage] = useState({ text: "", type: "" });
 
-function WarehouseAssignPackages() {
-    const [packages, setPackages] = useState([]); // Packages fetched from the backend
-    const [locations, setLocations] = useState([]); // Combined list of destinations & post offices
-    const [filteredLocations, setFilteredLocations] = useState([]);
-    const [deliveryVehicles, setDeliveryVehicles] = useState([]);
-    const [filteredVehicles, setFilteredVehicles] = useState([]);
-    const [assigningPackage, setAssigningPackage] = useState(null);
-    const [selectedLocation, setSelectedLocation] = useState("");
-    const [selectedVehicle, setSelectedVehicle] = useState("");
-    const [submittedPackage, setSubmittedPackage] = useState(null);
-    const [error, setError] = useState(""); // Error handling
+    const priorityLabels = { 5: "Express", 4: "Priority", 3: "First-Class", 2: "Standard", 1: "Economy" }; 
+    const BASE_URL = process.env.REACT_APP_API_BASE_URL; 
+    const employeeID = localStorage.getItem("employee_ID"); 
+    const fetchData = async () => { 
+        try { 
+            const response = await fetch(`${BASE_URL}/warehouseassignpackages?employeeID=${employeeID}`); 
+            if (response.ok) { 
+                const data = await response.json(); 
+                setPackages(data.packages || []); 
+                setDeliveryVehicles(Object.values(data.deliveryVehicles || {})); 
+                setLocations(data.postOffices || []); 
+            } else { 
+                setMessage({ text: "Failed to fetch data.", type: "error" });
+            } 
+        } catch (err) { 
+            console.error("Fetch error:", err); 
+            setMessage({ text: "Error fetching data.", type: "error" });
+        } 
+    }; 
 
-    const priorityLabels = {
-        5: "Express",
-        4: "Priority",
-        3: "First-Class",
-        2: "Standard",
-        1: "Economy"
-    };
-    const BASE_URL = process.env.REACT_APP_API_BASE_URL;
-    const employeeID = localStorage.getItem("employee_ID");
-
-
-    const fetchPackages = async () => {
-        try {
-           
-            const response = await fetch(`${BASE_URL}/warehouseassignpackages?employeeID=${employeeID}`, {
-              method: "GET",
-             
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                console.log("Backend response:", data);
-
-                // Store packages without affecting post office locations
-                setPackages(data.packages || []);
-                setDeliveryVehicles(data.deliveryVehicles || []);
-                setFilteredVehicles(data.deliveryVehicles || []);
-
-
-                // Set post offices separately
-                const postOffices = data.postOffices.map(postOffice => ({
-                    addressID: postOffice.addressID,
-                    addressStreet: postOffice.addressStreet,
-                    addressCity: postOffice.addressCity,
-                    addressState: postOffice.addressState,
-                    addressZipcode: postOffice.addressZipcode,
-                    type: "Warehouse"
-                }));
-
-                setLocations(postOffices); // Default locations hold only warehouses
-              } else {
-                setError("Failed to fetch data. Please try again.");
-            }
-        } catch (err) {
-            console.error("Error fetching data:", err);
-            setError("An error occurred while fetching data.");
-        }
-    };
-
-    useEffect(() => {
-        fetchPackages();
-    }, []);
+    useEffect(() => { fetchData(); }, []); 
 
     const startAssigning = (packageData) => {
-      setAssigningPackage(packageData.packageID);
-      setSelectedLocation("");
-      setSelectedVehicle("");
-  
-      // Ensure the package's destination is properly formatted and added
-      const destinationLocation = {
-          addressID: packageData.destination.addressID,
-          addressStreet: packageData.destination.addressStreet,
-          addressCity: packageData.destination.addressCity,
-          addressState: packageData.destination.addressState,
-          addressZipcode: packageData.destination.addressZipcode,
-          type: "Destination"
-      };
-  
-      // Merge this package's destination with warehouse locations
-      setFilteredLocations([destinationLocation, ...locations]);  
-  };
-  
+        setAssigningPackage(prevPackage => (prevPackage === packageData.packageID ? null : packageData.packageID));
+        setSelectedLocation(""); 
+        setSelectedVehicle(""); 
 
-    const locationFilter = (e) => {
-        const searchValue = e.target.value.toLowerCase();
-        setFilteredLocations(
-            filteredLocations.filter(loc =>
-                `${loc.addressStreet}, ${loc.addressCity}, ${loc.addressState} ${loc.addressZipcode}`
-                    .toLowerCase()
-                    .includes(searchValue)
-            )
-        );
+        const destinationLocation = [{ 
+            addressID: packageData.destination.addressID, 
+            addressStreet: packageData.destination.addressStreet, 
+            addressCity: packageData.destination.addressCity, 
+            addressState: packageData.destination.addressState, 
+            addressZipcode: packageData.destination.addressZipcode, 
+            type: "Destination"
+        }];
+
+        setLocations([...destinationLocation, ...fetchWarehouseLocations()]);
+    }; 
+
+    const fetchWarehouseLocations = () => {
+        return locations.filter(loc => loc.type !== "Destination");
     };
 
-    const vehicleFilter = (e) => {
-        const searchValue = e.target.value.toLowerCase();
-        setFilteredVehicles(
-            deliveryVehicles.filter(veh =>
-                `Truck ${veh.vehicleID}`.toLowerCase().includes(searchValue)
-            )
-        );
+    const toggleView = (mode) => {
+        setViewMode(mode);
     };
 
-    const handleSubmit = async () => {
-        if (!selectedLocation) {
-            alert("Please select a location before submitting.");
-            return;
-        }
+    const togglePackageDetails = (packageID) => { 
+        setExpandedPackageDetails(prevState => ({ 
+            ...prevState, 
+            [packageID]: !prevState[packageID] 
+        })); 
+    };
 
-        if (!selectedVehicle) {
-            alert("Please select a delivery vehicle before submitting.");
-            return;
-        }
-
-        const nextDestination = selectedLocation;
-        const assignedVehicle = selectedVehicle;
-        const packageId = assigningPackage;
-
-        try {
+    const handleSubmit = async () => { 
+        if (!selectedLocation || !selectedVehicle) { 
+            setMessage({ text: "Please select a location and vehicle.", type: "error" });
+            return; 
+        } 
+        try { 
             const response = await fetch(`${BASE_URL}/warehouseassignpackages?employeeID=${employeeID}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ nextDestination, assignedVehicle, packageId })
-            });
+                body: JSON.stringify({ nextDestination: selectedLocation, assignedVehicle: selectedVehicle, packageId: assigningPackage })
+            }); 
 
             const data = await response.json();
-            console.log("Server response:", data.message);
-
-            if (response.ok) {
-                alert(`Package ${data.updatedPackageId} was successfully updated!`);
-                fetchPackages(); // Refresh package list
-            } else {
-                alert(`${data.message}`);
-            }
-        } catch (error) {
-            console.error("Network error:", error);
-            alert("Failed to update package due to a network issue.");
-        }
+            if (response.ok) { 
+                fetchData(); 
+                setMessage({ text: "Package assigned successfully!", type: "success" });
+            } else { 
+                setMessage({ text: `${data.message}`, type: "error" });
+            } 
+        } catch (error) { 
+            console.error("Submission error:", error); 
+            setMessage({ text: "Network error.", type: "error" });
+        } 
 
         setAssigningPackage(null);
-        setSelectedLocation("");
-        setSelectedVehicle("");
-    };
+        setTimeout(() => setMessage({ text: "", type: "" }), 5000); // Auto-clear message after 5 seconds
+    }; 
 
-    if (error) {
-        return (
-            <div style={{ textAlign: "center", padding: "20px" }}>
-                <h1>Error</h1>
-                <p style={{ color: "red" }}>{error}</p>
-            </div>
-        );
-    }
+    const removePackage = async (packageID) => { 
+        try { 
+            const response = await fetch(`${BASE_URL}/warehouseremovepackage?employeeID=${employeeID}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ packageID }) 
+            }); 
 
-    return (
-        <div style={{ textAlign: "center", margin: "0 auto", maxWidth: "800px", padding: "20px" }}>
-            <h1>Warehouse Assign Packages</h1>
-            <div style={{ display: "grid", gap: "20px" }}>
-                {packages.map(pkg => (
-                    <div key={pkg.packageID} style={{
-                        backgroundColor: "#f5f5f5",
-                        border: "1px solid #ddd",
-                        borderRadius: "8px",
-                        padding: "20px",
-                        boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
-                        textAlign: "left",
-                    }}>
-                        <h3>ID: {pkg.packageID}</h3>
-                        <h3>{priorityLabels[pkg.packagePriority] || "Unknown"}</h3>
-                        <p>Destination City: {pkg.destination?.addressCity}, {pkg.destination?.addressState}</p>
-                        <p>{pkg.packageWeight} lbs, {pkg.packageVolume} cu ft</p>
-                        <button
-                            onClick={() => startAssigning(pkg)}
-                            style={{ padding: "10px 15px", marginBottom: "10px" }}
-                        >
-                            Assign Next Location
-                        </button>
-                        {assigningPackage === pkg.packageID && (
-                            <div style={{ marginTop: "10px" }}>
-                                {/* Combined Location Dropdown */}
-                                <label>Search Locations (Destinations & Warehouses):</label>
-                                <input
-                                    type="text"
-                                    placeholder="Search locations"
-                                    style={{ display: "block", margin: "10px 0", padding: "8px", width: "100%" }}
-                                    onChange={locationFilter}
-                                />
-                                <select
-                                    onChange={(e) => setSelectedLocation(e.target.value)}  // Use e.target.value instead of dataset.id
-                                    value={selectedLocation || ""}
-                                    style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-                                >
-                                    <option value="" disabled>Select a location</option>
-                                    {filteredLocations.map((loc) => (
-                                        <option key={loc.addressID} value={loc.addressID}>  
-                                            {`${loc.type}: ${loc.addressStreet}, ${loc.addressCity}, ${loc.addressState} ${loc.addressZipcode}`} 
-                                        </option>
-                                    ))}
-                                </select>
+            if (response.ok) { 
+                fetchData(); 
+                setMessage({ text: "Package removed successfully!", type: "success" });
+            } else { 
+                setMessage({ text: "Failed to remove package.", type: "error" });
+            }
+        } catch (error) { 
+            console.error("Error removing package:", error); 
+            setMessage({ text: "Network error.", type: "error" });
+        } 
 
-
-
-
-
-                                {/* Delivery Vehicles Dropdown */}
-                                <label>Delivery Vehicles:</label>
-                                <input
-                                    type="text"
-                                    placeholder="Search vehicles"
-                                    style={{ display: "block", margin: "10px 0", padding: "8px", width: "100%" }}
-                                    onChange={vehicleFilter}
-                                />
-                                <select
-                                    onChange={(e) => setSelectedVehicle(e.target.value)}
-                                    value={selectedVehicle || ""}
-                                    style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-                                >
-                                    <option value="" disabled>Select a vehicle</option>
-                                    {filteredVehicles.map((veh) => (
-                                        <option key={veh.vehicleID} value={veh.vehicleID}>{`Truck ${veh.vehicleID}`}</option>
-                                    ))}
-                                </select>
-
-                                <button onClick={handleSubmit} style={{ padding: "10px 15px", marginTop: "10px" }}>
-                                    Submit
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                ))}
-            </div>
+        setTimeout(() => setMessage({ text: "", type: "" }), 5000);
+    }; 
+    return ( 
+    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}> 
+        <h1 style={{ textAlign: "center" }}>Warehouse Assign Packages</h1> 
+         {/* Status Message */}
+         {message.text && (
+            <p style={{ color: message.type === "success" ? "green" : "red", textAlign: "center", fontSize: "16px", marginTop: "10px" }}>
+                {message.text}
+            </p>
+        )}
+        {/* View Toggle Buttons */}
+        <div style={{ textAlign: "center", marginBottom: "15px" }}>
+                <button onClick={() => toggleView("vehicles")} style={{ marginRight: "10px", width:"250px"}}>
+                    View Delivery Vehicles
+                </button>
+                <button onClick={() => toggleView("packages")} style={{width:"250px"}}>
+                    View Packages
+                </button>
         </div>
-    );
-}
+        {/* DELIVERY VEHICLES SECTION */} 
+        {viewMode === "vehicles" && (
+            <div style={{ border: "1px solid #ccc", borderRadius: "8px", padding: "15px" }}> 
+            <h2>Delivery Vehicles</h2> 
+            {deliveryVehicles.map(vehicle => ( 
+                <div key={vehicle.vehicleID} style={{ display: "flex", flexDirection: "column", backgroundColor: "#f5f5f5", marginBottom: "10px", padding: "15px", borderRadius: "8px" }}> 
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}> 
+                        <h3>Delivery Vehicle {vehicle.vehicleID}</h3> 
+                        <p>Remaining Capacity: {vehicle.payloadCapacity} lbs, {vehicle.volumeCapacity} cb ft</p>
+                        <button onClick={() => setViewingPackagesForVehicle(vehicle.vehicleID)}>View Packages</button> 
+                    </div> 
+                    {viewingPackagesForVehicle === vehicle.vehicleID && (
+                        <div style={{ marginTop: "10px" }}>
+                            {vehicle.packages && vehicle.packages[0]["packageID"] != null ? (
+                                vehicle.packages.map(pkg => (
+                                    <div key={pkg.packageID} style={{ border: "1px solid #ddd", padding: "10px", margin: "5px", borderRadius: "5px" }}>
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                            <h4>Package {pkg.packageID}</h4>
+                                            <h4>{priorityLabels[pkg.priority]}</h4>
+                                            <p>{pkg.addressStreet}, {pkg.addressCity}, {pkg.addressState} {pkg.addressZipcode}</p>
+                                            <button onClick={() => togglePackageDetails(pkg.packageID)}>View Details</button>
+                                        </div>
+                                        {expandedPackageDetails[pkg.packageID] && (
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "10px" }}>
+                                                <p>Package Weight: {pkg.weight} lbs, Package Volume: {pkg.packageVolume} cb ft</p>
+                                                <button onClick={() => removePackage(pkg.packageID)} style={{ backgroundColor: "red", color: "white" }}>Remove Package</button>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))
+                            ) : (
+                                <p style={{ textAlign: "center", fontStyle: "italic", marginTop: "10px" }}>Vehicle is currently Empty</p>
+                            )}
+                        </div>
+                    )}
 
+
+
+                </div> ))} 
+        </div>
+        )}
+        {/* PACKAGES AT WAREHOUSE SECTION */}
+        {viewMode === "packages" && (
+            <div style={{ border: "1px solid #ccc", borderRadius: "8px", padding: "15px", marginTop: "20px"}}> 
+            <h2>Packages at Warehouse</h2> 
+            {packages.map(pkg => ( 
+                <div key={pkg.packageID} style={{ display: "flex", flexDirection: "column", backgroundColor: "#f5f5f5", marginBottom: "10px", padding: "15px", borderRadius: "8px" }}> 
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}> 
+                        <h3>Package {pkg.packageID}</h3> 
+                        <h3 style={{maxWidth:"150px"}}>{priorityLabels[pkg.packagePriority]}</h3> 
+                        <p style={{ width:"300px"}}><b>Destination: {pkg.destination?.addressCity}, {pkg.destination?.addressState}</b></p> 
+                        <button onClick={() => togglePackageDetails(pkg.packageID)}>View Details</button> 
+                        <button onClick={() => startAssigning(pkg)}>Assign Next Location</button> 
+                    </div> 
+                    {expandedPackageDetails[pkg.packageID] && ( 
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "10px" }}> 
+                            <p><b>Package Weight:</b> {pkg.packageWeight} lbs, <b>Package Volume:</b> {pkg.packageVolume} cb ft</p> 
+                        </div> )} 
+                    {assigningPackage === pkg.packageID && ( 
+                        <div style={{ display: "flex", flexDirection: "column", marginTop: "10px", gap: "10px" }}> 
+                            <label>Search Locations:</label> 
+                            <select onChange={(e) => setSelectedLocation(e.target.value)} value={selectedLocation || ""} style={{ display: "block", margin: "10px 0", padding: "8px", width: "100%" }}> 
+                                <option value="" disabled>Select a location</option> 
+                                {locations.map(loc => <option key={loc.addressID} value={loc.addressID}>{loc.type}: {loc.addressStreet}, {loc.addressCity}, {loc.addressState} {loc.addressZipcode}</option>)} 
+                            </select> 
+                            <label>Delivery Vehicles:</label> 
+                            <select onChange={(e) => setSelectedVehicle(e.target.value)} value={selectedVehicle || "" } style={{ display: "block", margin: "10px 0", padding: "8px", width: "100%" }}> 
+                                <option value="" disabled>Select a vehicle</option> 
+                                {deliveryVehicles.map(veh => <option key={veh.vehicleID} value={veh.vehicleID}>
+                                    {`Truck ${veh.vehicleID}`}
+                                </option>)} 
+                            </select> 
+                            <button onClick={handleSubmit}>Submit</button> 
+                        </div> )} 
+                    </div> ))} 
+        </div>
+        )}
+         
+    </div> ); 
+} 
 export default WarehouseAssignPackages;

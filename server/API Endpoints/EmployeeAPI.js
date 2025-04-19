@@ -209,7 +209,7 @@ async function warehouseAssignPackages(req, res) {
                     var postOfficeQuery = `
                     SELECT addresses.address_ID, addresses.address_Street, addresses.address_City, addresses.address_State, addresses.address_Zipcode
                     FROM db1.addresses, db1.employees, db1.post_office_location
-                    WHERE addresses.Office_Location = true and post_office_location.location_ID <> employees.Location_ID
+                    WHERE addresses.Office_Location = true and addresses.is_deleted = 0 and post_office_location.location_ID <> employees.Location_ID
                     and post_office_location.Address_ID = addresses.Address_ID and employees.Employee_ID = ?;
                     `;
 
@@ -265,11 +265,28 @@ async function warehouseAssignPackages(req, res) {
 
                                 // GET the Delivery Vehicles information
                                 var deliveryVehicleQuery = `
-                                select Vehicle_ID, ROUND(Volume_Capacity - SUM((Length/12) * (Width/12) * (Height/12)), 1) as Remaining_Volume, ROUND(Payload_Capacity - SUM(Weight), 1) as Remaining_Payload
-                                from db1.delivery_vehicle, db1.employees, db1.package
-                                where delivery_vehicle.Location_ID = employees.Location_ID and delivery_vehicle.At_Capacity = false
-                                and delivery_vehicle.Status = "Available" and employees.Employee_ID = ?
-                                GROUP BY Vehicle_ID, Volume_Capacity, Payload_Capacity;
+                                SELECT 
+                                    dv.Vehicle_ID, 
+                                    ROUND(dv.Volume_Capacity - COALESCE(SUM(p.Length/12 * p.Width/12 * p.Height/12), 0), 1) AS Remaining_Volume, 
+                                    ROUND(dv.Payload_Capacity - COALESCE(SUM(p.Weight), 0), 1) AS Remaining_Payload,
+                                    p.Package_ID, 
+                                    p.Priority, 
+                                    p.Weight, 
+                                    ROUND((p.Length/12 * p.Width/12 * p.Height/12), 1) AS Package_Volume,
+                                    a.address_Street, 
+                                    a.address_City, 
+                                    a.address_State, 
+                                    a.address_Zipcode, 
+                                    p.Destination_ID
+                                FROM db1.delivery_vehicle dv
+                                JOIN db1.employees e ON dv.Location_ID = e.Location_ID
+                                LEFT JOIN db1.package p ON p.Assigned_Vehicle = dv.Vehicle_ID
+                                LEFT JOIN db1.addresses a ON p.Destination_ID = a.address_ID
+                                WHERE dv.Status = "Available" 
+                                    AND e.Employee_ID = 119
+                                GROUP BY dv.Vehicle_ID, dv.Volume_Capacity, dv.Payload_Capacity, 
+                                        p.Package_ID, p.Priority, p.Weight, p.Length, p.Width, p.Height, 
+                                        a.address_Street, a.address_City, a.address_State, a.address_Zipcode, p.Destination_ID;
                                 `;
 
                                 connection.query(deliveryVehicleQuery, [employeeID], 
@@ -284,21 +301,40 @@ async function warehouseAssignPackages(req, res) {
                                             return;
                                         }
 
-                                        responseData.deliveryVehicles = deliveryVehicleResults.map(
-                                            row => ({
-                                                vehicleID: row.Vehicle_ID,
-                                                volumeCapacity: row.Remaining_Volume,
-                                                payloadCapacity: row.Remaining_Payload,
-                                            })
-                                        );
+                                        responseData.deliveryVehicles = {};
 
-                                        // Send the final combined response
-                                        setCORSHeaders(req, res, true);
-                                        res.writeHead(200, {
-                                            "Content-Type": "application/json",
+                                        deliveryVehicleResults.forEach(row => {
+                                            const vehicleID = row.Vehicle_ID;
+                                    
+                                            // If vehicle is not already in responseData, initialize it
+                                            if (!responseData.deliveryVehicles[vehicleID]) {
+                                                responseData.deliveryVehicles[vehicleID] = {
+                                                    vehicleID: vehicleID,
+                                                    volumeCapacity: row.Remaining_Volume,
+                                                    payloadCapacity: row.Remaining_Payload,
+                                                    packages: [] // Initialize empty package list
+                                                };
+                                            }
+                                    
+                                            // Push package details into the array for the vehicle
+                                            responseData.deliveryVehicles[vehicleID].packages.push({
+                                                packageID: row.Package_ID,
+                                                priority: row.Priority,
+                                                weight: row.Weight,
+                                                packageVolume: row.Package_Volume,
+                                                addressStreet: row.address_Street,
+                                                addressCity: row.address_City,
+                                                addressState: row.address_State,
+                                                addressZipcode: row.address_Zipcode,
+                                                destinationID: row.Destination_ID
+                                            });
                                         });
+                                    
+                                        
+                                    
+                                        setCORSHeaders(req, res, true);
+                                        res.writeHead(200, { "Content-Type": "application/json" });
                                         res.end(JSON.stringify(responseData));
-                                        console.log(responseData);
 
                                     }
                                 );
@@ -589,9 +625,9 @@ async function warehouseRegisterPackage(req, res) {
                           console.log("Package ID", package_ID);
 
                           const [trackingHistoryResult] = await asyncconnection.execute(
-                            `INSERT INTO tracking_history (package_ID, location_ID, status)
-                             VALUES (?, ?, ?)`,
-                            [package_ID, employeeAddress, 'Package Created']
+                            `INSERT INTO tracking_history (package_ID, location_ID, status, employee_ID)
+                             VALUES (?, ?, ?, ?)`,
+                            [package_ID, employeeAddress, 'Package Created', employeeID]
                           );
 
                           const trackingHistoryID = trackingHistoryResult.insertId;
@@ -640,9 +676,9 @@ async function warehouseRegisterPackage(req, res) {
                         // res.writeHead(400, { "Content-Type": "application/json" });
                         // res.end(JSON.stringify({ message: "Invalid JSON format in request body." }));
                         await asyncconnection.rollback();
-                        console.error("Registration transaction failed:", error);
+                        console.error("Registration transaction failed:", err);
                         res.writeHead(500, { "Content-Type": "application/json" });
-                        res.end(JSON.stringify({ error: error.sqlMessage || error.message }));
+                        res.end(JSON.stringify({ error: err.sqlMessage || err.message }));
                     } finally {
                         asyncconnection.release();
                     }
@@ -700,13 +736,79 @@ async function warehouseCheckEmail(req, res) {
     }
 }
 
+async function warehouseRemovePackage(req, res) {
+    const queryString = req.url.split('?')[1];
+    const urlParams = new URLSearchParams(queryString);
+
+    if (urlParams) {
+        var employeeID = urlParams.get('employeeID');
+        console.log(employeeID);
+        if (employeeID) {
+            if (req.method === "POST") {
+                var body = "";
+
+                req.on("data", chunk => {
+                    body += chunk.toString();
+                });
+
+                req.on("end", async () => {
+                    const asyncconnection = await connection.promise().getConnection();
+                    try {
+                        // Parse request body as JSON
+                        const { packageID } = JSON.parse(body);
+
+                        const [employeeAddressResult] = await asyncconnection.execute(
+                            `select Address_ID
+                            from employees, post_office_location
+                            where employees.Location_ID = post_office_location.location_ID and employees.employee_ID = ?
+                            `, [employeeID]
+                        );
+                        const employeeAddress = employeeAddressResult[0].Address_ID;
+                        console.log("Employee Address", employeeAddress);
+
+                        await asyncconnection.execute(
+                            `UPDATE package
+                            SET Assigned_Vehicle = NULL, Next_Destination = ?
+                            where Package_ID = ?`, [employeeAddress, packageID]
+                        );
+
+                        // await asyncconnection.execute(
+                        //     `DELETE th FROM tracking_history th
+                        //     JOIN (
+                        //         SELECT tracking_history_ID FROM tracking_history
+                        //         WHERE Package_ID = ?
+                        //         ORDER BY timestamp DESC 
+                        //         LIMIT 1
+                        //     ) AS subquery ON th.tracking_history_ID = subquery.tracking_history_ID;`,
+                        //      [packageID]
+                        // );
+
+                        await asyncconnection.commit();
+                          res.writeHead(200, { "Content-Type": "application/json" });
+                          res.end(JSON.stringify({ 
+                                message: "Package removed from truck successfully", 
+                           }));
+
+
+                    } catch (err) {
+                        console.error("Error parsing request body:", err);
+                        res.writeHead(400, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({ message: "Invalid JSON format in request body." }));
+                    }
+                });
+            }
+        }
+    }
+}
+
 
 module.exports = {
     employeeLogIn,
     warehouseDashboard,
     warehouseAssignPackages,
     warehouseRegisterPackage,
-    warehouseCheckEmail
+    warehouseCheckEmail,
+    warehouseRemovePackage
   };
 
 
