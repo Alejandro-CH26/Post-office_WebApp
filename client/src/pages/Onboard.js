@@ -9,6 +9,21 @@ function OnboardEmployee() {
   const [dobDayWarning, setDobDayWarning] = useState("");
   const [dobMonthWarning, setDobMonthWarning] = useState("");
   const [dobYearWarning, setDobYearWarning] = useState("");
+  const [firstNameWarning, setFirstNameWarning] = useState("");
+  const [middleNameWarning, setMiddleNameWarning] = useState("");
+  const [lastNameWarning, setLastNameWarning] = useState("");
+  const [emailWarning, setEmailWarning] = useState("");
+  const [streetWarning, setStreetWarning] = useState("");
+  const [cityWarning, setCityWarning] = useState("");
+  const [apartmentWarning, setApartmentWarning] = useState("");
+  const [usernameWarning, setUsernameWarning] = useState("");
+  const [passwordWarning, setPasswordWarning] = useState("");
+  const [educationWarning, setEducationWarning] = useState("");
+  const [genderWarning, setGenderWarning] = useState("");
+
+
+
+
 
 
 
@@ -39,7 +54,7 @@ function OnboardEmployee() {
   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
   useEffect(() => {
-    // Fetch post office locations
+    // Fetches post office locations
     fetch(`${BASE_URL}/locations`)
       .then((res) => res.json())
       .then((data) => setLocations(data))
@@ -81,17 +96,100 @@ function OnboardEmployee() {
         <form className="onboard-form" onSubmit={handleSubmit}>
           <div className="form-columns">
             <div className="form-column">
-              <input name="Fname" placeholder="First Name" required onChange={handleChange} />
-              <input name="middleName" placeholder="Middle Name (Optional)" onChange={handleChange} />
-              <input name="Lname" placeholder="Last Name" required onChange={handleChange} />
               <input
-                name="email"
+                type="text"
+                name="Fname"
+                placeholder="First Name"
+                required
+                maxLength={50}
+                value={formData.Fname}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, Fname: value }));
+
+                  if (value.length === 50) {
+                    setFirstNameWarning("You've reached the 50-character limit for first name.");
+                  } else {
+                    setFirstNameWarning("");
+                  }
+                }}
+              />
+              {firstNameWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {firstNameWarning}
+                </p>
+              )}
+              <input
+                type="text"
+                name="middleName"
+                placeholder="Middle Name (Optional)"
+                maxLength={50}
+                value={formData.middleName}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, middleName: value }));
+
+                  if (value.length === 50) {
+                    setMiddleNameWarning("You've reached the 50-character limit for middle name.");
+                  } else {
+                    setMiddleNameWarning("");
+                  }
+                }}
+              />
+              {middleNameWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {middleNameWarning}
+                </p>
+              )}
+
+              <input
+                type="text"
+                name="Lname"
+                placeholder="Last Name"
+                required
+                maxLength={50}
+                value={formData.Lname}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, Lname: value }));
+
+                  if (value.length === 50) {
+                    setLastNameWarning("You've reached the 50-character limit for last name.");
+                  } else {
+                    setLastNameWarning("");
+                  }
+                }}
+              />
+              {lastNameWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {lastNameWarning}
+                </p>
+              )}
+
+              <input
                 type="email"
+                name="email"
                 placeholder="Email"
                 required
+                maxLength={100}
                 value={formData.email}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, email: value }));
+
+                  if (value.length === 100) {
+                    setEmailWarning("You've reached the 100-character limit for email.");
+                  } else {
+                    setEmailWarning("");
+                  }
+                }}
               />
+              {emailWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {emailWarning}
+                </p>
+              )}
+
 
               <input
                 type="tel"
@@ -103,11 +201,9 @@ function OnboardEmployee() {
                 onChange={(e) => {
                   const value = e.target.value;
 
-                  // Allow only digits
                   if (/^\d*$/.test(value)) {
                     setFormData((prev) => ({ ...prev, phone: value }));
 
-                    // Checks if it's exactly 10 digits
                     if (value.length > 0 && value.length !== 10) {
                       setPhoneWarning("Phone number must be exactly 10 digits.");
                     } else {
@@ -117,12 +213,14 @@ function OnboardEmployee() {
                     setPhoneWarning("Only numbers are allowed.");
                   }
                 }}
+
               />
               {phoneWarning && (
                 <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
                   {phoneWarning}
                 </p>
               )}
+
               <input
                 type="tel"
                 name="emergencyContact"
@@ -133,7 +231,6 @@ function OnboardEmployee() {
                 onChange={(e) => {
                   const value = e.target.value;
 
-                  // Allow only digits
                   if (/^\d*$/.test(value)) {
                     setFormData((prev) => ({ ...prev, emergencyContact: value }));
 
@@ -146,14 +243,58 @@ function OnboardEmployee() {
                     setEmergencyWarning("Only numbers are allowed.");
                   }
                 }}
+
               />
               {emergencyWarning && (
                 <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
                   {emergencyWarning}
                 </p>
               )}
-              <input name="street" placeholder="Street" required onChange={handleChange} />
-              <input name="city" placeholder="City" required onChange={handleChange} />
+
+              <input
+                type="text"
+                name="street"
+                placeholder="Street"
+                required
+                maxLength={255}
+                value={formData.street}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, street: value }));
+
+                  setStreetWarning(
+                    value.length === 255 ? "You've reached the 255-character limit for street." : ""
+                  );
+                }}
+              />
+              {streetWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {streetWarning}
+                </p>
+              )}
+
+              <input
+                type="text"
+                name="city"
+                placeholder="City"
+                required
+                maxLength={100}
+                value={formData.city}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, city: value }));
+
+                  setCityWarning(
+                    value.length === 100 ? "You've reached the 100-character limit for city." : ""
+                  );
+                }}
+              />
+              {cityWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {cityWarning}
+                </p>
+              )}
+
               <select
                 name="state"
                 required
@@ -177,19 +318,24 @@ function OnboardEmployee() {
             </div>
 
             <div className="form-column">
+
               <input
                 name="zip"
                 placeholder="Zip Code"
                 required
-                pattern="^\d{5}$"
-                title="Zip Code must be exactly 5 digits"
                 maxLength={5}
                 value={formData.zip}
                 onChange={(e) => {
                   const value = e.target.value;
+
                   if (/^\d*$/.test(value)) {
                     setFormData((prev) => ({ ...prev, zip: value }));
-                    setZipWarning("");
+
+                    if (value.length > 0 && value.length !== 5) {
+                      setZipWarning("Zip Code must be exactly 5 digits.");
+                    } else {
+                      setZipWarning("");
+                    }
                   } else {
                     setZipWarning("Zip Code must contain digits only.");
                   }
@@ -201,7 +347,27 @@ function OnboardEmployee() {
                 </p>
               )}
 
-              <input name="apartmentNumber" placeholder="Apt/Unit #" onChange={handleChange} />
+              <input
+                type="text"
+                name="apartmentNumber"
+                placeholder="Apt/Unit #"
+                maxLength={20}
+                value={formData.apartmentNumber}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, apartmentNumber: value }));
+
+                  setApartmentWarning(
+                    value.length === 20 ? "You've reached the 20-character limit for Apt/Unit." : ""
+                  );
+                }}
+              />
+              {apartmentWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {apartmentWarning}
+                </p>
+              )}
+
               <select name="role" required value={formData.role} onChange={handleChange}>
                 <option value="">Select Role</option>
                 <option value="driver">Driver</option>
@@ -231,10 +397,93 @@ function OnboardEmployee() {
                 ))}
               </select>
 
-              <input name="username" placeholder="Username" required onChange={handleChange} />
-              <input name="password" type="password" placeholder="Password" required onChange={handleChange} />
-              <input name="education" placeholder="Education" onChange={handleChange} />
-              <input name="gender" placeholder="Gender" required onChange={handleChange} />
+              <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                required
+                maxLength={50}
+                value={formData.username}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, username: value }));
+
+                  setUsernameWarning(
+                    value.length === 50 ? "You've reached the 50-character limit for username." : ""
+                  );
+                }}
+              />
+              {usernameWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {usernameWarning}
+                </p>
+              )}
+
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                required
+                maxLength={255}
+                value={formData.password}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, password: value }));
+
+                  setPasswordWarning(
+                    value.length === 255 ? "You've reached the 255-character limit for password." : ""
+                  );
+                }}
+              />
+              {passwordWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {passwordWarning}
+                </p>
+              )}
+
+              <input
+                type="text"
+                name="education"
+                placeholder="Education"
+                maxLength={50}
+                value={formData.education}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, education: value }));
+
+                  setEducationWarning(
+                    value.length === 50 ? "You've reached the 50-character limit for education." : ""
+                  );
+                }}
+              />
+              {educationWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {educationWarning}
+                </p>
+              )}
+
+              <input
+                type="text"
+                name="gender"
+                placeholder="Gender"
+                required
+                maxLength={10}
+                value={formData.gender}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData((prev) => ({ ...prev, gender: value }));
+
+                  setGenderWarning(
+                    value.length === 10 ? "You've reached the 10-character limit for gender." : ""
+                  );
+                }}
+              />
+              {genderWarning && (
+                <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                  {genderWarning}
+                </p>
+              )}
+
             </div>
           </div>
 
@@ -245,7 +494,7 @@ function OnboardEmployee() {
                 <input
                   name="dobDay"
                   type="text"
-                  placeholder="Day of Birth"
+                  placeholder="Day of Birth (ex. 17)"
                   required
                   maxLength={2}
                   value={formData.dobDay}
@@ -270,7 +519,7 @@ function OnboardEmployee() {
                 <input
                   name="dobMonth"
                   type="text"
-                  placeholder="Month of Birth"
+                  placeholder="Month of Birth (ex. 11)"
                   required
                   maxLength={2}
                   value={formData.dobMonth}
@@ -295,7 +544,7 @@ function OnboardEmployee() {
                 <input
                   name="dobYear"
                   type="text"
-                  placeholder="Year of Birth"
+                  placeholder="Year of Birth (ex. 1976)"
                   required
                   maxLength={4}
                   value={formData.dobYear}
