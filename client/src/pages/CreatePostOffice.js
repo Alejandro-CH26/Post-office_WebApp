@@ -27,27 +27,12 @@ function PostOfficeForm() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-<<<<<<< HEAD
-      const data = await response.json();
-      if (response.ok) {
-        alert("Post office successfully registered!");
-        navigate("/dashboard");
-      } else {
-        alert(`Error: ${data.message}`);
-      }
-    } catch (error) {
-      console.error("Error creating post office:", error);
-      alert("Server error, please try again later.");
-    }
-  };
-=======
         try {
             const response = await fetch(`${BASE_URL}/post-office`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
             });
->>>>>>> d967b301f65151fee805641c3d3a30a894889256
 
             const data = await response.json();
             if (response.ok) {
