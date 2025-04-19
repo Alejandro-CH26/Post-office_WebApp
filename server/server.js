@@ -5,7 +5,8 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { handleReportRequest } = require("./report");
 const url = require("url");
-require("./notificationSender"); // Runs the delivery notification trigger.
+// Runs the delivery notification trigger.
+require("./notificationSender");
 
 
 // Handle route files
@@ -23,7 +24,7 @@ const inventoryAPI = require("./inventory");
 const productsAPI = require("./products");
 const locationAPI = require("./locationAPI");
 const cartAPI = require("./cartAPi");
-const handleCheckout = require("./checkout"); 
+const handleCheckout = require("./checkout");
 const orderHistory = require("./orderHistory");
 const restock = require("./restock");
 const salesReport = require("./salesReport");
@@ -55,7 +56,8 @@ const server = http.createServer((req, res) => {
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
     const reqUrl = url.parse(req.url, true);
-    const path = req.url.split('?')[0]; // Path without search parameters
+    // Path without search parameters
+    const path = req.url.split('?')[0];
     console.log(req.method);
     console.log(req.url);
 
@@ -76,8 +78,10 @@ const server = http.createServer((req, res) => {
     //if (driverRoutes(req, res, reqUrl)) return; 
     if (clockRoutes(req, res, reqUrl)) return;
 
-    if (inventoryAPI(req, res, reqUrl)) return; // New Inventory route
-    if (driverRoutes(req, res, reqUrl)) return; // New Driver route
+    // New Inventory route
+    if (inventoryAPI(req, res, reqUrl)) return;
+    // New Driver route
+    if (driverRoutes(req, res, reqUrl)) return;
     if (productsAPI(req, res, reqUrl)) return;
     if (locationAPI(req, res, reqUrl)) return;
     if (cartAPI(req, res, reqUrl)) return;
@@ -95,7 +99,7 @@ const server = http.createServer((req, res) => {
 
         req.on("end", async () => {
             const data = JSON.parse(body);
-            console.log("🔍 Received Data:", data);
+            console.log("Received Data:", data);
 
             const { first_Name, last_Name, middle_Name, customer_Email, customer_Username, customer_Password, date_Of_Birth, phone_Number } = data;
 
@@ -147,7 +151,7 @@ const server = http.createServer((req, res) => {
     else if (req.method === "GET" && req.url === "/locations") {
         try {
             db.query(
-                "SELECT location_ID, name FROM post_office_location",
+                "SELECT location_ID, name FROM post_office_location WHERE is_deleted = FALSE",
                 (err, results) => {
                     if (err) {
                         console.error("Error fetching locations:", err);
@@ -167,7 +171,7 @@ const server = http.createServer((req, res) => {
         }
     }
 
-    // Login Route (JWT Authentication)
+    // Login Route 
     else if (req.method === "POST" && req.url === "/login") {
         let body = "";
         req.on("data", (chunk) => (body += chunk.toString()));
@@ -202,12 +206,12 @@ const server = http.createServer((req, res) => {
                             return;
                         }
 
-                        // Generate JWT token with basic customer info
+                        // Generates JWT token with basic customer info
                         const token = jwt.sign(
                             {
                                 id: user.customer_ID,
                                 username: user.customer_Username,
-                                role: "customer", // include role
+                                role: "customer",
                                 firstName: user.first_Name
                             },
                             process.env.JWT_SECRET,
@@ -265,7 +269,7 @@ const server = http.createServer((req, res) => {
         req.on("end", async () => {
             try {
                 const data = JSON.parse(body);
-                console.log("🔍 Received Data:", data);
+                console.log("Received Data:", data);
 
                 const {
                     weight,
@@ -401,7 +405,7 @@ const server = http.createServer((req, res) => {
                         return;
                     }
 
-                    console.log("✅ Employee successfully onboarded!");
+                    console.log("Employee successfully onboarded!");
                     res.writeHead(200, { "Content-Type": "application/json" });
                     res.end(JSON.stringify({
                         status: "success",
@@ -484,7 +488,7 @@ const server = http.createServer((req, res) => {
                     console.log("Hashed from DB:", admin.Password);
                     console.log("Admin object from DB:", admin);
 
-                    // Debug line; remove in production
+                    // Debug line
                     bcrypt.hash("lebron", 10).then(console.log);
 
                     const isMatch = await bcrypt.compare(admin_Password, admin.Password);
@@ -522,7 +526,7 @@ const server = http.createServer((req, res) => {
         req.on("end", async () => {
             try {
                 const data = JSON.parse(body);
-                console.log("🚛 Received Vehicle Data:", data);
+                console.log("Received Vehicle Data:", data);
 
                 const {
                     license_plate,
@@ -562,13 +566,13 @@ const server = http.createServer((req, res) => {
 
                 db.query(sql, values, (err, result) => {
                     if (err) {
-                        console.error("❌ Delivery Vehicle Insert Error:", err);
+                        console.error("Delivery Vehicle Insert Error:", err);
                         res.writeHead(500, { "Content-Type": "application/json" });
                         res.end(JSON.stringify({ status: "error", message: "Database error" }));
                         return;
                     }
 
-                    console.log("✅ Delivery Vehicle Created:", result.insertId);
+                    console.log("Delivery Vehicle Created:", result.insertId);
                     res.writeHead(201, { "Content-Type": "application/json" });
                     res.end(JSON.stringify({
                         status: "success",
@@ -577,7 +581,7 @@ const server = http.createServer((req, res) => {
                     }));
                 });
             } catch (error) {
-                console.error("❌ Parsing Error:", error);
+                console.error("Parsing Error:", error);
                 res.writeHead(400, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ status: "error", message: "Invalid JSON format." }));
             }
@@ -609,4 +613,4 @@ const server = http.createServer((req, res) => {
 });
 
 // **Start Server**
-server.listen(5001, () => console.log("🚀 Server running on port 5001"));
+server.listen(5001, () => console.log("Server running on port 5001"));

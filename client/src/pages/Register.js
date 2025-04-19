@@ -4,6 +4,8 @@ import "./Register.css";
 
 function Register() {
   const navigate = useNavigate();
+  const [phoneWarning, setPhoneWarning] = useState("");
+
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -12,7 +14,7 @@ function Register() {
   const [lastName, setLastName] = useState("");
   const [dob, setDob] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  
+
   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 
@@ -38,17 +40,17 @@ function Register() {
       });
 
       const data = await response.json();
-      console.log("✅ Server Response:", data);
+      console.log("Server Response:", data);
 
       if (response.ok) {
-        alert("✅ Registration Successful! Please log in.");
+        alert("Registration Successful! Please log in.");
         navigate("/login");
       } else {
-        alert(`❌ Error: ${data.message}`);
+        alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("❌ Error registering user:", error);
-      alert("❌ Server error, please try again later.");
+      console.error("Error registering user:", error);
+      alert("Server error, please try again later.");
     }
   };
 
@@ -57,14 +59,45 @@ function Register() {
       <div className="register-box">
         <h1 className="register-title">Register</h1>
         <form className="register-form" onSubmit={handleSubmit}>
-          <input type="email" placeholder="Email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input
+            type="email"
+            placeholder="Email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
           <input type="text" placeholder="Username" required value={username} onChange={(e) => setUsername(e.target.value)} />
           <input type="password" placeholder="Password" required value={password} onChange={(e) => setPassword(e.target.value)} />
           <input type="text" placeholder="First Name" required value={firstName} onChange={(e) => setFirstName(e.target.value)} />
           <input type="text" placeholder="Middle Name (Optional)" value={middleName} onChange={(e) => setMiddleName(e.target.value)} />
           <input type="text" placeholder="Last Name" required value={lastName} onChange={(e) => setLastName(e.target.value)} />
           <input type="date" required value={dob} onChange={(e) => setDob(e.target.value)} />
-          <input type="tel" placeholder="Phone Number" required value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+          <input
+            type="tel"
+            placeholder="Phone Number"
+            required
+            maxLength={10}
+            value={phoneNumber}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^\d*$/.test(value)) {
+                setPhoneNumber(value);
+                if (value.length > 0 && value.length !== 10) {
+                  setPhoneWarning("Phone number must be exactly 10 digits.");
+                } else {
+                  setPhoneWarning("");
+                }
+              } else {
+                setPhoneWarning("Only numbers are allowed.");
+              }
+            }}
+          />
+          {phoneWarning && (
+            <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+              {phoneWarning}
+            </p>
+          )}
           <button type="submit">Register</button>
         </form>
       </div>

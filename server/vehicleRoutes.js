@@ -6,26 +6,26 @@ function vehicleRoutes(req, res, reqUrl) {
     const includeDeleted = reqUrl.query.includeDeleted === "true";
 
     const query = `
-  SELECT 
-    v.vehicle_ID AS id,
-    v.License_plate AS license_plate,
-    v.Fuel_type AS fuel_type,
-    v.Volume_Capacity AS volume_capacity,
-    v.Payload_Capacity AS payload_capacity,
-    v.Mileage AS mileage,
-    v.Status AS status,
-    v.Last_maintenance_date AS last_maintenance_date,
-    v.Location_ID AS location_id,
-    v.Driver_ID AS driver_id,
-    CONCAT(e.First_Name, ' ', e.Last_Name) AS driver_name,
-    CONCAT(a.address_Street, ', ', a.address_City, ', ', a.address_State, ' ', a.address_Zipcode) AS location_address,
-    po.name AS post_office_name,
-    v.is_deleted
-  FROM delivery_vehicle v
-  LEFT JOIN employees e ON v.Driver_ID = e.employee_ID
-  LEFT JOIN addresses a ON v.Location_ID = a.address_ID
-  LEFT JOIN post_office_location po ON a.address_ID = po.Address_ID
-  ${includeDeleted ? "" : "WHERE v.is_deleted = FALSE"}
+SELECT 
+  v.vehicle_ID AS id,
+  v.License_plate AS license_plate,
+  v.Fuel_type AS fuel_type,
+  v.Volume_Capacity AS volume_capacity,
+  v.Payload_Capacity AS payload_capacity,
+  v.Mileage AS mileage,
+  v.Status AS status,
+  v.Last_maintenance_date AS last_maintenance_date,
+  v.Location_ID AS location_id,
+  v.Driver_ID AS driver_id,
+  CONCAT(e.First_Name, ' ', e.Last_Name) AS driver_name,
+  po.name AS post_office_name,
+  v.is_deleted
+FROM delivery_vehicle v
+LEFT JOIN employees e ON v.Driver_ID = e.employee_ID
+LEFT JOIN addresses a ON v.Location_ID = a.address_ID
+LEFT JOIN post_office_location po ON a.address_ID = po.Address_ID
+${includeDeleted ? "" : "WHERE v.is_deleted = FALSE"}
+
   `;
   
 
@@ -276,6 +276,43 @@ if (req.method === "GET" && reqUrl.pathname === "/get-postoffices") {
 
   return true;
 }
+
+// 8) Get drivers for a specific location (GET: /get-drivers-by-location?location_id=1)
+if (req.method === "GET" && reqUrl.pathname === "/get-drivers-by-location") {
+  const locationID = parseInt(reqUrl.query.location_id, 10);
+
+  if (isNaN(locationID)) {
+    res.writeHead(400);
+    res.end(JSON.stringify({ error: "Invalid location_id." }));
+    return true;
+  }
+
+  const query = `
+    SELECT 
+      employee_ID AS driver_id,
+      CONCAT(First_Name, ' ', Last_Name) AS driver_name
+    FROM employees
+    WHERE Role = 'Driver'
+      AND Location_ID = ?
+      AND Is_Fired = 0
+      AND Is_Deleted = 0
+  `;
+
+  connection.query(query, [locationID], (err, results) => {
+    if (err) {
+      console.error("❌ Error fetching location-specific drivers:", err);
+      res.writeHead(500);
+      res.end(JSON.stringify({ error: "Failed to fetch drivers for location." }));
+      return;
+    }
+
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(results));
+  });
+
+  return true;
+}
+
 
   return false;
 }

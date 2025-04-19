@@ -9,27 +9,16 @@ const Employees = () => {
   const [locationFilter, setLocationFilter] = useState('all');
   const [showDeleted, setShowDeleted] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [addressMap, setAddressMap] = useState({});
 
   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
   const navigate = useNavigate();
 
   useEffect(() => {
     const url = `${BASE_URL}/employee-reports${showDeleted ? '?includeDeleted=true' : ''}`;
-    const fetchEmployees = fetch(url).then(res => res.json());
 
-    const fetchAddresses = fetch(`${BASE_URL}/all-addresses`)
+    fetch(url)
       .then(res => res.json())
-      .then(data => {
-        const map = {};
-        for (const addr of data) {
-          map[addr.address_ID] = addr.label;
-        }
-        setAddressMap(map);
-      });
-
-    Promise.all([fetchEmployees, fetchAddresses])
-      .then(([employeeData]) => {
+      .then(employeeData => {
         if (Array.isArray(employeeData)) {
           const normalized = employeeData.map(emp => ({
             ...emp,
@@ -39,12 +28,11 @@ const Employees = () => {
           const deduplicated = Array.from(
             new Map(normalized.map(emp => [emp.id, emp])).values()
           );
-
           setEmployees(deduplicated);
         }
       })
       .catch(err => {
-        console.error("❌ Error loading employees or addresses:", err);
+        console.error("❌ Error loading employees:", err);
         setEmployees([]);
       });
   }, [showDeleted, BASE_URL]);
@@ -53,8 +41,7 @@ const Employees = () => {
     const confirmMsg = currentStatus
       ? "Unfire this employee and restore access?"
       : "Are you sure you want to fire this employee?";
-    const confirmed = window.confirm(confirmMsg);
-    if (!confirmed) return;
+    if (!window.confirm(confirmMsg)) return;
 
     try {
       const res = await fetch(`${BASE_URL}/fire-employee`, {
@@ -67,13 +54,7 @@ const Employees = () => {
         setEmployees(prev =>
           prev.map(emp =>
             emp.id === id
-              ? {
-                  ...emp,
-                  isFired: !currentStatus,
-                  position: !currentStatus && emp.position.startsWith("Driver")
-                    ? "Driver"
-                    : emp.position
-                }
+              ? { ...emp, isFired: !currentStatus }
               : emp
           )
         );
@@ -88,8 +69,7 @@ const Employees = () => {
   };
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this employee?");
-    if (!confirmed) return;
+    if (!window.confirm("Are you sure you want to delete this employee?")) return;
 
     try {
       const res = await fetch(`${BASE_URL}/delete-employee`, {
@@ -111,27 +91,33 @@ const Employees = () => {
   };
 
   const handleUndelete = async (id) => {
-    const res = await fetch(`${BASE_URL}/undelete-employee`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ employee_ID: id })
-    });
+    try {
+      const res = await fetch(`${BASE_URL}/undelete-employee`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ employee_ID: id })
+      });
 
-    if (res.ok) {
-      setEmployees(prev =>
-        prev.map(emp =>
-          emp.id === id ? { ...emp, isDeleted: false } : emp
-        )
-      );
-      alert("Employee restored.");
-    } else {
-      alert("Failed to restore employee.");
+      if (res.ok) {
+        setEmployees(prev =>
+          prev.map(emp =>
+            emp.id === id ? { ...emp, isDeleted: false } : emp
+          )
+        );
+        alert("Employee restored.");
+      } else {
+        alert("Failed to restore employee.");
+      }
+    } catch (err) {
+      console.error("Error restoring employee:", err);
     }
   };
 
   const simplifyPosition = (position) => {
-    if (position.toLowerCase().includes('driver')) return 'Driver';
-    if (position.toLowerCase().includes('warehouse')) return 'Warehouse';
+    if (!position) return "";
+    const pos = position.toLowerCase();
+    if (pos.includes('driver')) return 'Driver';
+    if (pos.includes('warehouse')) return 'Warehouse';
     return position;
   };
 
@@ -147,7 +133,7 @@ const Employees = () => {
       roleFilter === 'all' || simplifiedPosition === roleFilter;
 
     const locationMatch =
-      locationFilter === 'all' || addressMap[emp.address_id] === locationFilter;
+      locationFilter === 'all' || emp.location_name === locationFilter;
 
     const nameMatch =
       emp.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -160,8 +146,11 @@ const Employees = () => {
   )];
 
   const uniqueLocations = [...new Set(
-    employees.map(emp => addressMap[emp.address_id]).filter(Boolean)
+    employees
+      .filter(emp => !emp.isDeleted && emp.location_name) 
+      .map(emp => emp.location_name)
   )];
+  
 
   return (
     <div className="reports-container">
@@ -220,7 +209,7 @@ const Employees = () => {
               <tr key={i} className={emp.isFired ? "fired-row" : emp.isDeleted ? "deleted-row" : ""}>
                 <td>{emp.id}</td>
                 <td>{emp.name}</td>
-                <td>{emp.location_name || emp.location_Name || addressMap[emp.address_id] || "N/A"}</td>
+                <td>{emp.location_name || "N/A"}</td>
                 <td>{simplifyPosition(emp.position)}</td>
                 <td>{emp.isFired ? "Yes" : "No"}</td>
                 <td>

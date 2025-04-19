@@ -58,8 +58,8 @@ function EmployeeLogin() {
                 setError(data.error || "Invalid username or password");
             }
         } catch (error) {
-            console.error("❌ Error logging in:", error);
-            setError("❌ Server error, please try again later.");
+            console.error("Error logging in:", error);
+            setError("Server error, please try again later.");
         }
     };
 
