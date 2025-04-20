@@ -1,0 +1,11 @@
+.package-container {
+    display: grid;
+    grid-template-columns: 120px 120px 300px 150px 180px; /* Ensures uniform column widths */
+    align-items: center;
+    gap: 10px;
+}
+
+.package-id, .package-priority, .destination-text, .details-button, .assign-button {
+    text-align: left;
+    width: 100%; /* Prevents shifting */
+}

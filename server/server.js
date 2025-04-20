@@ -461,6 +461,9 @@ const server = http.createServer((req, res) => {
     else if (reqUrl.pathname === "/warehousecheckemail") {
         EmployeeAPI.warehouseCheckEmail(req, res);
     }
+    else if (reqUrl.pathname === "/warehouseremovepackage") {
+        EmployeeAPI.warehouseRemovePackage(req, res);
+    }
     // Admin Login Route
     else if (req.method === "POST" && req.url === "/admin-login") {
         let body = "";
