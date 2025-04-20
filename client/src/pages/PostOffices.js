@@ -138,6 +138,7 @@ const PostOffices = () => {
               <th>City</th>
               <th>State</th>
               <th>Zip</th>
+              <th>Phone</th> {/* New column header */}
               <th>Actions</th>
             </tr>
           </thead>
@@ -151,6 +152,7 @@ const PostOffices = () => {
                 <td>{po.city}</td>
                 <td>{po.state}</td>
                 <td>{po.zip}</td>
+                <td>{po.office_phone || 'N/A'}</td> {/* New column value */}
                 <td>
                   {po.is_deleted ? (
                     <button

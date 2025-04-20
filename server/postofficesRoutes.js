@@ -16,6 +16,7 @@ SELECT
   a.Office_Location,
   a.is_deleted,
   p.name AS post_office_name,
+  p.office_phone, 
   p.location_ID
 FROM addresses a
 LEFT JOIN post_office_location p ON a.address_ID = p.Address_ID
