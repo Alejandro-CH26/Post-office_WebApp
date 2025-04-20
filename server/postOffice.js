@@ -13,16 +13,42 @@ module.exports = function postOfficeAPI(req, res, reqUrl) {
           return res.end(JSON.stringify({ status: "error", message: "Missing required fields." }));
         }
 
-        
-        const [addressResult] = await db.promise().query(
-          `INSERT INTO addresses (address_Street, address_City, address_State, address_Zipcode, Office_Location)
-           VALUES (?, ?, ?, ?, ?)`,
-          [street_address, city, state, zip, 1]
+        let addressId;
+
+        const [existingAddress] = await db.promise().query(
+          `SELECT address_id FROM addresses
+           WHERE address_Street = ? AND address_City = ? AND address_State = ? AND address_Zipcode = ? AND Office_Location = 1`,
+          [street_address, city, state, zip]
         );
 
-        const addressId = addressResult.insertId;
+        if (existingAddress.length > 0) {
+          addressId = existingAddress[0].address_id;
+        } else {
+          addressId = null;
+        }
 
-        
+        const [existingPostOffice] = await db.promise().query(
+          `SELECT * FROM post_office_location WHERE name = ? OR Address_ID = ? OR office_phone = ?`,
+          [name, existingAddress.length > 0 ? addressId : -1, office_phone]
+        );
+
+        if (existingPostOffice.length > 0) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          return res.end(JSON.stringify({
+            status: "error",
+            message: "Post office with this name, address, or phone number already exists."
+          }));
+        }
+
+        if (!addressId) {
+          const [addressResult] = await db.promise().query(
+            `INSERT INTO addresses (address_Street, address_City, address_State, address_Zipcode, Office_Location)
+             VALUES (?, ?, ?, ?, ?)`,
+            [street_address, city, state, zip, 1]
+          );
+          addressId = addressResult.insertId;
+        }
+
         await db.promise().query(
           `INSERT INTO post_office_location 
            (location_ID, name, street_address, city, state, zip, office_phone, Address_ID)
@@ -30,7 +56,6 @@ module.exports = function postOfficeAPI(req, res, reqUrl) {
           [addressId, name, street_address, city, state, zip, office_phone, addressId]
         );
 
-       
         const inventoryInserts = [];
         for (let productId = 1; productId <= 7; productId++) {
           inventoryInserts.push([addressId, productId, 100]);

@@ -16,6 +16,7 @@ SELECT
   a.Office_Location,
   a.is_deleted,
   p.name AS post_office_name,
+  p.office_phone, 
   p.location_ID
 FROM addresses a
 LEFT JOIN post_office_location p ON a.address_ID = p.Address_ID
@@ -201,79 +202,80 @@ if (req.method === "POST" && reqUrl.pathname === "/undelete-postoffice") {
 
 
   // 5) Update post office (POST: /update-postoffice)
-if (req.method === "POST" && reqUrl.pathname === "/update-postoffice") {
-  let body = "";
-  req.on("data", chunk => (body += chunk));
-  req.on("end", () => {
-    try {
-      const {
-        address_ID,
-        street_address,
-        city,
-        state,
-        zip,
-        unit_number,
-        name,
-        office_phone
-      } = JSON.parse(body);
-
-      if (!address_ID || !street_address || !city || !state || !zip || !name) {
-        res.writeHead(400);
-        res.end(JSON.stringify({ error: "Missing required fields." }));
-        return;
-      }
-
-      const updateAddressQuery = `
-        UPDATE addresses
-        SET address_Street = ?, address_City = ?, address_State = ?, address_Zipcode = ?, unit_number = ?
-        WHERE address_ID = ? AND Office_Location = 1 AND is_deleted = FALSE
-      `;
-
-      const updatePostOfficeQuery = `
-        UPDATE post_office_location
-        SET name = ?, office_phone = ?
-        WHERE Address_ID = ?
-      `;
-
-      // First, update the address
-      connection.query(
-        updateAddressQuery,
-        [street_address, city, state, zip, unit_number || null, address_ID],
-        (err1) => {
-          if (err1) {
-            console.error("❌ Error updating address:", err1);
-            res.writeHead(500);
-            res.end(JSON.stringify({ error: "Failed to update address." }));
-            return;
-          }
-
-          // Then, update the post office name and phone
-          connection.query(
-            updatePostOfficeQuery,
-            [name, office_phone || null, address_ID],
-            (err2) => {
-              if (err2) {
-                console.error("❌ Error updating post office name/phone:", err2);
-                res.writeHead(500);
-                res.end(JSON.stringify({ error: "Failed to update post office name or phone." }));
-                return;
-              }
-
-              res.writeHead(200, { "Content-Type": "application/json" });
-              res.end(JSON.stringify({ message: "Post office updated successfully." }));
-            }
-          );
+  if (req.method === "POST" && reqUrl.pathname === "/update-postoffice") {
+    let body = "";
+    req.on("data", chunk => (body += chunk));
+    req.on("end", () => {
+      try {
+        const {
+          address_ID,
+          street_address,
+          city,
+          state,
+          zip,
+          unit_number,
+          name,
+          office_phone
+        } = JSON.parse(body);
+  
+        if (!address_ID || !street_address || !city || !state || !zip || !name) {
+          res.writeHead(400);
+          res.end(JSON.stringify({ error: "Missing required fields." }));
+          return;
         }
-      );
-    } catch (err) {
-      console.error("❌ JSON parse error:", err);
-      res.writeHead(400);
-      res.end(JSON.stringify({ error: "Invalid JSON" }));
-    }
-  });
-
-  return true;
-}
+  
+        const updateAddressQuery = `
+          UPDATE addresses
+          SET address_Street = ?, address_City = ?, address_State = ?, address_Zipcode = ?, unit_number = ?
+          WHERE address_ID = ? AND Office_Location = 1 AND is_deleted = FALSE
+        `;
+  
+        const updatePostOfficeQuery = `
+          UPDATE post_office_location
+          SET name = ?, office_phone = ?, street_address = ?, city = ?, state = ?, zip = ?
+          WHERE Address_ID = ?
+        `;
+  
+        // First: update the address table
+        connection.query(
+          updateAddressQuery,
+          [street_address, city, state, zip, unit_number || null, address_ID],
+          (err1) => {
+            if (err1) {
+              console.error("❌ Error updating address:", err1);
+              res.writeHead(500);
+              res.end(JSON.stringify({ error: "Failed to update address." }));
+              return;
+            }
+  
+            // Then: update the post_office_location table
+            connection.query(
+              updatePostOfficeQuery,
+              [name, office_phone || null, street_address, city, state, zip, address_ID],
+              (err2) => {
+                if (err2) {
+                  console.error("❌ Error updating post office location:", err2);
+                  res.writeHead(500);
+                  res.end(JSON.stringify({ error: "Failed to update post office location." }));
+                  return;
+                }
+  
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ message: "Post office updated successfully." }));
+              }
+            );
+          }
+        );
+      } catch (err) {
+        console.error("❌ JSON parse error:", err);
+        res.writeHead(400);
+        res.end(JSON.stringify({ error: "Invalid JSON" }));
+      }
+    });
+  
+    return true;
+  }
+  
 
 
   return false;
