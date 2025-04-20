@@ -196,6 +196,7 @@ function OnboardEmployee() {
                 name="phone"
                 placeholder="Phone Number"
                 required
+                minLength={10}
                 maxLength={10}
                 value={formData.phone}
                 onChange={(e) => {
@@ -226,6 +227,7 @@ function OnboardEmployee() {
                 name="emergencyContact"
                 placeholder="Emergency Contact"
                 required
+                minLength={10}
                 maxLength={10}
                 value={formData.emergencyContact}
                 onChange={(e) => {
@@ -323,6 +325,7 @@ function OnboardEmployee() {
                 name="zip"
                 placeholder="Zip Code"
                 required
+                minLength={5}
                 maxLength={5}
                 value={formData.zip}
                 onChange={(e) => {
