@@ -1,4 +1,3 @@
-README.md: |
   #  Post Office Web Application
 
   This is a full-stack Post Office Management System that allows **customers** to track packages and order inventory, **employees** to manage deliveries and inventory, and **administrators** to oversee operations across multiple post office locations.
@@ -52,7 +51,7 @@ EMAIL_USER=your_email@example.com
 EMAIL_PASS=your_email_password
 ```
 
-Installation & Setup
+## Installation & Setup
 1. Clone the Repo
 bash
 Copy
@@ -110,7 +109,7 @@ Edit
 mysql -u root -p < post_office_db.sql
 Make sure your .env matches your local database credentials
 
-User Roles & Logins
+## User Roles & Logins
 
 Role	Username	Password
 Admin	admin1	admin123
@@ -118,8 +117,8 @@ Driver	driver1	drive123
 Warehouse	warehouse1	ware123
 Customer	customer1	cust123
 
-Screenshots
+## Screenshots
 Add screenshots of dashboard, tracking history, reports, etc.
-(Optional but nice for GitHub ReadMe presentation)
+
 
 
