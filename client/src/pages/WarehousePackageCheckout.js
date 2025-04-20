@@ -76,9 +76,9 @@ function WarehousePackageCheckout() {
                 </div>
 
                 <div className="payment-details">
-                    <input type="text" placeholder="Card Number" maxLength="16" pattern="\d{16}" required />
+                    <input type="text" placeholder="Card Number" minLength="16" maxLength="16" pattern="\d{16}" required />
                     <input type="text" placeholder="Exp. (MM/YY)" pattern="(0[1-9]|1[0-2])\/[0-9]{2}" required />
-                    <input type="text" placeholder="CVV" maxLength="4" pattern="\d{3,4}" required />
+                    <input type="text" placeholder="CVV" minLength="3" maxLength="4" pattern="\d{3,4}" required />
                 </div>
 
                 <button type="submit" className="submit-btn">Checkout</button>
