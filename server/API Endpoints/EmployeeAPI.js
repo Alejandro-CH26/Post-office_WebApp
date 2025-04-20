@@ -283,7 +283,7 @@ async function warehouseAssignPackages(req, res) {
                                 LEFT JOIN db1.package p ON p.Assigned_Vehicle = dv.Vehicle_ID
                                 LEFT JOIN db1.addresses a ON p.Destination_ID = a.address_ID
                                 WHERE dv.Status = "Available" 
-                                    AND e.Employee_ID = 119
+                                    AND e.Employee_ID = ?
                                 GROUP BY dv.Vehicle_ID, dv.Volume_Capacity, dv.Payload_Capacity, 
                                         p.Package_ID, p.Priority, p.Weight, p.Length, p.Width, p.Height, 
                                         a.address_Street, a.address_City, a.address_State, a.address_Zipcode, p.Destination_ID;
