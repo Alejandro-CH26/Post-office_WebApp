@@ -22,12 +22,10 @@
 
   ##  Technologies Used
 
-  - **Frontend**: React (Vite)
-  - **Backend**: Node.js with Express
+  - **Frontend**: React
+  - **Backend**: Node.js
   - **Database**: MySQL
-  - **Emailing**: Nodemailer
-  - **Styling**: Tailwind CSS
-  - **Deployment**: Vercel (frontend), Render/other (backend, if hosted)
+  - **Deployment**: Vercel (frontend), Render (backend)
 
   ---
 
@@ -72,8 +70,6 @@ Edit
 cd ../server
 npm install
 This will install dependencies including:
-
-express
 
 mysql2
 
