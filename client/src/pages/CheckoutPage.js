@@ -15,7 +15,7 @@ const CheckoutPage = () => {
     zipcode: "",
   });
 
-  const [saveAddress, setSaveAddress] = useState(false);
+  
   const [paymentMethod, setPaymentMethod] = useState("Credit Card");
 
   const customerId = localStorage.getItem("customer_ID");
@@ -44,7 +44,7 @@ const CheckoutPage = () => {
         body: JSON.stringify({
           customer_ID: customerId,
           cart,
-          saveAddress,
+          saveAddress: true,
           shipping: form,
           location_ID: locationId,
           paymentMethod,
@@ -119,15 +119,7 @@ const CheckoutPage = () => {
             />
           </div>
 
-          <div className="checkbox-row">
-            <input
-              type="checkbox"
-              id="saveAddress"
-              checked={saveAddress}
-              onChange={() => setSaveAddress((prev) => !prev)}
-            />
-            <label htmlFor="saveAddress">Save this address</label>
-          </div>
+          
 
           <div className="form-group">
             <label htmlFor="paymentMethod">Payment Method</label>
