@@ -1,6 +1,6 @@
 const db = require("./db");
 
-// Helper function to format timestamp
+
 function formatTimestamp(timestamp) {
     const date = new Date(timestamp);
     return date.toLocaleString('en-US', {
@@ -18,7 +18,7 @@ function formatTimestamp(timestamp) {
 
 function handleReportRequest(req, res) {
     try {
-        // Fetch available months, locations, and employee names for dropdowns
+        
         const monthsQuery = `
             SELECT DISTINCT 
                 DATE_FORMAT(clock_in_time, '%Y-%m') AS month_key,
@@ -41,7 +41,7 @@ function handleReportRequest(req, res) {
              ORDER BY full_name
          `;
 
-        // Main report queries with dynamic filtering
+        
         const summaryReportConfig = {
              title: 'Employee Hours Summary Report',
             timestamp: new Date().toISOString(),
@@ -99,7 +99,7 @@ function handleReportRequest(req, res) {
             `
         };
 
-        // Fetch months, locations, and employees first
+        
         db.query(monthsQuery, (monthErr, months) => {
             if (monthErr) {
                 console.error('Months Query Error:', monthErr);
@@ -118,7 +118,7 @@ function handleReportRequest(req, res) {
                         employees = [];
                     }
 
-                    // Run both summary report queries
+                    
                     db.query(summaryReportConfig.query, (summaryErr, summaryResults) => {
                         if (summaryErr) {
                             console.error('Summary Report Query Error:', summaryErr);
@@ -131,14 +131,14 @@ function handleReportRequest(req, res) {
                                 aggregatedResults = [];
                             }
 
-                            // Run detailed report query
+                            
                             db.query(detailedReportConfig.query, (detailErr, detailResults) => {
                                 if (detailErr) {
                                     console.error('Detailed Report Query Error:', detailErr);
                                     detailResults = [];
                                 }
 
-                                // Create initial HTML for summary table using aggregated data
+                                
                                 const initialSummaryRows = aggregatedResults.map(row => `
                                     <tr data-month="${row.month_key}" 
                                         data-location="${row.location}" 

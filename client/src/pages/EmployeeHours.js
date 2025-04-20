@@ -13,7 +13,7 @@ function EmployeeHourReportButton() {
       });
 
       if (response.ok) {
-        // Open the report in a new window/tab
+        
         const reportHtml = await response.text();
         const newWindow = window.open();
         newWindow.document.write(reportHtml);
