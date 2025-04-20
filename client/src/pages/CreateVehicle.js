@@ -15,8 +15,9 @@ function CreateVehicle() {
 
     const [locations, setLocations] = useState([]);
     const [drivers, setDrivers] = useState([]);
+    const [plateWarning, setPlateWarning] = useState("");
 
-    // Fetch all post office locations
+    // Fetches all post office locations
     useEffect(() => {
         fetch(`${BASE_URL}/locations`)
             .then((res) => res.json())
@@ -24,7 +25,7 @@ function CreateVehicle() {
             .catch((err) => console.error("Error fetching locations:", err));
     }, []);
 
-    // Fetch drivers for the selected location
+    // Fetches drivers for the selected location
     useEffect(() => {
         if (!formData.location_ID) return;
 
@@ -84,8 +85,22 @@ function CreateVehicle() {
                         name="license_plate"
                         placeholder="License Plate"
                         required
-                        onChange={handleChange}
+                        maxLength={20}
+                        value={formData.license_plate}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            setFormData((prev) => ({ ...prev, license_plate: value }));
+                            setPlateWarning(
+                                value.length === 20 ? "You've reached the 20-character limit for license plate." : ""
+                            );
+                        }}
                     />
+                    {plateWarning && (
+                        <p style={{ color: "red", fontSize: "0.85rem", marginTop: "4px" }}>
+                            {plateWarning}
+                        </p>
+                    )}
+
                     <select
                         name="fuel_type"
                         required
