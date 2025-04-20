@@ -102,7 +102,7 @@ function WarehouseRegisterPackage() {
             <div className="package-box">
                 <h1 className="package-title">Create a Package</h1>
                 <form className="package-form" onSubmit={handleSubmit}>
-                    <input type="number" placeholder="Weight" required min="0" max="999.99" step="0.01" maxLength="6" value={weight} onChange={(e) => setWeight(e.target.value)} />
+                    <input type="number" placeholder="Weight" required min="0.01" max="999.99" step="0.01" maxLength="6" value={weight} onChange={(e) => setWeight(e.target.value)} />
                     <input type="text" placeholder="Sender Email" required value={senderEmail} onChange={(e) => setSenderEmail(e.target.value)} />
                     <input type="text" placeholder="Recipient Name" required value={recipientName} maxLength="60" onChange={(e) => setRecipientName(e.target.value)} />
                     <input type="text" placeholder="Destination Street" required value={destinationStreet} maxLength="255" onChange={(e) => setDestinationStreet(e.target.value)} />
@@ -132,9 +132,9 @@ function WarehouseRegisterPackage() {
                         <input type="checkbox" checked={fragile} onChange={(e) => setFragile(e.target.checked)} />
                     </label>
 
-                    <input type="number" placeholder="Length" required value={length} min="0" max="99.9" step="0.1" maxLength="5" onChange={(e) => setLength(e.target.value)} />
-                    <input type="number" placeholder="Width" required value={width} min="0" max="99.9" step="0.1" maxLength="5" onChange={(e) => setWidth(e.target.value)} />
-                    <input type="number" placeholder="Height" required value={height} min="0" max="99.9" step="0.1" maxLength="5" onChange={(e) => setHeight(e.target.value)} />
+                    <input type="number" placeholder="Length" required value={length} min="0.1" max="99.9" step="0.1" maxLength="5" onChange={(e) => setLength(e.target.value)} />
+                    <input type="number" placeholder="Width" required value={width} min="0.1" max="99.9" step="0.1" maxLength="5" onChange={(e) => setWidth(e.target.value)} />
+                    <input type="number" placeholder="Height" required value={height} min="0.1" max="99.9" step="0.1" maxLength="5" onChange={(e) => setHeight(e.target.value)} />
                     <button type="submit">Create Package</button>
                 </form>
             </div>
