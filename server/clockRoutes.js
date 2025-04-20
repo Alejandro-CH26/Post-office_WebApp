@@ -19,7 +19,7 @@ function setCorsHeaders(req, res) {
 }
 
 function clockRoutes(req, res, reqUrl) {
-    // Handle CORS preflight requests
+    
     if (req.method === "OPTIONS") {
         setCorsHeaders(req, res);
         res.writeHead(200);
@@ -27,7 +27,7 @@ function clockRoutes(req, res, reqUrl) {
         return true;
     }
     
-    // Handle clock status endpoint
+    
     if (req.method === "GET" && reqUrl.pathname === "/api/hours_logged/status") {
         const employeeID = reqUrl.query.employee_id;
         
@@ -58,7 +58,7 @@ function clockRoutes(req, res, reqUrl) {
                 return;
             }
     
-            // No records = employee has never clocked in
+           
             if (results.length === 0) {
                 res.end(JSON.stringify({ 
                     isClockedIn: false,
@@ -94,7 +94,7 @@ function clockRoutes(req, res, reqUrl) {
                     return;
                 }
     
-                // Check current status for THIS employee
+                
                 const checkQuery = `
                     SELECT 
                         clock_in_time,
@@ -117,7 +117,7 @@ function clockRoutes(req, res, reqUrl) {
                                         results[0].clock_in_time !== null && 
                                         results[0].clock_out_time === null;
     
-                    // Clock-In Logic
+                    
                     if (action === "in") {
                         if (hasOpenSession) {
                             res.writeHead(400, { "Content-Type": "application/json" });
@@ -144,7 +144,7 @@ function clockRoutes(req, res, reqUrl) {
                             }));
                         });
                     } 
-                    // Clock-Out Logic
+                    
                     else if (action === "out") {
                         if (!hasOpenSession) {
                             res.writeHead(400, { "Content-Type": "application/json" });
@@ -184,9 +184,9 @@ function clockRoutes(req, res, reqUrl) {
         return true;
     }
 
-    // Admin endpoint to get all employees
+    
     if (req.method === "GET" && reqUrl.pathname === "/api/employees") {
-        // Optional: You can add authentication check here
+        
         
         const query = `
             SELECT 
@@ -218,8 +218,8 @@ function clockRoutes(req, res, reqUrl) {
     // Admin endpoint to get clock history for an employee
     if (req.method === "GET" && reqUrl.pathname === "/api/hours_logged/history") {
         const employeeID = reqUrl.query.employee_id;
-        const startDate = reqUrl.query.start_date; // Optional
-        const endDate = reqUrl.query.end_date;     // Optional
+        const startDate = reqUrl.query.start_date;
+        const endDate = reqUrl.query.end_date;     
         
         if (!employeeID) {
             setCorsHeaders(req, res);
@@ -240,7 +240,7 @@ function clockRoutes(req, res, reqUrl) {
         
         const queryParams = [employeeID];
         
-        // Add date filters if provided
+        
         if (startDate) {
             query += ` AND DATE(timestamp) >= ?`;
             queryParams.push(startDate);
@@ -270,7 +270,7 @@ function clockRoutes(req, res, reqUrl) {
         return true;
     }
 
-    return false; // Not handled by this router
+    return false;
 }
 
 module.exports = clockRoutes;

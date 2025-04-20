@@ -8,7 +8,7 @@ function PackagesLeft({ employeeID }) {
     const [vehicleStatus, setVehicleStatus] = useState("Available");
     const [updatingStatus, setUpdatingStatus] = useState(false);
    
-    // Updated to use REACT_APP_API_BASE_URL as per Render configuration
+    
     const getApiUrl = () => {
         return process.env.REACT_APP_API_BASE_URL ||
             (process.env.NODE_ENV === 'development'
@@ -16,7 +16,7 @@ function PackagesLeft({ employeeID }) {
                 : 'https://post-office-webapp.onrender.com');
     };
 
-    // Extract loadPackages into a callback to reuse it
+    
     const loadPackages = useCallback(async () => {
         if (!employeeID) return;
         
@@ -39,7 +39,7 @@ function PackagesLeft({ employeeID }) {
             const data = await response.json();
             setPackages(data);
             
-            // Set vehicle status from first package (assuming all packages share the same vehicle status)
+            
             if (data && data.length > 0 && data[0].vehicleStatus) {
                 setVehicleStatus(data[0].vehicleStatus);
             }
@@ -130,13 +130,13 @@ function PackagesLeft({ employeeID }) {
                 throw new Error(errorText);
             }
             
-            // Set temp success status
+            
             setDeliveryStatus(prev => ({ ...prev, [packageID]: 'success' }));
             
-            // Refetch packages after a brief delay to show success feedback to user
+            
             setTimeout(() => {
                 loadPackages();
-                // Clear delivery status for this package after refetch
+                
                 setDeliveryStatus(prev => {
                     const newStatus = { ...prev };
                     delete newStatus[packageID];
@@ -161,22 +161,22 @@ function PackagesLeft({ employeeID }) {
     if (loading) return <div>Loading packages...</div>;
     if (error) return <div className="error-message">{error}</div>;
 
-    // Button styles
+    
     const buttonStyle = (isDisabled, type) => ({
-        padding: "8px 24px", // Increased padding for wider buttons
+        padding: "8px 24px", 
         borderRadius: "4px",
         fontSize: "14px",
         fontWeight: "500",
-        marginLeft: "8px", // Reduced space between buttons
+        marginLeft: "8px", 
         transition: "background-color 0.2s",
         cursor: isDisabled ? "not-allowed" : "pointer",
         backgroundColor: isDisabled 
             ? "#D1D5DB" 
-            : type === "left" ? "#F59E0B" : "#10B981", // Yellow for Left, Green for Arrived
+            : type === "left" ? "#F59E0B" : "#10B981",
         color: isDisabled ? "#6B7280" : "white"
     });
 
-    // Status badge style
+    
     const statusBadgeStyle = {
         display: "inline-block",
         padding: "4px 8px",
@@ -229,7 +229,7 @@ function PackagesLeft({ employeeID }) {
             ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                     {packages.map((pkg) => {
-                        // Normalize package ID references
+                        
                         const packageID = pkg.Package_ID || pkg.packageID;
                         const status = deliveryStatus[packageID];
                         const senderName = `${pkg.senderFirstName || pkg.sender_first_name} ${pkg.senderLastName || pkg.sender_last_name}`;
@@ -287,7 +287,7 @@ function PackagesLeft({ employeeID }) {
                                         onClick={() => markAsDelivered(packageID)}
                                         disabled={status === 'loading' || vehicleStatus !== 'In Transit'}
                                         style={{
-                                            flex: 1, // Make buttons take equal space
+                                            flex: 1, 
                                             height: '36px',
                                             fontSize: '12px',
                                             borderRadius: '4px',
@@ -311,22 +311,22 @@ function PackagesLeft({ employeeID }) {
                                         'Delivered'}
                                     </button>
                                     
-                                    {/* Lost Button - Changed from orange to red */}
+                                    {/* Lost Button */}
                                     <button
                                         onClick={() => markAsLost(packageID)}
                                         disabled={status === 'loading' || vehicleStatus !== 'In Transit'}
                                         style={{
-                                            flex: 1, // Make buttons take equal space
+                                            flex: 1, 
                                             height: '36px',
                                             fontSize: '12px',
                                             borderRadius: '4px',
                                             transition: 'background-color 0.2s',
                                             cursor: (status === 'loading' || vehicleStatus !== 'In Transit') ? 'not-allowed' : 'pointer',
                                             backgroundColor: status === 'loading' ? '#D1D5DB' :
-                                                            status === 'success' ? '#DC2626' : // Changed success color too
+                                                            status === 'success' ? '#DC2626' : 
                                                             status === 'error' ? '#EF4444' :
                                                             vehicleStatus !== 'In Transit' ? '#D1D5DB' :
-                                                            '#DC2626', // Changed from #F59E0B (orange) to #DC2626 (red)
+                                                            '#DC2626',
                                             color: 'white',
                                             display: 'flex',
                                             alignItems: 'center',
