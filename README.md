@@ -31,22 +31,37 @@
 
   ##  Folder Structure
 
-post-office-app/ ├── client/ # React frontend │ └── ... # All React components, pages, assets ├── server/ # Node.js backend │ └── ... # Express routes, controllers, DB scripts ├── post_office_db.sql # SQL dump of populated database ├── README.md # Project instructions and setup
+post-office-app/ ├── client/ # React frontend │ 
+└── ... # All React components, pages, assets 
+├── server/ # Node.js backend 
+│ 
+└── ... # Express routes, controllers, DB scripts ├── post_office_db.sql # SQL dump of populated database ├── README.md # Project instructions and setup
 
+<pre> ``` post-office-app/ ├── client/ # React frontend │ └── ... # All React components, pages, assets ├── server/ # Node.js backend │ └── ... # Express routes, controllers, DB scripts ├── post_office_db.sql # SQL dump of populated database ├── README.md # Project instructions and setup ``` </pre>
 
 ---
 
 ## Environment Variables
 
+Create a `.env` file in the `client/` directory with the following (example):
+
+```.env
+REACT_APP_API_BASE_URL="put your localhost link (example: http://localhost:5001)"
+```
+
+```.env.production
+REACT_APP_API_BASE_URL="put your backend deployment link (example: render)"
+```
+
 Create a `.env` file in the `server/` directory with the following (example):
 
-```env
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=yourpassword
-DB_NAME=post_office
-EMAIL_USER=your_email@example.com
-EMAIL_PASS=your_email_password
+```.env
+DB_HOST="hostname"
+DB_USER="username"
+DB_PASSWORD="password"
+DB_NAME="name of db"
+SSL_CA="file path of ssl certificate"
+JWT_SECRET="jwt_secret"
 ```
 
 ## Installation & Setup
@@ -56,17 +71,16 @@ Copy
 Edit
 git clone https://github.com/yourusername/post-office-app.git
 cd post-office-app
-2. Install Dependencies
+
+3. Install Dependencies
 Client
 bash
-Copy
-Edit
+
 cd client
 npm install
 Server
 bash
-Copy
-Edit
+
 cd ../server
 npm install
 This will install dependencies including:
@@ -90,11 +104,11 @@ cd server
 node server.js
 Frontend
 bash
-Copy
-Edit
+
 cd client
 npm start
-Database Setup
+
+## Database Setup
 Ensure MySQL is installed and running
 
 Import the SQL dump:
