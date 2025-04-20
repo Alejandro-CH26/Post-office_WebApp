@@ -203,6 +203,7 @@ function Register() {
             type="tel"
             placeholder="Phone Number"
             required
+            minLength={10}
             maxLength={10}
             value={phoneNumber}
             onChange={(e) => {
