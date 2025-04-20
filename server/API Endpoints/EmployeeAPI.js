@@ -23,10 +23,10 @@ function setCORSHeaders(req, res, allowCredentials = false) {
     if (allowCredentials) {
         res.setHeader("Access-Control-Allow-Credentials", "true");
     }
-  }
+}
 
 function generateTrackingNumber(packageID) {
-    return crypto.createHash('sha256').update(packageID.toString()).digest('hex').slice(0, 12); 
+    return crypto.createHash('sha256').update(packageID.toString()).digest('hex').slice(0, 12);
 }
 
 async function employeeLogIn(req, res) {
@@ -283,13 +283,13 @@ async function warehouseAssignPackages(req, res) {
                                 LEFT JOIN db1.package p ON p.Assigned_Vehicle = dv.Vehicle_ID
                                 LEFT JOIN db1.addresses a ON p.Destination_ID = a.address_ID
                                 WHERE dv.Status = "Available" 
-                                    AND e.Employee_ID = 119
+                                    AND e.Employee_ID = ?
                                 GROUP BY dv.Vehicle_ID, dv.Volume_Capacity, dv.Payload_Capacity, 
                                         p.Package_ID, p.Priority, p.Weight, p.Length, p.Width, p.Height, 
                                         a.address_Street, a.address_City, a.address_State, a.address_Zipcode, p.Destination_ID;
                                 `;
 
-                                connection.query(deliveryVehicleQuery, [employeeID], 
+                                connection.query(deliveryVehicleQuery, [employeeID],
                                     (err, deliveryVehicleResults) => {
                                         if (err) {
                                             console.error("Error accessing database:", err);
@@ -305,7 +305,7 @@ async function warehouseAssignPackages(req, res) {
 
                                         deliveryVehicleResults.forEach(row => {
                                             const vehicleID = row.Vehicle_ID;
-                                    
+
                                             // If vehicle is not already in responseData, initialize it
                                             if (!responseData.deliveryVehicles[vehicleID]) {
                                                 responseData.deliveryVehicles[vehicleID] = {
@@ -315,7 +315,7 @@ async function warehouseAssignPackages(req, res) {
                                                     packages: [] // Initialize empty package list
                                                 };
                                             }
-                                    
+
                                             // Push package details into the array for the vehicle
                                             responseData.deliveryVehicles[vehicleID].packages.push({
                                                 packageID: row.Package_ID,
@@ -329,9 +329,9 @@ async function warehouseAssignPackages(req, res) {
                                                 destinationID: row.Destination_ID
                                             });
                                         });
-                                    
-                                        
-                                    
+
+
+
                                         setCORSHeaders(req, res, true);
                                         res.writeHead(200, { "Content-Type": "application/json" });
                                         res.end(JSON.stringify(responseData));
@@ -483,18 +483,18 @@ async function warehouseRegisterPackage(req, res) {
                     const asyncconnection = await connection.promise().getConnection();
                     try {
                         // Parse request body as JSON
-                        const { weight, senderCustomerID, recipientCustomerName, destinationStreet, 
+                        const { weight, senderCustomerID, recipientCustomerName, destinationStreet,
                             destinationCity, destinationState, destinationZipcode, priority, fragile,
                             length, width, height, paymentMethod, shippingCost, destinationUnit
-                         } = JSON.parse(body);
+                        } = JSON.parse(body);
 
-                        console.log(weight, senderCustomerID, recipientCustomerName, destinationStreet, 
+                        console.log(weight, senderCustomerID, recipientCustomerName, destinationStreet,
                             destinationCity, destinationState, destinationZipcode, priority, fragile,
                             length, width, height, paymentMethod, shippingCost, destinationUnit);
-                        
+
                         // First things first, create an order instance.
                         // In order to do this, we need to get the employee's location
-                        
+
                         const [employeeAddressResult] = await asyncconnection.execute(
                             `select Address_ID
                             from employees, post_office_location
@@ -522,24 +522,24 @@ async function warehouseRegisterPackage(req, res) {
                                 `SELECT address_ID FROM addresses 
                                  WHERE address_Street = ? AND unit_number <=> ? AND address_City = ? AND address_State = ? AND address_Zipcode = ? AND Office_Location = 0`,
                                 [destinationStreet, destinationUnit || null, destinationCity, destinationState, destinationZipcode]
-                              );
+                            );
                         } else {
                             console.log("here")
                             var [existingAddress] = await asyncconnection.execute(
                                 `SELECT address_ID FROM addresses 
                                  WHERE address_Street = ? AND unit_number <=> ? AND address_City = ? AND address_State = ? AND address_Zipcode = ? AND Office_Location = 0`,
                                 [destinationStreet, null, destinationCity, destinationState, destinationZipcode]
-                              );
+                            );
                         }
-                        
+
                         //console.log("Hello");
                         console.log("Existing Address", existingAddress);
-                        
-                          var shippingAddressID;
-                          if (existingAddress.length > 0) {
+
+                        var shippingAddressID;
+                        if (existingAddress.length > 0) {
                             console.log("Here")
                             shippingAddressID = existingAddress[0].address_ID;
-                          } else {
+                        } else {
                             console.log("ereh")
                             if (destinationUnit != undefined) {
                                 console.log("X")
@@ -548,8 +548,8 @@ async function warehouseRegisterPackage(req, res) {
                                      (address_Street, unit_number, address_City, address_State, address_Zipcode, Office_Location) 
                                      VALUES (?, ?, ?, ?, ?, 0)`,
                                     [destinationStreet, destinationUnit || null, destinationCity, destinationState, destinationZipcode]
-                                  );
-                                  shippingAddressID = newAddress.insertId;
+                                );
+                                shippingAddressID = newAddress.insertId;
                             } else {
                                 console.log("Y")
                                 try {
@@ -558,26 +558,26 @@ async function warehouseRegisterPackage(req, res) {
                                          (address_Street, unit_number, address_City, address_State, address_Zipcode, Office_Location) 
                                          VALUES (?, ?, ?, ?, ?, 0)`,
                                         [destinationStreet, null, destinationCity, destinationState, destinationZipcode]
-                                      );
-                                      shippingAddressID = newAddress1.insertId;
+                                    );
+                                    shippingAddressID = newAddress1.insertId;
                                 } catch (error) {
                                     console.error(error.message);
                                 }
-                                
-                            }
-                            
-                              
-                          }
 
-                           console.log("Shipping Address", shippingAddressID);
+                            }
+
+
+                        }
+
+                        console.log("Shipping Address", shippingAddressID);
 
                         const [orderResult] = await asyncconnection.execute(
                             `INSERT INTO orders (
                                Customer_ID, address_id, shipping_address_id, Total_Amount, status, Payment_Method
                              ) VALUES (?, ?, ?, ?, ?, ?)`,
-                              [senderCustomerID, employeeLocation, shippingAddressID, shippingCost, "Completed", paymentMethod]
-                          );
-                        
+                            [senderCustomerID, employeeLocation, shippingAddressID, shippingCost, "Completed", paymentMethod]
+                        );
+
                         const order_ID = orderResult.insertId;
 
                         console.log("Order ID:", order_ID);
@@ -591,8 +591,8 @@ async function warehouseRegisterPackage(req, res) {
                             `INSERT INTO transaction (Order_ID, Customer_ID, Payment_method, Item_name, Quantity) 
                              VALUES (?, ?, ?, ?, ?)`,
                             [order_ID, senderCustomerID, paymentMethod, "Package", 1]
-                          );            
-                        
+                        );
+
                         //console.log(transactionResult);
                         const transaction_ID = transactionResult.insertId;
                         console.log("Transaction ID", transaction_ID)
@@ -605,44 +605,44 @@ async function warehouseRegisterPackage(req, res) {
                               Next_Destination, Assigned_Vehicle, Processed, Recipient_Customer_Name
                             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 0, ?)`,
                             [
-                              weight,
-                              senderCustomerID,
-                              employeeAddress,
-                              shippingAddressID,
-                              shippingCost,
-                              priority,
-                              fragile,
-                              transaction_ID,
-                              length,
-                              width,
-                              height,
-                              employeeAddress,
-                              recipientCustomerName
+                                weight,
+                                senderCustomerID,
+                                employeeAddress,
+                                shippingAddressID,
+                                shippingCost,
+                                priority,
+                                fragile,
+                                transaction_ID,
+                                length,
+                                width,
+                                height,
+                                employeeAddress,
+                                recipientCustomerName
                             ]
-                          );
-            
-                          const package_ID = packageResult.insertId;
-                          console.log("Package ID", package_ID);
+                        );
 
-                          const [trackingHistoryResult] = await asyncconnection.execute(
+                        const package_ID = packageResult.insertId;
+                        console.log("Package ID", package_ID);
+
+                        const [trackingHistoryResult] = await asyncconnection.execute(
                             `INSERT INTO tracking_history (package_ID, location_ID, status, employee_ID)
                              VALUES (?, ?, ?, ?)`,
                             [package_ID, employeeAddress, 'Package Created', employeeID]
-                          );
+                        );
 
-                          const trackingHistoryID = trackingHistoryResult.insertId;
-                          console.log("Tracking History ID", trackingHistoryID);
+                        const trackingHistoryID = trackingHistoryResult.insertId;
+                        console.log("Tracking History ID", trackingHistoryID);
 
 
 
-                          await asyncconnection.commit();
-                          res.writeHead(200, { "Content-Type": "application/json" });
-                          res.end(JSON.stringify({ 
-                                message: "Order placed and package(s) created successfully.", 
-                                trackingNumber: package_ID
-                           }));
+                        await asyncconnection.commit();
+                        res.writeHead(200, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({
+                            message: "Order placed and package(s) created successfully.",
+                            trackingNumber: package_ID
+                        }));
 
-                        
+
                         // We also need to get the financial information for the transaction data.
 
                         // SQL query to update the package
@@ -670,7 +670,7 @@ async function warehouseRegisterPackage(req, res) {
                         //         console.log("Package not modified.");
                         //     }
                         // });
-                    
+
                     } catch (err) {
                         // console.error("Error parsing request body:", err);
                         // res.writeHead(400, { "Content-Type": "application/json" });
@@ -784,10 +784,10 @@ async function warehouseRemovePackage(req, res) {
                         // );
 
                         await asyncconnection.commit();
-                          res.writeHead(200, { "Content-Type": "application/json" });
-                          res.end(JSON.stringify({ 
-                                message: "Package removed from truck successfully", 
-                           }));
+                        res.writeHead(200, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({
+                            message: "Package removed from truck successfully",
+                        }));
 
 
                     } catch (err) {
@@ -809,7 +809,7 @@ module.exports = {
     warehouseRegisterPackage,
     warehouseCheckEmail,
     warehouseRemovePackage
-  };
+};
 
 
 // Trigger: A package cannot be assigned to a vehicle if it would cause that vehicle to exceed its capacity limits.
