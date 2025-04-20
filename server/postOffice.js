@@ -15,7 +15,6 @@ module.exports = function postOfficeAPI(req, res, reqUrl) {
 
         let addressId;
 
-        // Check if the address already exists
         const [existingAddress] = await db.promise().query(
           `SELECT address_id FROM addresses
            WHERE address_Street = ? AND address_City = ? AND address_State = ? AND address_Zipcode = ? AND Office_Location = 1`,
@@ -25,6 +24,23 @@ module.exports = function postOfficeAPI(req, res, reqUrl) {
         if (existingAddress.length > 0) {
           addressId = existingAddress[0].address_id;
         } else {
+          addressId = null;
+        }
+
+        const [existingPostOffice] = await db.promise().query(
+          `SELECT * FROM post_office_location WHERE name = ? OR Address_ID = ? OR office_phone = ?`,
+          [name, existingAddress.length > 0 ? addressId : -1, office_phone]
+        );
+
+        if (existingPostOffice.length > 0) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          return res.end(JSON.stringify({
+            status: "error",
+            message: "Post office with this name, address, or phone number already exists."
+          }));
+        }
+
+        if (!addressId) {
           const [addressResult] = await db.promise().query(
             `INSERT INTO addresses (address_Street, address_City, address_State, address_Zipcode, Office_Location)
              VALUES (?, ?, ?, ?, ?)`,
@@ -33,21 +49,6 @@ module.exports = function postOfficeAPI(req, res, reqUrl) {
           addressId = addressResult.insertId;
         }
 
-        // Check if post office already exists with same name or same address
-        const [existingPostOffice] = await db.promise().query(
-          `SELECT * FROM post_office_location WHERE name = ? OR Address_ID = ?`,
-          [name, addressId]
-        );
-
-        if (existingPostOffice.length > 0) {
-          res.writeHead(400, { "Content-Type": "application/json" });
-          return res.end(JSON.stringify({
-            status: "error",
-            message: "Post office with this name or address already exists."
-          }));
-        }
-
-        // Insert post office location
         await db.promise().query(
           `INSERT INTO post_office_location 
            (location_ID, name, street_address, city, state, zip, office_phone, Address_ID)
@@ -55,7 +56,6 @@ module.exports = function postOfficeAPI(req, res, reqUrl) {
           [addressId, name, street_address, city, state, zip, office_phone, addressId]
         );
 
-        // Insert default inventory
         const inventoryInserts = [];
         for (let productId = 1; productId <= 7; productId++) {
           inventoryInserts.push([addressId, productId, 100]);
@@ -75,7 +75,7 @@ module.exports = function postOfficeAPI(req, res, reqUrl) {
       } catch (err) {
         console.error("Post Office Creation Error:", err);
         res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ status: "error", message: "Phone Number already exists!" }));
+        res.end(JSON.stringify({ status: "error", message: "Internal Server Error" }));
       }
     });
 
@@ -84,4 +84,3 @@ module.exports = function postOfficeAPI(req, res, reqUrl) {
 
   return false;
 };
-
