@@ -103,11 +103,11 @@ function WarehouseRegisterPackage() {
                 <h1 className="package-title">Create a Package</h1>
                 <form className="package-form" onSubmit={handleSubmit}>
                     <input type="number" placeholder="Weight" required min="0.01" max="999.99" step="0.01" maxLength="6" value={weight} onChange={(e) => setWeight(e.target.value)} />
-                    <input type="text" placeholder="Sender Email" required value={senderEmail} onChange={(e) => setSenderEmail(e.target.value)} />
-                    <input type="text" placeholder="Recipient Name" required value={recipientName} maxLength="60" onChange={(e) => setRecipientName(e.target.value)} />
-                    <input type="text" placeholder="Destination Street" required value={destinationStreet} maxLength="255" onChange={(e) => setDestinationStreet(e.target.value)} />
+                    <input type="email" placeholder="Sender Email" required value={senderEmail} onChange={(e) => setSenderEmail(e.target.value)} />
+                    <input type="text" placeholder="Recipient Name" required value={recipientName} minLength="1" maxLength="60" onChange={(e) => setRecipientName(e.target.value)} />
+                    <input type="text" placeholder="Destination Street" required value={destinationStreet} minLength="3" maxLength="255" onChange={(e) => setDestinationStreet(e.target.value)} />
                     <input type="text" placeholder="Destination Unit (Leave blank if none)" value={destinationUnit} maxLength="20" onChange={(e) => setDestinationUnit(e.target.value)} />
-                    <input type="text" placeholder="Destination City" required value={destinationCity} maxLength="100" onChange={(e) => setDestinationCity(e.target.value)} />
+                    <input type="text" placeholder="Destination City" required value={destinationCity} minLength="1" maxLength="100" onChange={(e) => setDestinationCity(e.target.value)} />
 
                     {/* State Dropdown */}
                     <select className="select-input" required value={destinationState} onChange={(e) => setDestinationState(e.target.value)}>
@@ -117,7 +117,7 @@ function WarehouseRegisterPackage() {
                         ))}
                     </select>
 
-                    <input type="text" placeholder="Destination Zipcode" required value={destinationZipcode} maxLength="5" onChange={(e) => setDestinationZipcode(e.target.value)} />
+                    <input type="text" placeholder="Destination Zipcode" required value={destinationZipcode} minLength="5" maxLength="5" pattern="\d{5}" onChange={(e) => setDestinationZipcode(e.target.value)} />
 
                     {/* Priority Dropdown (Now an Integer) */}
                     <select className="select-input" required value={priority} onChange={(e) => setPriority(e.target.value)}>
