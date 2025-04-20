@@ -35,6 +35,7 @@ function driverRoutes(req, res) {
     req.on("data", chunk => {
       body += chunk.toString();
     });
+  
     req.on("end", async () => {
       try {
         const { employeeID } = JSON.parse(body);
@@ -44,8 +45,13 @@ function driverRoutes(req, res) {
           res.end(JSON.stringify({ error: "Employee ID is required" }));
           return;
         }
-
-        const getVehiclesQuery = `SELECT Vehicle_ID, Location_ID FROM delivery_vehicle WHERE Driver_ID = ?`;
+  
+        const getVehiclesQuery = `
+          SELECT Vehicle_ID, Location_ID 
+          FROM delivery_vehicle 
+          WHERE Driver_ID = ?
+        `;
+  
         connection.query(getVehiclesQuery, [employeeID], (err, vehicleRows) => {
           if (err || vehicleRows.length === 0) {
             setCorsHeaders(req, res);
@@ -53,19 +59,34 @@ function driverRoutes(req, res) {
             res.end(JSON.stringify({ error: "Failed to retrieve vehicles for driver" }));
             return;
           }
-
+  
           const tasks = vehicleRows.map(({ Vehicle_ID, Location_ID }) => {
             return new Promise((resolve, reject) => {
-              const getPackagesQuery = `SELECT Package_ID FROM Package WHERE Assigned_vehicle = ?`;
-              connection.query(getPackagesQuery, [Vehicle_ID], (err, packages) => {
+              const getPackagesQuery = `
+                SELECT p.Package_ID
+                FROM Package p
+                LEFT JOIN (
+                  SELECT package_ID
+                  FROM tracking_history
+                  WHERE status = 'In Transit' AND employee_ID = ?
+                ) t ON p.Package_ID = t.package_ID
+                WHERE p.Assigned_vehicle = ? AND t.package_ID IS NULL
+              `;
+  
+              connection.query(getPackagesQuery, [employeeID, Vehicle_ID], (err, packages) => {
                 if (err) return reject(err);
                 if (packages.length === 0) return resolve();
-
-                const values = packages.map(pkg => 
+  
+                const values = packages.map(pkg =>
                   `(${pkg.Package_ID}, ${Location_ID}, 'In Transit', NOW(), ${employeeID})`
                 ).join(", ");
-
-                const insertQuery = `INSERT INTO tracking_history (package_ID, location_ID, status, timestamp, employee_ID) VALUES ${values}`;
+  
+                const insertQuery = `
+                  INSERT INTO tracking_history 
+                  (package_ID, location_ID, status, timestamp, employee_ID)
+                  VALUES ${values};
+                `;
+  
                 connection.query(insertQuery, (err) => {
                   if (err) return reject(err);
                   resolve();
@@ -73,29 +94,36 @@ function driverRoutes(req, res) {
               });
             });
           });
-
+  
           Promise.all(tasks)
             .then(() => {
               setCorsHeaders(req, res);
               res.writeHead(200, { "Content-Type": "application/json" });
-              res.end(JSON.stringify({ success: true, message: "Tracking entries created for all assigned packages." }));
+              res.end(JSON.stringify({
+                success: true,
+                message: "Tracking entries created for new packages (per employee)."
+              }));
             })
             .catch(error => {
-              console.error("Error processing multiple vehicles:", error);
+              console.error("❌ Error processing multiple vehicles:", error);
               setCorsHeaders(req, res);
               res.writeHead(500, { "Content-Type": "application/json" });
-              res.end(JSON.stringify({ error: "Failed to insert tracking history for some vehicles." }));
+              res.end(JSON.stringify({
+                error: "Failed to insert tracking history for some vehicles."
+              }));
             });
         });
       } catch (err) {
-        console.error("Error parsing request:", err);
+        console.error("❌ Error parsing request:", err);
         setCorsHeaders(req, res);
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: "Invalid request format" }));
       }
     });
+  
     return true;
   }
+  
 
  
   if (req.method === "GET" && reqUrl.pathname === "/driver/packages") {
