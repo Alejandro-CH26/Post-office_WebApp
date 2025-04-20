@@ -13,8 +13,8 @@
     padding: 40px;
     border-radius: 10px;
     box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
-    width: 380px;  /* Matched width with register & login form */
-    min-height: 400px; /* Adjusted height */
+    width: 380px;  
+    min-height: 400px; 
     text-align: center;
 }
 
@@ -24,8 +24,8 @@
     padding: 40px;
     border-radius: 10px;
     box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
-    width: 50%;  /* Matched width with register & login form */
-    min-height: 400px; /* Adjusted height */
+    width: 50%;  
+    min-height: 400px; 
     text-align: center;
 }
 
@@ -39,7 +39,7 @@
 .package-form {
     display: flex;
     flex-direction: column;
-    gap: 10px; /* Match spacing with login and register form */
+    gap: 10px; 
 }
 
 .package-form input {
@@ -72,7 +72,6 @@
     cursor: pointer;
 }
 
-/* Ensure consistency with other forms */
 .package-box input::placeholder {
     color: #999;
     font-size: 14px;
@@ -84,7 +83,6 @@
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
-/* Checkbox styling */
 .package-form label {
     display: flex;
     align-items: center;

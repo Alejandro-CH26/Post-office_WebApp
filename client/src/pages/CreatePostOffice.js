@@ -139,6 +139,7 @@ function PostOfficeForm() {
                         name="zip"
                         placeholder="Zip Code"
                         required
+                        minLength={5}
                         maxLength={5}
                         value={formData.zip}
                         onChange={(e) => {
@@ -166,6 +167,7 @@ function PostOfficeForm() {
                         name="office_phone"
                         placeholder="Office Phone"
                         required
+                        minLength={10}
                         maxLength={10}
                         value={formData.office_phone}
                         onChange={(e) => {
