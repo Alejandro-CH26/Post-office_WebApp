@@ -80,7 +80,7 @@ JWT_SECRET="jwt_secret"
 1. Clone the Repo
 ```bash
 git clone https://github.com/Alejandro-CH26/Post-office_WebApp.git
-cd post-office-app
+cd folder-name
 ```
 3. Install Dependencies
 
