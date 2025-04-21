@@ -110,6 +110,8 @@ etc...
 
 3. Start the App
 
+Open two terminals:
+
 Backend
 ```bash
 cd server
