@@ -49,7 +49,7 @@ function clockRoutes(req, res, reqUrl) {
     
         connection.query(query, [employeeID], (err, results) => {
             if (err) {
-                console.error("❌ Database Error:", err);
+                console.error("Database Error:", err);
                 res.writeHead(500, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ 
                     error: "Database query failed",
@@ -107,7 +107,7 @@ function clockRoutes(req, res, reqUrl) {
     
                 connection.query(checkQuery, [employee_id], (err, results) => {
                     if (err) {
-                        console.error("❌ Database Error:", err);
+                        console.error("Database Error:", err);
                         res.writeHead(500, { "Content-Type": "application/json" });
                         res.end(JSON.stringify({ error: "Database query failed" }));
                         return;
@@ -132,7 +132,7 @@ function clockRoutes(req, res, reqUrl) {
     
                         connection.query(insertQuery, [employee_id], (err) => {
                             if (err) {
-                                console.error("❌ Failed to clock in:", err);
+                                console.error("Failed to clock in:", err);
                                 res.writeHead(500, { "Content-Type": "application/json" });
                                 res.end(JSON.stringify({ error: "Failed to clock in" }));
                                 return;
@@ -163,7 +163,7 @@ function clockRoutes(req, res, reqUrl) {
     
                         connection.query(updateQuery, [employee_id], (err) => {
                             if (err) {
-                                console.error("❌ Failed to clock out:", err);
+                                console.error("Failed to clock out:", err);
                                 res.writeHead(500, { "Content-Type": "application/json" });
                                 res.end(JSON.stringify({ error: "Failed to clock out" }));
                                 return;
@@ -200,7 +200,7 @@ function clockRoutes(req, res, reqUrl) {
 
         connection.query(query, (err, results) => {
             if (err) {
-                console.error("❌ Error fetching employees:", err);
+                console.error("Error fetching employees:", err);
                 setCorsHeaders(req, res);
                 res.writeHead(500, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ error: "Database query failed" }));
@@ -255,7 +255,7 @@ function clockRoutes(req, res, reqUrl) {
 
         connection.query(query, queryParams, (err, results) => {
             if (err) {
-                console.error("❌ Error fetching clock history:", err);
+                console.error("Error fetching clock history:", err);
                 setCorsHeaders(req, res);
                 res.writeHead(500, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ error: "Database query failed" }));

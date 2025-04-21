@@ -37,7 +37,7 @@ ORDER BY ls.timestamp DESC;
       `,
       (err, results) => {
         if (err) {
-          console.error("❌ Error fetching package summary:", err);
+          console.error("Error fetching package summary:", err);
           res.writeHead(500);
           res.end(JSON.stringify({ error: "Database query failed" }));
           return;
@@ -86,7 +86,7 @@ ORDER BY ls.timestamp DESC;
       `,
       (err, results) => {
         if (err) {
-          console.error("❌ SQL Query Error:", err);
+          console.error("SQL Query Error:", err);
           res.writeHead(500);
           res.end(JSON.stringify({ error: "Database query failed" }));
           return;
@@ -131,7 +131,7 @@ ORDER BY ls.timestamp DESC;
       `,
       (err, results) => {
         if (err) {
-          console.error("❌ Error fetching deliveries by driver:", err);
+          console.error("Error fetching deliveries by driver:", err);
           res.writeHead(500);
           res.end(JSON.stringify({ error: "Database query failed" }));
           return;

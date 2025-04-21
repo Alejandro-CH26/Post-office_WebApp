@@ -105,7 +105,7 @@ function driverRoutes(req, res) {
               }));
             })
             .catch(error => {
-              console.error("❌ Error processing multiple vehicles:", error);
+              console.error("Error processing multiple vehicles:", error);
               setCorsHeaders(req, res);
               res.writeHead(500, { "Content-Type": "application/json" });
               res.end(JSON.stringify({
@@ -114,7 +114,7 @@ function driverRoutes(req, res) {
             });
         });
       } catch (err) {
-        console.error("❌ Error parsing request:", err);
+        console.error("Error parsing request:", err);
         setCorsHeaders(req, res);
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: "Invalid request format" }));

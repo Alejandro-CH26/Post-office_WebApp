@@ -31,7 +31,7 @@ ${includeDeleted ? "" : "WHERE v.is_deleted = FALSE"}
 
     connection.query(query, (err, results) => {
       if (err) {
-        console.error("❌ SQL Query Error:", err);
+        console.error("SQL Query Error:", err);
         res.writeHead(500);
         res.end(JSON.stringify({ error: "Database query failed" }));
         return;
@@ -73,7 +73,7 @@ ${includeDeleted ? "" : "WHERE v.is_deleted = FALSE"}
 
     connection.query(query, [id], (err, results) => {
       if (err) {
-        console.error("❌ Error fetching vehicle:", err);
+        console.error("Error fetching vehicle:", err);
         res.writeHead(500);
         res.end(JSON.stringify({ error: "Failed to retrieve vehicle." }));
         return;
@@ -109,7 +109,7 @@ ${includeDeleted ? "" : "WHERE v.is_deleted = FALSE"}
 
         connection.query(query, [vehicle_ID], (err) => {
           if (err) {
-            console.error("❌ Error deleting:", err);
+            console.error("Error deleting:", err);
             res.writeHead(500);
             res.end(JSON.stringify({ error: "Failed to delete vehicle." }));
             return;
@@ -209,7 +209,7 @@ ${includeDeleted ? "" : "WHERE v.is_deleted = FALSE"}
           ],
           (err) => {
             if (err) {
-              console.error("❌ Error updating vehicle:", err);
+              console.error("Error updating vehicle:", err);
               res.writeHead(500);
               res.end(JSON.stringify({ error: "Failed to update vehicle." }));
               return;
@@ -240,7 +240,7 @@ if (req.method === "GET" && reqUrl.pathname === "/get-drivers") {
 
   connection.query(query, (err, results) => {
     if (err) {
-      console.error("❌ Error fetching drivers:", err);
+      console.error("Error fetching drivers:", err);
       res.writeHead(500);
       res.end(JSON.stringify({ error: "Failed to get drivers." }));
       return;
@@ -264,7 +264,7 @@ if (req.method === "GET" && reqUrl.pathname === "/get-postoffices") {
 
   connection.query(query, (err, results) => {
     if (err) {
-      console.error("❌ Error fetching locations:", err);
+      console.error("Error fetching locations:", err);
       res.writeHead(500);
       res.end(JSON.stringify({ error: "Failed to get post offices." }));
       return;
@@ -300,7 +300,7 @@ if (req.method === "GET" && reqUrl.pathname === "/get-drivers-by-location") {
 
   connection.query(query, [locationID], (err, results) => {
     if (err) {
-      console.error("❌ Error fetching location-specific drivers:", err);
+      console.error("Error fetching location-specific drivers:", err);
       res.writeHead(500);
       res.end(JSON.stringify({ error: "Failed to fetch drivers for location." }));
       return;
