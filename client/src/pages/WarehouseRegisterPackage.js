@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./PackageMaker.css"; // Ensure styling is applied
+import "./PackageMaker.css";
 
 function WarehouseRegisterPackage() {
     const navigate = useNavigate();
@@ -12,7 +12,7 @@ function WarehouseRegisterPackage() {
     const [destinationState, setDestinationState] = useState("");
     const [destinationZipcode, setDestinationZipcode] = useState("");
     const [destinationUnit, setDestinationUnit] = useState(null);
-    const [priority, setPriority] = useState(""); // Storing priority as an integer
+    const [priority, setPriority] = useState("");
     const [fragile, setFragile] = useState(false);
     const [length, setLength] = useState("");
     const [width, setWidth] = useState("");
@@ -23,17 +23,17 @@ function WarehouseRegisterPackage() {
     const calculateShippingCost = () => {
         return parseFloat(weight) * (1 + (parseInt(priority, 10) / 5)) + (fragile ? 10 : 0);
     };
-    
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         // Validation: Ensure all fields are filled before proceeding
         if (!weight || !senderEmail || !recipientName || !destinationStreet || !destinationCity ||
             !destinationState || !destinationZipcode || !priority || !length || !width || !height) {
             alert("Please fill in all fields before proceeding.");
             return;
         }
-    
+
         try {
             // Make a POST request to check the sender email and retrieve customer_ID
             const employeeID = localStorage.getItem("employee_ID");
@@ -42,19 +42,19 @@ function WarehouseRegisterPackage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ senderCustomerEmail: senderEmail }),
             });
-    
+
             const data = await response.json();
             console.log("Server Response:", data);
-    
+
             if (!response.ok) {
                 alert(`Error: ${data.message}`);
                 return;
             }
-    
+
             // Create package object with retrieved customer_ID
             const newPackage = {
                 weight: parseFloat(weight),
-                senderCustomerID: data.customer_ID, // Store retrieved customer_ID
+                senderCustomerID: data.customer_ID,
                 recipientCustomerName: recipientName.trim(),
                 destinationStreet: destinationStreet,
                 destinationCity: destinationCity.trim(),
@@ -67,16 +67,16 @@ function WarehouseRegisterPackage() {
                 width: parseFloat(width),
                 height: parseFloat(height),
             };
-    
+
             // Navigate to checkout with package data
             navigate("/warehousepackagecheckout", { state: { packageData: newPackage } });
-    
+
         } catch (error) {
             console.error("Network Error:", error);
             alert("Failed to connect to the server. Please try again.");
         }
     };
-    
+
 
     // Dropdown options
     const states = [
@@ -87,7 +87,7 @@ function WarehouseRegisterPackage() {
         "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
     ];
 
-    const priorities = [1, 2, 3, 4, 5]; // Ensure priority options are integers
+    const priorities = [1, 2, 3, 4, 5];
 
     const priorityOptions = {
         1: "Economy",

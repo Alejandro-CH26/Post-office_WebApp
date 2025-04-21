@@ -14,7 +14,7 @@ function CustomerDashboard() {
 
                 setFirstName(decoded.firstName || decoded.username || "Customer");
             } catch (err) {
-                console.error("❌ Invalid token", err);
+                console.error("Invalid token", err);
                 setFirstName("Customer");
             }
         }

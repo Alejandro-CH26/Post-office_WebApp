@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./PackageMaker.css"; // Ensure styling is applied
+import "./PackageMaker.css";
 
 function PackageMaker() {
     const navigate = useNavigate();
@@ -31,7 +31,7 @@ function PackageMaker() {
             destination_ID: parseInt(destinationID),
             shipping_Cost: parseFloat(shippingCost),
             priority: priority.trim(),
-            fragile: fragile ? 1 : 0, // Convert boolean to tinyint (1 or 0)
+            fragile: fragile ? 1 : 0,
             transaction_ID: parseInt(transactionID),
             length: parseFloat(length),
             width: parseFloat(width),
@@ -46,17 +46,17 @@ function PackageMaker() {
             });
 
             const data = await response.json();
-            console.log("✅ Server Response:", data);
+            console.log("Server Response:", data);
 
             if (response.ok) {
-                alert("✅ Package Created Successfully!");
-                navigate("/trackpackage"); // Redirect to tracking page
+                alert("Package Created Successfully!");
+                navigate("/trackpackage");
             } else {
-                alert(`❌ Error: ${data.message}`);
+                alert(`Error: ${data.message}`);
             }
         } catch (error) {
-            console.error("❌ Error adding package:", error);
-            alert("❌ Server error, please try again later.");
+            console.error("Error adding package:", error);
+            alert("Server error, please try again later.");
         }
     };
 

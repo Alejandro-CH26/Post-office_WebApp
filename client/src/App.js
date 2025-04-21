@@ -20,7 +20,7 @@ import DriverDashboard from "./pages/DriverDashboard";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
-import PackageMaker from "./pages/PackageMaker"; // adjust the path if needed
+import PackageMaker from "./pages/PackageMaker";
 
 import Reports from "./pages/Reports";
 import "./App.css";
@@ -40,7 +40,7 @@ import PackagesLeft from "./pages/PackagesLeft";
 import EditEmployees from "./pages/EditEmployees";
 import PostOffices from "./pages/PostOffices";
 import EditPostOffices from "./pages/EditPostOffices";
-import AdminInventoryReport from "./pages/adminInventory"; // adjust path if needed
+import AdminInventoryReport from "./pages/adminInventory";
 import Vehicles from "./pages/Vehicles";
 import EditVehicles from "./pages/EditVehicles";
 
@@ -128,10 +128,10 @@ function App() {
           path="/sales-report"
           element={<PrivateRoute element={<SalesReport />} requiredRole="admin" />}
         />
-<Route
-  path="/admin/inventory"
-  element={<PrivateRoute element={<AdminInventoryReport />} requiredRole="admin" />}
-/>
+        <Route
+          path="/admin/inventory"
+          element={<PrivateRoute element={<AdminInventoryReport />} requiredRole="admin" />}
+        />
 
         {/* Dashboards */}
         <Route path="/customer-dashboard" element={<PrivateRoute element={<CustomerDashboard />} requiredRole="customer" />} />

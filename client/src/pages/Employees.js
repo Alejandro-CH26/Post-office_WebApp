@@ -32,7 +32,7 @@ const Employees = () => {
         }
       })
       .catch(err => {
-        console.error("❌ Error loading employees:", err);
+        console.error("Error loading employees:", err);
         setEmployees([]);
       });
   }, [showDeleted, BASE_URL]);
@@ -60,7 +60,7 @@ const Employees = () => {
         );
       } else {
         const data = await res.json();
-        alert(`❌ Failed to update: ${data?.error || "Unknown error"}`);
+        alert(`Failed to update: ${data?.error || "Unknown error"}`);
       }
     } catch (error) {
       console.error("Error toggling fire status:", error);
@@ -147,10 +147,10 @@ const Employees = () => {
 
   const uniqueLocations = [...new Set(
     employees
-      .filter(emp => !emp.isDeleted && emp.location_name) 
+      .filter(emp => !emp.isDeleted && emp.location_name)
       .map(emp => emp.location_name)
   )];
-  
+
 
   return (
     <div className="reports-container">

@@ -16,7 +16,7 @@ const PackageReport = () => {
     fetch(`${BASE_URL}/reports/packages-summary`)
       .then(res => res.json())
       .then(setData)
-      .catch(err => console.error("❌ Failed to fetch package data:", err));
+      .catch(err => console.error("Failed to fetch package data:", err));
   }, []);
 
   const filtered = data
@@ -46,7 +46,7 @@ const PackageReport = () => {
 
       {/* Filters */}
       <div className="filters">
-      <select
+        <select
           value={filters.postOffice}
           onChange={e => setFilters(f => ({ ...f, postOffice: e.target.value }))}
         >
@@ -55,7 +55,7 @@ const PackageReport = () => {
             <option key={i} value={name}>{name}</option>
           ))}
         </select>
-      <select
+        <select
           value={filters.status}
           onChange={e => setFilters(f => ({ ...f, status: e.target.value }))}
         >

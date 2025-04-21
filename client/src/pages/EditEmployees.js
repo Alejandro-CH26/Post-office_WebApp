@@ -11,13 +11,13 @@ function EditEmployee() {
     first_Name: "",
     middle_Name: "",
     last_Name: "",
-    location: "", 
+    location: "",
     role: ""
   });
 
-  const [locations, setLocations] = useState([]); 
+  const [locations, setLocations] = useState([]);
 
-  // Fetch employee info
+  // Fetches employee info
   useEffect(() => {
     const fetchEmployee = async () => {
       try {
@@ -37,7 +37,7 @@ function EditEmployee() {
           navigate("/admin/employees");
         }
       } catch (err) {
-        console.error("❌ Error fetching employee:", err);
+        console.error("Error fetching employee:", err);
         alert("Failed to load employee data.");
         navigate("/admin/employees");
       }
@@ -53,10 +53,10 @@ function EditEmployee() {
         const res = await fetch(`${BASE_URL}/post-offices`);
         const data = await res.json();
         if (Array.isArray(data)) {
-          setLocations(data); 
+          setLocations(data);
         }
       } catch (err) {
-        console.error("❌ Error fetching post office locations:", err);
+        console.error("Error fetching post office locations:", err);
       }
     };
 
@@ -86,14 +86,14 @@ function EditEmployee() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(`❌ Failed to update: ${data.message || "Unknown error"}`);
+        alert(`Failed to update: ${data.message || "Unknown error"}`);
         return;
       }
 
-      alert("✅ Employee updated successfully.");
+      alert("Employee updated successfully.");
       navigate("/admin/employees");
     } catch (err) {
-      console.error("❌ Update failed:", err);
+      console.error("Update failed:", err);
       alert("An error occurred while updating the employee.");
     }
   };

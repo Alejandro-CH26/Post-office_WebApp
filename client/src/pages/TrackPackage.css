@@ -113,7 +113,6 @@
   border-color: #007bff;
 }
 
-/* Modernized toggle button */
 .toggle-button {
   display: block;
   margin: 1rem auto;
@@ -132,7 +131,6 @@
   background-color: #333;
 }
 
-/* Optional scrollable history */
 .notification-list {
   list-style: none;
   padding: 0;
