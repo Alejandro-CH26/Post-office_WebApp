@@ -78,23 +78,24 @@ JWT_SECRET="jwt_secret"
 
 ## Installation & Setup
 1. Clone the Repo
-bash
-Copy
-Edit
-git clone https://github.com/yourusername/post-office-app.git
+```bash
+git clone https://github.com/Alejandro-CH26/Post-office_WebApp.git
 cd post-office-app
-
+```
 3. Install Dependencies
-Client
-bash
 
+Client
+```bash
 cd client
 npm install
-Server
-bash
+```
 
-cd ../server
+Server
+```bash
+cd server
 npm install
+```
+
 This will install dependencies including:
 
 mysql2
@@ -105,42 +106,24 @@ dotenv
 
 nodemailer
 
-body-parser
+etc...
 
 3. Start the App
+
 Backend
-bash
-Copy
-Edit
+```bash
 cd server
 node server.js
-Frontend
-bash
+```
 
+Frontend
+```bash
 cd client
 npm start
+```
 
-## Database Setup
-Ensure MySQL is installed and running
 
-Import the SQL dump:
 
-bash
-Copy
-Edit
-mysql -u root -p < post_office_db.sql
-Make sure your .env matches your local database credentials
-
-## User Roles & Logins
-
-Role	Username	Password
-Admin	admin1	admin123
-Driver	driver1	drive123
-Warehouse	warehouse1	ware123
-Customer	customer1	cust123
-
-## Screenshots
-Add screenshots of dashboard, tracking history, reports, etc.
 
 
 
