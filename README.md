@@ -31,6 +31,7 @@
 
   ##  Folder Structure
 
+```
 post-office-app/ 
 ├── client/ # React frontend │ 
   └── ... # build
@@ -46,7 +47,7 @@ post-office-app/
   └── ... # DigiCertGlobalRootCA.crt.pem
   └── ... # .env file
 ├── README.md # Project instructions and setup
-
+```
 
 
 ---
