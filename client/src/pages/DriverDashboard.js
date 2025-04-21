@@ -10,7 +10,7 @@ function DriverDashboard() {
         if (token) {
             try {
                 const decoded = jwtDecode(token);
-                console.log("🪪 Decoded token:", decoded);
+                console.log("Decoded token:", decoded);
                 setName(decoded.firstName || "Driver");
                 setEmployeeID(decoded.id || "N/A");
             } catch (err) {
@@ -24,7 +24,7 @@ function DriverDashboard() {
             <h1>Driver Dashboard</h1>
             <p>Welcome, {name}! You can view delivery routes, schedules, and tasks here.</p>
             <p><strong>Employee ID:</strong> {employeeID}</p>
-            
+
             {employeeID && employeeID !== "N/A" && (
                 <PackagesLeft employeeID={employeeID} />
             )}

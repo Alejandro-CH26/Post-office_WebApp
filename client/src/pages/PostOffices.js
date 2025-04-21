@@ -20,7 +20,7 @@ const PostOffices = () => {
         }
       })
       .catch(err => {
-        console.error("❌ Error fetching post offices:", err);
+        console.error("Error fetching post offices:", err);
         setPostOffices([]);
       });
   };

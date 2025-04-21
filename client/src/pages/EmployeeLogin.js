@@ -42,7 +42,7 @@ function EmployeeLogin() {
                 localStorage.setItem("role", data.role);
                 localStorage.setItem("employee_ID", data.employeeID);
 
-                // store name
+                // stores name
                 localStorage.setItem("employee_name", data.firstName);
 
                 // Navigation based on role
