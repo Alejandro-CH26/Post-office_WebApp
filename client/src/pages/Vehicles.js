@@ -19,7 +19,7 @@ const Vehicles = () => {
         if (Array.isArray(data)) setVehicles(data);
       })
       .catch(err => {
-        console.error("❌ Error fetching vehicles:", err);
+        console.error("Error fetching vehicles:", err);
         setVehicles([]);
       });
   };

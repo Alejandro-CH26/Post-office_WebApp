@@ -4,17 +4,17 @@ import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 
 function WarehouseEmployeeDashboard() {
   const [employeeName, setEmployeeName] = useState("");
-  
+
   const allCookies = document.cookie;
   console.log(allCookies);
   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
-  
+
   useEffect(() => {
     async function fetchEmployeeData() {
       try {
         const response = await fetch(`${BASE_URL}/employee/warehousedashboard`, {
           method: "GET",
-          credentials: 'include', // Send the employeeID cookie (and all other cookies) with the request
+          credentials: 'include',
         });
 
         if (response.ok) {
@@ -44,12 +44,12 @@ function WarehouseEmployeeDashboard() {
     <div style={{ textAlign: 'center', padding: '20px' }}>
       <h1>Hello, {employeeName}</h1>
       <Link to="/Employee/WarehouseAssignPackages">
-      <button style={buttonStyle}>View Packages</button>
+        <button style={buttonStyle}>View Packages</button>
       </Link>
-      <Link to ="/Employee/ClockInOut">
-      <button style={buttonStyle}>Clock In/Out</button>
+      <Link to="/Employee/ClockInOut">
+        <button style={buttonStyle}>Clock In/Out</button>
       </Link>
-      
+
     </div>
   );
 }

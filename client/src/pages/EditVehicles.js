@@ -47,7 +47,7 @@ function EditVehicle() {
           navigate("/admin/vehicles");
         }
       } catch (err) {
-        console.error("❌ Error fetching vehicle:", err);
+        console.error("Error fetching vehicle:", err);
         alert("Failed to load vehicle.");
         navigate("/admin/vehicles");
       }
@@ -68,7 +68,7 @@ function EditVehicle() {
         setLocations(Array.isArray(locationData) ? locationData : []);
         setAllDrivers(Array.isArray(allDriverData) ? allDriverData : []);
       } catch (err) {
-        console.error("❌ Error fetching metadata:", err);
+        console.error("Error fetching metadata:", err);
         setLocations([]);
         setAllDrivers([]);
       }
@@ -93,7 +93,7 @@ function EditVehicle() {
           setDrivers([]);
         }
       } catch (err) {
-        console.error("❌ Error fetching drivers by location:", err);
+        console.error("Error fetching drivers by location:", err);
         setDrivers([]);
       }
     };
@@ -124,14 +124,14 @@ function EditVehicle() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(`❌ Failed to update: ${data.message || "Unknown error"}`);
+        alert(`Failed to update: ${data.message || "Unknown error"}`);
         return;
       }
 
-      alert("✅ Vehicle updated successfully.");
+      alert("Vehicle updated successfully.");
       navigate("/admin/vehicles");
     } catch (err) {
-      console.error("❌ Update failed:", err);
+      console.error("Update failed:", err);
       alert("An error occurred while updating the vehicle.");
     }
   };
@@ -141,11 +141,11 @@ function EditVehicle() {
   const driversToShow = currentDriverInList
     ? drivers
     : [
-        ...drivers,
-        ...allDrivers.filter(
-          (drv) => drv.driver_id === vehicle.driver_id
-        )
-      ];
+      ...drivers,
+      ...allDrivers.filter(
+        (drv) => drv.driver_id === vehicle.driver_id
+      )
+    ];
 
   return (
     <div className="edit-container">

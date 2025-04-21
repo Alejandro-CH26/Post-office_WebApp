@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import "./EditPostOffices.css"; 
+import "./EditPostOffices.css";
 
 function EditPostOffice() {
   const { id } = useParams();
@@ -21,7 +21,7 @@ function EditPostOffice() {
       try {
         const res = await fetch(`${BASE_URL}/get-postoffice/${id}`);
         const data = await res.json();
-        console.log("📦 Loaded Post Office:", data);
+        console.log("Loaded Post Office:", data);
 
         if (res.ok && data) {
           setOffice({
@@ -37,7 +37,7 @@ function EditPostOffice() {
           navigate("/admin/postoffices");
         }
       } catch (err) {
-        console.error("❌ Error fetching post office:", err);
+        console.error("Error fetching post office:", err);
         alert("Failed to load post office data.");
         navigate("/admin/postoffices");
       }
@@ -69,13 +69,13 @@ function EditPostOffice() {
       const data = await res.json();
 
       if (res.ok) {
-        alert("✅ Post Office updated successfully.");
+        alert("Post Office updated successfully.");
         navigate("/admin/postoffices");
       } else {
-        alert(`❌ Failed to update: ${data.message || "Unknown error"}`);
+        alert(`Failed to update: ${data.message || "Unknown error"}`);
       }
     } catch (err) {
-      console.error("❌ Update failed:", err);
+      console.error("Update failed:", err);
       alert("An error occurred while updating the post office.");
     }
   };

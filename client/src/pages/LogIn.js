@@ -52,32 +52,6 @@ function Login() {
 
   return (
 
-    // <form className="login-form" onSubmit={handleSubmit}>
-    //   <label>
-    //     Username
-    //     <input
-    //       type="text"
-    //       placeholder="Username"
-    //       value={username}
-    //       onChange={(e) => setUsername(e.target.value)}
-    //       required
-    //     />
-    //   </label>
-
-    //   <label>
-    //     Password
-    //     <input
-    //       type="password"
-    //       placeholder="Password"
-    //       value={password}
-    //       onChange={(e) => setPassword(e.target.value)}
-    //       required
-    //     />
-    //   </label>
-
-    //   <button type="submit">Login</button>
-    // </form>
-
     <div className="login-container">
       <div className="login-box">
         <h1 className="login-title">Login</h1>
