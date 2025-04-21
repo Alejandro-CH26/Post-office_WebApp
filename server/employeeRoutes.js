@@ -46,7 +46,7 @@ function employeeRoutes(req, res, reqUrl) {
 
         connection.query(unassignQuery, [employee_ID], (err) => {
           if (err) {
-            console.error("❌ Failed to unassign old vehicle:", err);
+            console.error("Failed to unassign old vehicle:", err);
             res.writeHead(500);
             res.end(JSON.stringify({ error: "Failed to unassign previous vehicle." }));
             return;
@@ -62,7 +62,7 @@ function employeeRoutes(req, res, reqUrl) {
 
           connection.query(assignQuery, [employee_ID, vehicle_ID], (err2) => {
             if (err2) {
-              console.error("❌ Failed to assign new vehicle:", err2);
+              console.error("Failed to assign new vehicle:", err2);
               res.writeHead(500);
               res.end(JSON.stringify({ error: "Failed to assign vehicle to driver." }));
               return;
@@ -73,7 +73,7 @@ function employeeRoutes(req, res, reqUrl) {
           });
         });
       } catch (err) {
-        console.error("❌ JSON Parsing Error:", err);
+        console.error("JSON Parsing Error:", err);
         res.writeHead(400);
         res.end(JSON.stringify({ error: "Invalid JSON" }));
       }
@@ -105,7 +105,7 @@ function employeeRoutes(req, res, reqUrl) {
 
         connection.query(updateFiredQuery, [isFired, employee_ID], (err) => {
           if (err) {
-            console.error("❌ Error updating fired status:", err);
+            console.error("Error updating fired status:", err);
             res.writeHead(500);
             res.end(JSON.stringify({ error: "Failed to update employee status." }));
             return;
@@ -120,7 +120,7 @@ function employeeRoutes(req, res, reqUrl) {
 
             connection.query(unassignVehicleQuery, [employee_ID], (unassignErr) => {
               if (unassignErr) {
-                console.error("❌ Failed to unassign vehicle on fire:", unassignErr);
+                console.error("Failed to unassign vehicle on fire:", unassignErr);
                 res.writeHead(500);
                 res.end(JSON.stringify({ error: "Fired, but failed to unassign vehicle." }));
                 return;
@@ -136,7 +136,7 @@ function employeeRoutes(req, res, reqUrl) {
         });
 
       } catch (err) {
-        console.error("❌ JSON Parsing Error:", err);
+        console.error("JSON Parsing Error:", err);
         res.writeHead(400);
         res.end(JSON.stringify({ error: "Invalid JSON" }));
       }
@@ -208,7 +208,7 @@ WHERE e.employee_ID = ? AND e.Is_Deleted = 0
 
         connection.query(query, [first_Name, middle_Name, last_Name, location, role, employee_ID], (err) => {
           if (err) {
-            console.error("❌ Update error:", err);
+            console.error("Update error:", err);
             res.writeHead(500);
             res.end(JSON.stringify({ error: "Failed to update." }));
           } else {
@@ -251,7 +251,7 @@ WHERE e.employee_ID = ? AND e.Is_Deleted = 0
 
     connection.query(query, (err, results) => {
       if (err) {
-        console.error("❌ Fetch error:", err);
+        console.error("Fetch error:", err);
         res.writeHead(500);
         res.end(JSON.stringify({ error: "Failed to fetch employees." }));
         return;
@@ -277,7 +277,7 @@ const query = `
 
     connection.query(query, (err, results) => {
       if (err) {
-        console.error("❌ Failed to fetch post offices:", err);
+        console.error("Failed to fetch post offices:", err);
         res.writeHead(500);
         res.end(JSON.stringify({ error: "Failed to fetch post offices" }));
       } else {

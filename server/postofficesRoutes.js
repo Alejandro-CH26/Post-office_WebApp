@@ -70,7 +70,7 @@ WHERE a.Office_Location = 1 AND a.address_ID = ?
 
     connection.query(query, [id], (err, results) => {
       if (err) {
-        console.error("❌ Error fetching post office:", err);
+        console.error("Error fetching post office:", err);
         res.writeHead(500);
         res.end(JSON.stringify({ error: "Failed to retrieve post office." }));
         return;
@@ -133,7 +133,7 @@ if (req.method === "POST" && reqUrl.pathname === "/delete-postoffice") {
       res.writeHead(200);
       res.end(JSON.stringify({ message: "Post office deleted and employees fired." }));
     } catch (err) {
-      console.error("❌ Error deleting and firing employees:", err);
+      console.error("Error deleting and firing employees:", err);
       res.writeHead(500);
       res.end(JSON.stringify({ error: "Failed to delete or fire employees." }));
     }
@@ -166,7 +166,7 @@ if (req.method === "POST" && reqUrl.pathname === "/undelete-postoffice") {
 
       connection.query(restoreAddressQuery, [address_ID], (err1) => {
         if (err1) {
-          console.error("❌ Error restoring address:", err1);
+          console.error("Error restoring address:", err1);
           res.writeHead(500);
           res.end(JSON.stringify({ error: "Failed to restore address." }));
           return;
@@ -180,7 +180,7 @@ if (req.method === "POST" && reqUrl.pathname === "/undelete-postoffice") {
 
         connection.query(restoreLocationQuery, [address_ID], (err2) => {
           if (err2) {
-            console.error("❌ Error restoring post office location:", err2);
+            console.error("Error restoring post office location:", err2);
             res.writeHead(500);
             res.end(JSON.stringify({ error: "Address restored but failed to update post office location." }));
             return;
@@ -191,7 +191,7 @@ if (req.method === "POST" && reqUrl.pathname === "/undelete-postoffice") {
         });
       });
     } catch (err) {
-      console.error("❌ JSON parse error:", err);
+      console.error("JSON parse error:", err);
       res.writeHead(400);
       res.end(JSON.stringify({ error: "Invalid JSON" }));
     }
@@ -242,7 +242,7 @@ if (req.method === "POST" && reqUrl.pathname === "/undelete-postoffice") {
           [street_address, city, state, zip, unit_number || null, address_ID],
           (err1) => {
             if (err1) {
-              console.error("❌ Error updating address:", err1);
+              console.error("Error updating address:", err1);
               res.writeHead(500);
               res.end(JSON.stringify({ error: "Failed to update address." }));
               return;
@@ -254,7 +254,7 @@ if (req.method === "POST" && reqUrl.pathname === "/undelete-postoffice") {
               [name, office_phone || null, street_address, city, state, zip, address_ID],
               (err2) => {
                 if (err2) {
-                  console.error("❌ Error updating post office location:", err2);
+                  console.error("Error updating post office location:", err2);
                   res.writeHead(500);
                   res.end(JSON.stringify({ error: "Failed to update post office location." }));
                   return;
@@ -267,7 +267,7 @@ if (req.method === "POST" && reqUrl.pathname === "/undelete-postoffice") {
           }
         );
       } catch (err) {
-        console.error("❌ JSON parse error:", err);
+        console.error("JSON parse error:", err);
         res.writeHead(400);
         res.end(JSON.stringify({ error: "Invalid JSON" }));
       }

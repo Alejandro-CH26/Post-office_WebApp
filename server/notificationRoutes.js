@@ -38,7 +38,7 @@ ORDER BY t.timestamp ASC;
       [packageId],
       (err, results) => {
         if (err) {
-          console.error("❌ Error fetching public tracking history:", err);
+          console.error("Error fetching public tracking history:", err);
           res.writeHead(500);
           res.end(JSON.stringify({ error: "Database query failed" }));
           return;
@@ -96,7 +96,7 @@ WHERE p.Sender_Customer_ID = ?
     [customerId],
     (err, results) => {
       if (err) {
-        console.error("❌ Error fetching sent packages:", err);
+        console.error("Error fetching sent packages:", err);
         res.writeHead(500);
         res.end(JSON.stringify({ error: "Database query failed" }));
         return;

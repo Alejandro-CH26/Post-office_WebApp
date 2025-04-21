@@ -75,7 +75,7 @@ ORDER BY o.Order_Date DESC;
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ status: "success", data: results }));
       } catch (error) {
-        console.error("❌ Order History Fetch Error:", error);
+        console.error("Order History Fetch Error:", error);
         res.writeHead(500, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ status: "error", message: error.message }));
       }
