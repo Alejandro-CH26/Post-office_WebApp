@@ -31,29 +31,40 @@
 
   ##  Folder Structure
 
-post-office-app/ ├── client/ # React frontend │ 
-└── ... # All React components, pages, assets 
-├── server/ # Node.js backend 
-│ 
-└── ... # Express routes, controllers, DB scripts ├── post_office_db.sql # SQL dump of populated database ├── README.md # Project instructions and setup
+post-office-app/ 
+├── client/ # React frontend │ 
+  └── ... # build
+  └── ... # public
+  └── ... # src
+    └── ... # components (Navbar.js/css and HeroSection.js/css)
+    └── ... # images
+    └── ... # pages (all frontend JavaScript pages/CSS Styling)
+    └── ... # various App.js/css files
+  └── ... # .env/.gitignore files
+├── server/ # Node.js backend │ 
+  └── ... # various routes and db/server.js file for backend
+  └── ... # DigiCertGlobalRootCA.crt.pem
+  └── ... # .env file
+├── README.md # Project instructions and setup
 
-<pre> ``` post-office-app/ ├── client/ # React frontend │ └── ... # All React components, pages, assets ├── server/ # Node.js backend │ └── ... # Express routes, controllers, DB scripts ├── post_office_db.sql # SQL dump of populated database ├── README.md # Project instructions and setup ``` </pre>
+
 
 ---
 
 ## Environment Variables
 
-Create a `.env` file in the `client/` directory with the following (example):
+Create a `.env` file in the `client/` directory with the following:
 
 ```.env
 REACT_APP_API_BASE_URL="put your localhost link (example: http://localhost:5001)"
 ```
 
-```.env.production
+Create a `.env.production` file in the `client/` directory with the following:
+```.env
 REACT_APP_API_BASE_URL="put your backend deployment link (example: render)"
 ```
 
-Create a `.env` file in the `server/` directory with the following (example):
+Create a `.env` file in the `server/` directory with the following:
 
 ```.env
 DB_HOST="hostname"
